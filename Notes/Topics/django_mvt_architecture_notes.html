@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django MVT Architecture — Complete Beginner Guide</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+:root{
+  --ink:#172033; --muted:#667085; --bg:#f5f7fb;
+}
+html{scroll-behavior:smooth;scroll-padding-top:86px}
+body{background:var(--bg);color:var(--ink);line-height:1.72}
+.hero{
+  background:linear-gradient(135deg,#172033,#3157a4);
+  color:#fff;border-radius:0 0 30px 30px
+}
+.sticky-nav{
+  position:sticky;top:0;z-index:1050;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(10px);
+  box-shadow:0 3px 14px rgba(16,24,40,.08)
+}
+.shadow-card{
+  border:0;border-radius:16px;
+  box-shadow:0 8px 26px rgba(16,24,40,.08);
+  overflow:hidden
+}
+.card-header{border:0;color:#fff;font-weight:700}
+.blue{background:#3157a4}
+.green{background:#157347}
+.orange{background:#b54708}
+.purple{background:#6941c6}
+.red{background:#b42318}
+.dark{background:#344054}
+.teal{background:#087f8c}
+.section-title{
+  border-left:5px solid #3157a4;
+  padding-left:14px
+}
+.mini{color:var(--muted);font-size:.94rem}
+.quote{
+  background:#f8f9fc;
+  border-left:5px solid #3157a4;
+  padding:16px 18px;
+  border-radius:8px
+}
+.diagram{
+  background:#fff;
+  border:1px solid #e4e7ec;
+  border-radius:14px;
+  padding:22px
+}
+.flow{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+  gap:10px
+}
+.node{
+  background:#eef4ff;
+  border:1px solid #b8ccfa;
+  border-radius:12px;
+  padding:11px 15px;
+  font-weight:600;
+  text-align:center
+}
+.arrow{font-size:1.5rem;color:#667085}
+.step{
+  width:42px;height:42px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;background:#3157a4
+}
+pre{
+  background:#101828;color:#e6edf3;
+  border-radius:12px;padding:18px;
+  overflow:auto
+}
+code{color:#b42318}
+pre code{color:inherit}
+.table thead th{background:#f2f4f7}
+.good{color:#157347;font-weight:700}
+.warn{color:#b54708;font-weight:700}
+.compare-mvc{background:#fff8ed}
+.compare-mvt{background:#eefbf4}
+.sticky-number{font-size:1.2rem;font-weight:700}
+</style>
+</head>
+
+<body>
+
+<header class="hero py-5">
+  <div class="container">
+    <span class="badge rounded-pill bg-light text-primary px-3 py-2 mb-3">
+      Django Architecture • Beginner Friendly
+    </span>
+    <h1 class="display-5 fw-bold">MVT Architecture in Django</h1>
+    <p class="lead mb-0">
+      Learn what MVT means, why Django uses it, how a request travels through the application,
+      what Model, View and Template do, and how MVT compares with MVC.
+    </p>
+  </div>
+</header>
+
+<nav class="sticky-nav border-bottom py-2">
+  <div class="container">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="#what" class="btn btn-sm btn-outline-primary">1. What is MVT?</a>
+      <a href="#problem" class="btn btn-sm btn-outline-primary">2. Why MVT?</a>
+      <a href="#architecture" class="btn btn-sm btn-outline-primary">3. Architecture</a>
+      <a href="#internals" class="btn btn-sm btn-outline-primary">4. Internals</a>
+      <a href="#mvt-parts" class="btn btn-sm btn-outline-primary">5. M/V/T</a>
+      <a href="#example" class="btn btn-sm btn-outline-primary">6. Layman Example</a>
+      <a href="#request" class="btn btn-sm btn-outline-primary">7. Request Flow</a>
+      <a href="#mvc" class="btn btn-sm btn-outline-primary">8. MVC vs MVT</a>
+      <a href="#interview" class="btn btn-sm btn-outline-danger">9. Interview</a>
+      <a href="#summary" class="btn btn-sm btn-outline-success">10. Summary</a>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-5">
+
+<!-- 1 -->
+<section id="what" class="mb-5">
+  <h2 class="section-title mb-4">1. What is MVT Architecture?</h2>
+
+  <div class="card shadow-card mb-4">
+    <div class="card-header blue">Simple Definition</div>
+    <div class="card-body">
+      <p>
+        <strong>MVT stands for Model – View – Template.</strong>
+        It is the architectural pattern commonly used to organize a Django application.
+      </p>
+
+      <div class="alert alert-primary">
+        <strong>In simple words:</strong>
+        MVT separates an application into different responsibilities so that
+        database work, application logic, and presentation do not become mixed together.
+      </div>
+
+      <div class="diagram">
+        <div class="flow">
+          <div class="node">Model<br><small>Data / Database</small></div>
+          <div class="arrow">↔</div>
+          <div class="node">View<br><small>Request Logic</small></div>
+          <div class="arrow">→</div>
+          <div class="node">Template<br><small>HTML / UI</small></div>
+        </div>
+        <p class="text-center mini mt-3 mb-0">
+          Each part has a different responsibility.
+        </p>
+      </div>
+
+      <p class="mt-4 mb-0">
+        The main goal is <strong>separation of responsibilities</strong>.
+        This makes the code easier to understand, test, modify and maintain.
+      </p>
+    </div>
+  </div>
+
+  <div class="card shadow-card">
+    <div class="card-header green">Easy memory trick</div>
+    <div class="card-body">
+      <div class="row g-3 text-center">
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 h-100">
+            <div class="step mb-2">M</div>
+            <h5>Model</h5>
+            <p class="mb-0">“Where is my data and how do I work with it?”</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 h-100">
+            <div class="step mb-2">V</div>
+            <h5>View</h5>
+            <p class="mb-0">“What should happen when a request arrives?”</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 h-100">
+            <div class="step mb-2">T</div>
+            <h5>Template</h5>
+            <p class="mb-0">“How should the result look to the user?”</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="problem" class="mb-5">
+  <h2 class="section-title mb-4">2. Why MVT? What Problem Does It Solve?</h2>
+
+  <div class="card shadow-card mb-4">
+    <div class="card-header red">Before Separation — Everything Gets Mixed</div>
+    <div class="card-body">
+      <p>
+        Imagine writing one large piece of code that does all of these things:
+      </p>
+
+      <div class="diagram">
+<pre class="mb-0"><code>Receive request
+     ↓
+Check user
+     ↓
+Connect to database
+     ↓
+Find products
+     ↓
+Calculate discount
+     ↓
+Create HTML
+     ↓
+Send response</code></pre>
+      </div>
+
+      <p class="mt-4">
+        At first, this may look simple. But as the application grows, the code can become difficult to manage.
+      </p>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="alert alert-danger h-100 mb-0">
+            <strong>Problem 1:</strong><br>
+            Database code can become mixed with HTML.
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="alert alert-danger h-100 mb-0">
+            <strong>Problem 2:</strong><br>
+            Business logic can become difficult to find.
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="alert alert-danger h-100 mb-0">
+            <strong>Problem 3:</strong><br>
+            Changing the UI may accidentally affect application logic.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-card">
+    <div class="card-header green">After Separation — Clear Responsibilities</div>
+    <div class="card-body">
+      <div class="diagram">
+        <div class="flow">
+          <div class="node">Model<br><small>Database work</small></div>
+          <div class="arrow">↕</div>
+          <div class="node">View<br><small>Application logic</small></div>
+          <div class="arrow">→</div>
+          <div class="node">Template<br><small>Presentation</small></div>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-3">
+        <div class="col-md-4">
+          <div class="alert alert-success h-100 mb-0">
+            <strong>Model:</strong><br>
+            Handles data and database operations.
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="alert alert-success h-100 mb-0">
+            <strong>View:</strong><br>
+            Handles the request and decides what response should be returned.
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="alert alert-success h-100 mb-0">
+            <strong>Template:</strong><br>
+            Handles how information is displayed.
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info mt-4 mb-0">
+        <strong>Main problem MVT solves:</strong>
+        It prevents different responsibilities from becoming unnecessarily mixed together.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="architecture" class="mb-5">
+  <h2 class="section-title mb-4">3. MVT Architecture — Visual Diagram</h2>
+
+  <div class="card shadow-card">
+    <div class="card-header blue">High-Level Django Request Architecture</div>
+    <div class="card-body">
+      <div class="diagram">
+        <div class="flow">
+          <div class="node">Browser</div>
+          <div class="arrow">→</div>
+          <div class="node">URLconf<br><small>Which view?</small></div>
+          <div class="arrow">→</div>
+          <div class="node">View<br><small>Logic</small></div>
+          <div class="arrow">↔</div>
+          <div class="node">Model / ORM<br><small>Database</small></div>
+          <div class="arrow">→</div>
+          <div class="node">Template<br><small>HTML</small></div>
+          <div class="arrow">→</div>
+          <div class="node">Browser</div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-4 mb-0">
+        <strong>Important:</strong>
+        This diagram is a simplified learning model. Django has additional components such as
+        middleware, forms, authentication, sessions, static files and other services that can participate in a request.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="internals" class="mb-5">
+  <h2 class="section-title mb-4">4. How MVT Works Internally — Step by Step</h2>
+
+  <div class="card shadow-card">
+    <div class="card-header purple">Suppose the user opens /products/</div>
+    <div class="card-body">
+
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="p-4 border rounded-3 h-100">
+            <span class="step">1</span>
+            <h5 class="mt-3">Browser sends request</h5>
+            <p class="mb-0">
+              The browser sends an HTTP request to the Django application.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="p-4 border rounded-3 h-100">
+            <span class="step">2</span>
+            <h5 class="mt-3">Django checks the URL</h5>
+            <p class="mb-0">
+              Django's URL configuration checks which view should handle the requested URL.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="p-4 border rounded-3 h-100">
+            <span class="step">3</span>
+            <h5 class="mt-3">View starts the work</h5>
+            <p class="mb-0">
+              The view receives the request and performs the required application logic.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="p-4 border rounded-3 h-100">
+            <span class="step">4</span>
+            <h5 class="mt-3">View asks Model for data</h5>
+            <p class="mb-0">
+              If database information is needed, the view can use Django's ORM through the model layer.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="p-4 border rounded-3 h-100">
+            <span class="step">5</span>
+            <h5 class="mt-3">Database returns data</h5>
+            <p class="mb-0">
+              The ORM converts the database result into Python objects/query results that the application can use.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="p-4 border rounded-3 h-100">
+            <span class="step">6</span>
+            <h5 class="mt-3">View prepares response</h5>
+            <p class="mb-0">
+              The view sends the required data to a template or directly creates another type of response, such as JSON.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="p-4 border rounded-3 h-100">
+            <span class="step">7</span>
+            <h5 class="mt-3">Template creates HTML</h5>
+            <p class="mb-0">
+              If a template is used, Django combines the template with the supplied data.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="p-4 border rounded-3 h-100">
+            <span class="step">8</span>
+            <h5 class="mt-3">Response goes to browser</h5>
+            <p class="mb-0">
+              Django sends the HTTP response back to the browser, which displays the page.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram mt-4">
+<pre class="mb-0"><code>Browser
+   ↓
+HTTP Request
+   ↓
+Django URLconf
+   ↓
+View
+   ↓
+Model / ORM
+   ↓
+Database
+   ↓
+Model / ORM
+   ↓
+View
+   ↓
+Template
+   ↓
+HTTP Response
+   ↓
+Browser</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="mvt-parts" class="mb-5">
+  <h2 class="section-title mb-4">5. What are Model, View and Template?</h2>
+
+  <div class="row g-4">
+
+    <div class="col-lg-4">
+      <div class="card shadow-card h-100">
+        <div class="card-header green">M — Model</div>
+        <div class="card-body">
+          <h5>Simple meaning</h5>
+          <p><strong>Model represents your application's data.</strong></p>
+
+          <div class="alert alert-success">
+            Think: <strong>“What data do I have?”</strong>
+          </div>
+
+          <p>For an online store, models might represent:</p>
+          <ul>
+            <li>Product</li>
+            <li>Customer</li>
+            <li>Order</li>
+            <li>Category</li>
+            <li>Payment</li>
+          </ul>
+
+<pre><code>class Product(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )</code></pre>
+
+          <p class="mini mb-0">
+            Django's ORM uses model definitions to work with database data.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-card h-100">
+        <div class="card-header blue">V — View</div>
+        <div class="card-body">
+          <h5>Simple meaning</h5>
+          <p><strong>View handles the request and application logic.</strong></p>
+
+          <div class="alert alert-primary">
+            Think: <strong>“What should happen?”</strong>
+          </div>
+
+          <p>For example, a product view may:</p>
+          <ul>
+            <li>Receive the request</li>
+            <li>Read the requested product</li>
+            <li>Ask the model/ORM for data</li>
+            <li>Pass data to a template</li>
+            <li>Return the response</li>
+          </ul>
+
+<pre><code>def product_list(request):
+    products = Product.objects.all()
+
+    return render(
+        request,
+        "products.html",
+        {"products": products}
+    )</code></pre>
+
+          <p class="mini mb-0">
+            The view is the main place where request-handling logic is commonly written.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-card h-100">
+        <div class="card-header purple">T — Template</div>
+        <div class="card-body">
+          <h5>Simple meaning</h5>
+          <p><strong>Template controls how data is displayed.</strong></p>
+
+          <div class="alert alert-info">
+            Think: <strong>“How should it look?”</strong>
+          </div>
+
+          <p>For example, a template may display:</p>
+          <ul>
+            <li>Product name</li>
+            <li>Product price</li>
+            <li>Product image</li>
+            <li>Product description</li>
+            <li>Buttons and links</li>
+          </ul>
+
+<pre><code>&lt;h2&gt;Products&lt;/h2&gt;
+
+{% for product in products %}
+  &lt;h3&gt;{{ product.name }}&lt;/h3&gt;
+  &lt;p&gt;{{ product.price }}&lt;/p&gt;
+{% endfor %}</code></pre>
+
+          <p class="mini mb-0">
+            Templates are usually HTML enhanced with Django's template syntax.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="example" class="mb-5">
+  <h2 class="section-title mb-4">6. Layman Example — Restaurant</h2>
+
+  <div class="card shadow-card mb-4">
+    <div class="card-header orange">Imagine a Restaurant</div>
+    <div class="card-body">
+      <p>
+        Let's forget programming for a moment and imagine a restaurant.
+      </p>
+
+      <div class="row g-4">
+
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 compare-mvt h-100">
+            <h4>🍽️ Model</h4>
+            <p>
+              Think of the restaurant's <strong>storage and records</strong>.
+            </p>
+            <p class="mb-0">
+              It knows about ingredients, dishes, prices and available items.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 h-100">
+            <h4>👨‍🍳 View</h4>
+            <p>
+              Think of the <strong>waiter</strong> who receives your request.
+            </p>
+            <p class="mb-0">
+              The waiter takes your order, communicates with the kitchen and brings the result.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 h-100">
+            <h4>📋 Template</h4>
+            <p>
+              Think of the <strong>menu / presentation</strong>.
+            </p>
+            <p class="mb-0">
+              It controls how dishes and prices are shown to the customer.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="diagram mt-4">
+        <div class="flow">
+          <div class="node">Customer<br><small>Request</small></div>
+          <div class="arrow">→</div>
+          <div class="node">Waiter<br><small>View</small></div>
+          <div class="arrow">↔</div>
+          <div class="node">Kitchen / Records<br><small>Model</small></div>
+          <div class="arrow">→</div>
+          <div class="node">Menu / Presentation<br><small>Template</small></div>
+          <div class="arrow">→</div>
+          <div class="node">Customer<br><small>Response</small></div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-4 mb-0">
+        <strong>Remember:</strong>
+        This restaurant example is only a learning analogy. It is not a literal mapping of every Django component.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="request" class="mb-5">
+  <h2 class="section-title mb-4">7. Complete Example — User Opens a Product Page</h2>
+
+  <div class="card shadow-card">
+    <div class="card-header teal">Let's follow one request</div>
+    <div class="card-body">
+
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>What happens?</th>
+              <th>Main component</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1</strong></td>
+              <td>User opens <code>/products/10/</code>.</td>
+              <td>Browser</td>
+            </tr>
+            <tr>
+              <td><strong>2</strong></td>
+              <td>Django receives the HTTP request.</td>
+              <td>Django</td>
+            </tr>
+            <tr>
+              <td><strong>3</strong></td>
+              <td>URL configuration finds the matching route.</td>
+              <td>URLconf</td>
+            </tr>
+            <tr>
+              <td><strong>4</strong></td>
+              <td>The matching view function/class is called.</td>
+              <td>View</td>
+            </tr>
+            <tr>
+              <td><strong>5</strong></td>
+              <td>The view asks the ORM for product data.</td>
+              <td>Model / ORM</td>
+            </tr>
+            <tr>
+              <td><strong>6</strong></td>
+              <td>The ORM queries the database.</td>
+              <td>Database</td>
+            </tr>
+            <tr>
+              <td><strong>7</strong></td>
+              <td>The view receives the product data.</td>
+              <td>View</td>
+            </tr>
+            <tr>
+              <td><strong>8</strong></td>
+              <td>The view passes data to the template.</td>
+              <td>View → Template</td>
+            </tr>
+            <tr>
+              <td><strong>9</strong></td>
+              <td>The template generates HTML.</td>
+              <td>Template</td>
+            </tr>
+            <tr>
+              <td><strong>10</strong></td>
+              <td>Django sends the HTTP response.</td>
+              <td>Response</td>
+            </tr>
+            <tr>
+              <td><strong>11</strong></td>
+              <td>Browser displays the product page.</td>
+              <td>Browser</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="diagram">
+<pre class="mb-0"><code>/products/10/
+      ↓
+   URLconf
+      ↓
+     View
+      ↓
+ Model / ORM
+      ↓
+  Database
+      ↓
+     View
+      ↓
+  Template
+      ↓
+ HTTP Response
+      ↓
+   Browser</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="mvc" class="mb-5">
+  <h2 class="section-title mb-4">8. MVC vs MVT Architecture</h2>
+
+  <div class="card shadow-card mb-4">
+    <div class="card-header dark">First understand MVC</div>
+    <div class="card-body">
+      <p><strong>MVC</strong> commonly means:</p>
+
+      <div class="row g-3 text-center mb-4">
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 compare-mvc h-100">
+            <h4>Model</h4>
+            <p class="mb-0">Data and data-related operations.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 compare-mvc h-100">
+            <h4>View</h4>
+            <p class="mb-0">User interface / presentation.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 border rounded-3 compare-mvc h-100">
+            <h4>Controller</h4>
+            <p class="mb-0">Handles requests and coordinates application logic.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info mb-0">
+        MVC and MVT are conceptually similar because both separate responsibilities.
+        The names and exact responsibilities differ between frameworks.
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-card">
+    <div class="card-header purple">MVC vs Django MVT</div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>MVC</th>
+              <th>Django MVT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Model</th>
+              <td>Data / business-data layer</td>
+              <td>Data / database layer</td>
+            </tr>
+            <tr>
+              <th>View</th>
+              <td>Usually presentation/UI</td>
+              <td>Request-handling/application logic</td>
+            </tr>
+            <tr>
+              <th>Controller</th>
+              <td>Handles request flow and coordinates work</td>
+              <td>Django's framework machinery, especially URL routing and request handling, performs much of this role</td>
+            </tr>
+            <tr>
+              <th>Template</th>
+              <td>Often part of the View/presentation layer</td>
+              <td>HTML presentation layer</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="diagram mt-4">
+        <div class="row g-4">
+
+          <div class="col-md-6">
+            <div class="p-4 border rounded-3 compare-mvc h-100">
+              <h4 class="text-center">MVC</h4>
+              <div class="flow">
+                <div class="node">Request</div>
+                <span class="arrow">→</span>
+                <div class="node">Controller</div>
+                <span class="arrow">↔</span>
+                <div class="node">Model</div>
+                <span class="arrow">→</span>
+                <div class="node">View</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="p-4 border rounded-3 compare-mvt h-100">
+              <h4 class="text-center">Django MVT</h4>
+              <div class="flow">
+                <div class="node">Request</div>
+                <span class="arrow">→</span>
+                <div class="node">URLconf / View</div>
+                <span class="arrow">↔</span>
+                <div class="node">Model</div>
+                <span class="arrow">→</span>
+                <div class="node">Template</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-4 mb-0">
+        <strong>Interview warning:</strong>
+        Do not say “Django has no controller.” A better explanation is that Django's framework
+        handles much of the controller-like request-routing responsibility, while the developer
+        commonly writes views for request-handling logic.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="interview" class="mb-5">
+  <h2 class="section-title mb-4">9. Interview-Ready Explanation</h2>
+
+  <div class="card shadow-card mb-4">
+    <div class="card-header red">Simple answer</div>
+    <div class="card-body">
+      <div class="quote fs-5">
+        <strong>
+          “MVT stands for Model, View and Template. It is the architectural pattern used by Django
+          to separate different responsibilities in a web application.
+        </strong>
+        <br><br>
+        The <strong>Model</strong> handles application data and database operations.
+        The <strong>View</strong> handles the incoming request and application logic.
+        The <strong>Template</strong> is responsible for presenting the data to the user, usually as HTML.
+        <br><br>
+        When a request arrives, Django uses the URL configuration to find the appropriate view.
+        The view can use the model or ORM to get data, pass that data to a template, and return the
+        final HTTP response to the client.
+        <br><br>
+        The main benefit of MVT is separation of responsibilities, which makes applications easier
+        to maintain, test and modify.”
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-card mb-4">
+    <div class="card-header orange">If the interviewer asks: Why do we need MVT?</div>
+    <div class="card-body">
+      <div class="alert alert-success">
+        <strong>Answer:</strong>
+        “MVT helps prevent database access, request-handling logic and presentation code from becoming
+        unnecessarily mixed together. This separation makes the code easier to understand and maintain,
+        especially as the application grows.”
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-card">
+    <div class="card-header blue">If the interviewer asks: What is the request flow?</div>
+    <div class="card-body">
+      <div class="diagram">
+<pre class="mb-0"><code>Client / Browser
+       ↓
+    HTTP Request
+       ↓
+     URLconf
+       ↓
+      View
+       ↓
+ Model / ORM
+       ↓
+    Database
+       ↓
+      View
+       ↓
+   Template
+       ↓
+ HTTP Response
+       ↓
+    Browser</code></pre>
+      </div>
+
+      <div class="alert alert-primary mt-4 mb-0">
+        <strong>Short version to say aloud:</strong>
+        “The browser sends a request, Django routes it to a view, the view can use the model
+        to retrieve or modify data, the view passes the result to a template, and Django returns
+        the generated response.”
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="summary" class="mb-5">
+  <h2 class="section-title mb-4">10. Final Summary</h2>
+
+  <div class="row g-4">
+
+    <div class="col-md-4">
+      <div class="card shadow-card h-100">
+        <div class="card-header green">Model</div>
+        <div class="card-body">
+          <p class="fs-5"><strong>Data</strong></p>
+          <p>Represents data and provides the database/ORM layer.</p>
+          <div class="alert alert-success mb-0">Think: “What data do we have?”</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-card h-100">
+        <div class="card-header blue">View</div>
+        <div class="card-body">
+          <p class="fs-5"><strong>Logic</strong></p>
+          <p>Handles requests and decides what response should be returned.</p>
+          <div class="alert alert-primary mb-0">Think: “What should happen?”</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-card h-100">
+        <div class="card-header purple">Template</div>
+        <div class="card-body">
+          <p class="fs-5"><strong>Presentation</strong></p>
+          <p>Controls how information is displayed, usually as HTML.</p>
+          <div class="alert alert-info mb-0">Think: “How should it look?”</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="alert alert-warning shadow-sm mt-4">
+    <strong>⭐ One-line memory trick:</strong>
+    <span class="ms-1">Model = Data, View = Logic, Template = Presentation.</span>
+  </div>
+
+  <div class="card shadow-card mt-4">
+    <div class="card-header dark">Interview Tip</div>
+    <div class="card-body">
+      <p class="mb-2">
+        When explaining MVT in an interview, do not only expand the abbreviation.
+        Explain <strong>why the separation exists</strong> and then explain the <strong>request flow</strong>.
+      </p>
+      <p class="mb-0">
+        A strong explanation follows this order:
+        <strong>Definition → Problem → M/V/T responsibilities → Request flow → Benefits.</strong>
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="container pb-5 text-center text-secondary">
+  <hr>
+  <p class="mb-0">Django Notes • MVT Architecture • Beginner & Interview Preparation</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

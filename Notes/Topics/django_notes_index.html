@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Django Notes — Index & Learning Roadmap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root { --ink:#172033; --muted:#667085; --soft:#f6f8fb; }
+    body { background:var(--soft); color:var(--ink); line-height:1.7; }
+    .hero { background:linear-gradient(135deg,#172033,#3157a4); color:#fff; border-radius:0 0 28px 28px; }
+    .hero .badge { background:rgba(255,255,255,.14); color:#fff; }
+    .section-title { border-left:5px solid #3157a4; padding-left:14px; }
+    .shadow-card { border:0; border-radius:16px; box-shadow:0 8px 24px rgba(16,24,40,.08); overflow:hidden; }
+    .card-header { border:0; color:#fff; font-weight:700; }
+    .header-blue { background:#3157a4; } .header-green { background:#157347; }
+    .header-orange { background:#b54708; } .header-purple { background:#6941c6; }
+    .header-red { background:#b42318; } .header-dark { background:#344054; }
+    .mini { color:var(--muted); font-size:.95rem; }
+    .alert-note { border-left:5px solid #0d6efd; }
+    .diagram { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:20px; }
+    .flow { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; }
+    .node { padding:12px 16px; border-radius:12px; background:#eef4ff; border:1px solid #bfd2ff; font-weight:600; text-align:center; min-width:120px; }
+    .arrow { font-size:1.5rem; color:#667085; }
+    pre { background:#101828; color:#e6edf3; padding:16px; border-radius:12px; overflow:auto; }
+    code { color:#d92d20; }
+    pre code { color:inherit; }
+    .table thead th { background:#f2f4f7; }
+    .check { color:#157347; font-weight:700; }
+    .x { color:#b42318; font-weight:700; }
+    .sticky-nav { position:sticky; top:0; z-index:1000; background:rgba(246,248,251,.94); backdrop-filter:blur(8px); }
+    .source-list a { text-decoration:none; }
+    footer { color:#667085; }
+  </style>
+</head>
+
+<body>
+<header class="hero py-5">
+  <div class="container">
+    <span class="badge rounded-pill px-3 py-2 mb-3">Django Notes • Index Page</span>
+    <h1 class="display-5 fw-bold">Learn Django from the Right Starting Point</h1>
+    <p class="lead mb-0">A simple, interview-friendly roadmap covering what Django is, why it exists, how it compares with Flask, FastAPI and Node.js, when to choose it, and what to learn next.</p>
+  </div>
+</header>
+
+<nav class="sticky-nav border-bottom py-2">
+  <div class="container d-flex gap-2 flex-wrap">
+    <a class="btn btn-sm btn-outline-primary" href="#what">What is Django?</a>
+    <a class="btn btn-sm btn-outline-primary" href="#why">Why Django?</a>
+    <a class="btn btn-sm btn-outline-primary" href="#compare">Comparison</a>
+    <a class="btn btn-sm btn-outline-primary" href="#features">Features</a>
+    <a class="btn btn-sm btn-outline-primary" href="#decision">Decision Guide</a>
+    <a class="btn btn-sm btn-outline-primary" href="#roadmap">What to Learn Next</a>
+  </div>
+</nav>
+
+<main class="container py-5">
+
+<section id="what" class="mb-5">
+  <h2 class="section-title mb-4">1. What is Django?</h2>
+  <div class="card shadow-card">
+    <div class="card-header header-blue">Simple Definition</div>
+    <div class="card-body">
+      <p><strong>Django is a high-level Python web framework</strong> used to build web applications and websites.</p>
+      <p>It gives developers many common web-development tools in one framework, so they do not have to build everything from the beginning.</p>
+      <div class="alert alert-primary alert-note">
+        <strong>Easy way to remember:</strong> Python is the programming language. Django is a framework built with Python that helps you build web applications faster.
+      </div>
+      <p class="mb-2"><strong>Typical Django application:</strong></p>
+      <div class="diagram">
+        <div class="flow">
+          <div class="node">Browser</div><div class="arrow">→</div>
+          <div class="node">URL / Request</div><div class="arrow">→</div>
+          <div class="node">View</div><div class="arrow">→</div>
+          <div class="node">Model / DB</div><div class="arrow">→</div>
+          <div class="node">Response</div>
+        </div>
+        <p class="text-center mini mt-3 mb-0">Django coordinates the common pieces needed to process a web request.</p>
+      </div>
+      <hr>
+      <p><strong>Important:</strong> Django is often described as a <strong>batteries-included</strong> framework. It includes features such as an ORM, authentication, forms, an admin interface, URL routing, middleware, security protections and testing support.</p>
+    </div>
+  </div>
+</section>
+
+<section id="why" class="mb-5">
+  <h2 class="section-title mb-4">2. Why Django?</h2>
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card shadow-card h-100">
+        <div class="card-header header-green">Why teams choose it</div>
+        <div class="card-body">
+          <ul>
+            <li><strong>Fast development:</strong> many common features are already available.</li>
+            <li><strong>Admin panel:</strong> Django can generate a powerful admin interface from models.</li>
+            <li><strong>ORM:</strong> database work can be expressed using Python objects and QuerySets.</li>
+            <li><strong>Authentication:</strong> users, groups, permissions and sessions are built in.</li>
+            <li><strong>Security:</strong> Django includes protections for common web risks.</li>
+            <li><strong>Maintainability:</strong> Django encourages a structured project layout and clear separation of responsibilities.</li>
+            <li><strong>Scalability:</strong> Django can be scaled horizontally and used for high-traffic systems when the overall architecture is designed correctly.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-card h-100">
+        <div class="card-header header-orange">The core idea</div>
+        <div class="card-body">
+          <p>Imagine you are building an online store. You need:</p>
+          <ul>
+            <li>login and logout</li><li>users and permissions</li><li>products and orders</li>
+            <li>database access</li><li>forms and validation</li><li>an internal admin screen</li>
+            <li>security protections</li><li>URL routing</li>
+          </ul>
+          <div class="alert alert-warning mb-0">
+            Instead of selecting and connecting many small libraries yourself, Django gives you a large set of these capabilities as one integrated framework.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="compare" class="mb-5">
+  <h2 class="section-title mb-4">3. Django vs Flask vs FastAPI vs Node.js</h2>
+  <div class="card shadow-card mb-4">
+    <div class="card-header header-purple">First understand the category difference</div>
+    <div class="card-body">
+      <p><strong>Django, Flask and FastAPI</strong> are Python web frameworks. <strong>Node.js</strong> is a JavaScript runtime that lets JavaScript run outside the browser. Node.js is commonly used with web frameworks such as Express or Fastify.</p>
+      <div class="alert alert-info alert-note mb-0">
+        So the comparison is not perfectly one-to-one: Django is a batteries-included framework, while Node.js itself is a runtime.
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive card shadow-card">
+    <table class="table table-bordered align-middle mb-0">
+      <thead>
+        <tr><th>Area</th><th>Django</th><th>Flask</th><th>FastAPI</th><th>Node.js ecosystem</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>Language</th><td>Python</td><td>Python</td><td>Python</td><td>JavaScript / TypeScript</td></tr>
+        <tr><th>Style</th><td>Batteries-included</td><td>Minimal / flexible</td><td>API-focused / modern typing</td><td>Runtime + many framework choices</td></tr>
+        <tr><th>Admin</th><td class="check">Built in</td><td class="x">Not built in</td><td class="x">Not built in</td><td class="x">Depends on framework</td></tr>
+        <tr><th>ORM</th><td class="check">Built-in ORM</td><td>Choose extension</td><td>Choose ORM</td><td>Choose ORM / query tool</td></tr>
+        <tr><th>Auth</th><td class="check">Built in</td><td>Extensions / custom</td><td>Extensions / custom</td><td>Libraries / framework</td></tr>
+        <tr><th>Best-known strength</th><td>Complete web applications</td><td>Control and simplicity</td><td>APIs and typed services</td><td>JS/TS full-stack and event-driven apps</td></tr>
+        <tr><th>Learning curve</th><td>More concepts initially</td><td>Small starting surface</td><td>Small API starting surface</td><td>Depends on stack</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-lg-4">
+      <div class="card shadow-card h-100">
+        <div class="card-header header-blue">Choose Django when…</div>
+        <div class="card-body">
+          <ul>
+            <li>You need a complete web application.</li>
+            <li>You need a strong admin area.</li>
+            <li>Your application has many database-driven features.</li>
+            <li>You want many common features integrated.</li>
+            <li>Your team is comfortable with Python.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card shadow-card h-100">
+        <div class="card-header header-green">Choose Flask when…</div>
+        <div class="card-body">
+          <ul>
+            <li>You want a small and flexible core.</li>
+            <li>You prefer selecting components yourself.</li>
+            <li>You are building a small service or custom web stack.</li>
+            <li>You want less framework convention.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card shadow-card h-100">
+        <div class="card-header header-purple">Choose FastAPI when…</div>
+        <div class="card-body">
+          <ul>
+            <li>Your main product is an API.</li>
+            <li>Async request handling is important.</li>
+            <li>You want Python type hints to drive validation and API schemas.</li>
+            <li>Automatic API documentation is valuable.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="difference" class="mb-5">
+  <h2 class="section-title mb-4">4. How is Django different from other frameworks?</h2>
+  <div class="card shadow-card">
+    <div class="card-header header-dark">The biggest difference: how much Django gives you</div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <h5>Framework philosophy</h5>
+            <p class="mb-0">Django makes more architectural decisions for you. This can improve consistency across a team, but it also means you need to learn Django's way of doing things.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <h5>Integrated tools</h5>
+            <p class="mb-0">Django includes many tools that other minimal frameworks expect you to add through extensions or separate libraries.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <h5>Database-first web apps</h5>
+            <p class="mb-0">Django is especially comfortable for applications with users, permissions, forms, relational data, dashboards and CRUD workflows.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <h5>Not just an API framework</h5>
+            <p class="mb-0">Django can build APIs, but its core is broader: it can serve templates, manage forms, sessions, authentication, admin workflows and database-backed pages.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="proscons" class="mb-5">
+  <h2 class="section-title mb-4">5. Main advantages and disadvantages</h2>
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card shadow-card h-100">
+        <div class="card-header header-green">Advantages</div>
+        <div class="card-body">
+          <ol>
+            <li>Large set of built-in features.</li>
+            <li>Excellent admin interface.</li>
+            <li>Strong ORM and database support.</li>
+            <li>Built-in authentication and permissions.</li>
+            <li>Good security defaults and protections.</li>
+            <li>Strong documentation and ecosystem.</li>
+            <li>Good fit for large, database-heavy web applications.</li>
+            <li>Clear conventions can help teams work consistently.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-card h-100">
+        <div class="card-header header-red">Disadvantages</div>
+        <div class="card-body">
+          <ol>
+            <li>More framework concepts to learn than a minimal framework.</li>
+            <li>Can feel heavy for a tiny service.</li>
+            <li>Django's conventions may feel restrictive if you want a very custom architecture.</li>
+            <li>For API-only systems, a smaller API-focused framework may feel more direct.</li>
+            <li>Performance depends heavily on database queries, caching, architecture and deployment; choosing Django does not automatically make an application fast.</li>
+          </ol>
+          <div class="alert alert-danger mb-0">
+            <strong>Interview point:</strong> Do not say “Django is slow” as a blanket statement. Ask what workload, architecture and bottleneck are being discussed.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="realworld" class="mb-5">
+  <h2 class="section-title mb-4">6. Real-world applications built with Django</h2>
+  <div class="card shadow-card">
+    <div class="card-header header-blue">Examples</div>
+    <div class="card-body">
+      <p>The official Django site lists well-known organizations and products that have used Django, including:</p>
+      <div class="row g-3">
+        <div class="col-6 col-md-3"><div class="p-3 border rounded-3 text-center fw-semibold">Instagram</div></div>
+        <div class="col-6 col-md-3"><div class="p-3 border rounded-3 text-center fw-semibold">Mozilla</div></div>
+        <div class="col-6 col-md-3"><div class="p-3 border rounded-3 text-center fw-semibold">Disqus</div></div>
+        <div class="col-6 col-md-3"><div class="p-3 border rounded-3 text-center fw-semibold">Pinterest</div></div>
+        <div class="col-6 col-md-3"><div class="p-3 border rounded-3 text-center fw-semibold">National Geographic</div></div>
+        <div class="col-6 col-md-3"><div class="p-3 border rounded-3 text-center fw-semibold">Open Knowledge</div></div>
+        <div class="col-6 col-md-3"><div class="p-3 border rounded-3 text-center fw-semibold">MacArthur Foundation</div></div>
+        <div class="col-6 col-md-3"><div class="p-3 border rounded-3 text-center fw-semibold">Knight Foundation</div></div>
+      </div>
+      <div class="alert alert-info alert-note mt-4 mb-0">
+        These examples show that Django can be used in serious production systems. They do not mean Django is automatically the best choice for every new project.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="mb-5">
+  <h2 class="section-title mb-4">7. Key Django features to learn</h2>
+  <div class="row g-4">
+    <div class="col-md-4"><div class="card shadow-card h-100"><div class="card-header header-blue">Core Web</div><div class="card-body"><ul><li>URL routing</li><li>Views</li><li>Templates</li><li>Static files</li><li>Middleware</li></ul></div></div></div>
+    <div class="col-md-4"><div class="card shadow-card h-100"><div class="card-header header-green">Database</div><div class="card-body"><ul><li>Models</li><li>ORM</li><li>QuerySets</li><li>Relationships</li><li>Migrations</li><li>Transactions</li></ul></div></div></div>
+    <div class="col-md-4"><div class="card shadow-card h-100"><div class="card-header header-purple">Application</div><div class="card-body"><ul><li>Authentication</li><li>Permissions</li><li>Forms</li><li>Admin</li><li>Sessions</li><li>Email</li></ul></div></div></div>
+    <div class="col-md-4"><div class="card shadow-card h-100"><div class="card-header header-orange">Security</div><div class="card-body"><ul><li>CSRF protection</li><li>XSS protection</li><li>Clickjacking protection</li><li>Secure password handling</li><li>Security middleware</li></ul></div></div></div>
+    <div class="col-md-4"><div class="card shadow-card h-100"><div class="card-header header-dark">Engineering</div><div class="card-body"><ul><li>Testing</li><li>Caching</li><li>Logging</li><li>Custom management commands</li><li>Deployment</li></ul></div></div></div>
+    <div class="col-md-4"><div class="card shadow-card h-100"><div class="card-header header-red">Advanced</div><div class="card-body"><ul><li>ASGI</li><li>Async views</li><li>Background jobs</li><li>Database optimization</li><li>Horizontal scaling</li><li>Third-party packages</li></ul></div></div></div>
+  </div>
+</section>
+
+<section id="decision" class="mb-5">
+  <h2 class="section-title mb-4">8. How to decide: Django or another framework?</h2>
+  <div class="card shadow-card mb-4">
+    <div class="card-header header-orange">Use this decision process</div>
+    <div class="card-body">
+      <div class="diagram">
+        <div class="flow">
+          <div class="node">What are we building?</div><div class="arrow">→</div>
+          <div class="node">Web app or API?</div><div class="arrow">→</div>
+          <div class="node">How much built-in functionality?</div><div class="arrow">→</div>
+          <div class="node">Team language & skills?</div><div class="arrow">→</div>
+          <div class="node">Performance & architecture needs?</div>
+        </div>
+      </div>
+      <hr>
+      <table class="table table-bordered align-middle">
+        <thead><tr><th>Project situation</th><th>Good starting choice</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>Large CRUD/business web application</td><td><strong>Django</strong></td><td>Strong built-in web and database features.</td></tr>
+          <tr><td>Admin-heavy internal application</td><td><strong>Django</strong></td><td>Built-in admin can save substantial development time.</td></tr>
+          <tr><td>Small custom web service</td><td><strong>Flask</strong></td><td>Minimal core and high flexibility.</td></tr>
+          <tr><td>Modern API service with Python typing</td><td><strong>FastAPI</strong></td><td>API-focused design, type hints and automatic API documentation.</td></tr>
+          <tr><td>JavaScript/TypeScript full-stack team</td><td><strong>Node.js ecosystem</strong></td><td>One language can be used across frontend and backend.</td></tr>
+          <tr><td>Real-time/event-driven JavaScript service</td><td><strong>Node.js ecosystem</strong></td><td>Strong fit for event-driven I/O workloads and JS/TS teams.</td></tr>
+        </tbody>
+      </table>
+      <div class="alert alert-success alert-note mb-0">
+        <strong>Best interview answer:</strong> “I would choose based on the application requirements, team skills, ecosystem, delivery speed, operational needs and performance profile—not simply because one framework is popular.”
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mb-5">
+  <h2 class="section-title mb-4">9. Django architecture you must understand</h2>
+  <div class="card shadow-card">
+    <div class="card-header header-dark">MVT: Model — View — Template</div>
+    <div class="card-body">
+      <div class="diagram">
+        <div class="flow">
+          <div class="node">User</div><div class="arrow">→</div>
+          <div class="node">URLconf</div><div class="arrow">→</div>
+          <div class="node">View</div>
+          <div class="arrow">↔</div>
+          <div class="node">Model / ORM / DB</div>
+          <div class="arrow">→</div>
+          <div class="node">Template</div><div class="arrow">→</div>
+          <div class="node">HTTP Response</div>
+        </div>
+      </div>
+      <div class="row g-3 mt-3">
+        <div class="col-md-4"><div class="p-3 border rounded-3"><strong>Model:</strong> describes data and database operations.</div></div>
+        <div class="col-md-4"><div class="p-3 border rounded-3"><strong>View:</strong> contains request-handling logic.</div></div>
+        <div class="col-md-4"><div class="p-3 border rounded-3"><strong>Template:</strong> controls HTML presentation.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap" class="mb-5">
+  <h2 class="section-title mb-4">10. What you should learn next</h2>
+  <div class="card shadow-card">
+    <div class="card-header header-green">Recommended Django learning order</div>
+    <div class="card-body">
+      <ol class="fs-5">
+        <li>Python fundamentals for web development</li>
+        <li>HTTP request/response basics</li>
+        <li>Django project vs Django app</li>
+        <li>URL routing</li>
+        <li>Views and request objects</li>
+        <li>Templates and template inheritance</li>
+        <li>Models and fields</li>
+        <li>ORM and QuerySets</li>
+        <li>Relationships: one-to-one, one-to-many, many-to-many</li>
+        <li>Migrations</li>
+        <li>Django Admin</li>
+        <li>Forms and validation</li>
+        <li>Authentication, authorization and permissions</li>
+        <li>Sessions, cookies and CSRF</li>
+        <li>Middleware</li>
+        <li>Static and media files</li>
+        <li>Django REST Framework for APIs</li>
+        <li>Testing</li>
+        <li>Caching and performance optimization</li>
+        <li>Deployment with WSGI/ASGI, reverse proxy, database and static files</li>
+        <li>Security hardening and production settings</li>
+        <li>Background tasks, queues and scheduled jobs</li>
+        <li>Architecture, scaling and observability</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="mb-5">
+  <h2 class="section-title mb-4">11. Extra interview questions you should learn</h2>
+  <div class="card shadow-card">
+    <div class="card-header header-purple">Question bank</div>
+    <div class="card-body">
+      <div class="row g-2">
+        <div class="col-md-6">
+          <ul>
+            <li>What is Django MVT?</li>
+            <li>What is the difference between a project and an app?</li>
+            <li>How does a Django request travel through the framework?</li>
+            <li>What is middleware?</li>
+            <li>What is the Django ORM?</li>
+            <li>What is a QuerySet?</li>
+            <li>What is <code>select_related()</code> vs <code>prefetch_related()</code>?</li>
+            <li>What are migrations?</li>
+            <li>What is Django Admin?</li>
+            <li>How does Django authentication work?</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <ul>
+            <li>What is CSRF and how does Django protect against it?</li>
+            <li>How does Django protect against XSS and SQL injection?</li>
+            <li>What is WSGI vs ASGI?</li>
+            <li>How do you improve a slow Django application?</li>
+            <li>How do you avoid N+1 database queries?</li>
+            <li>How does caching work in Django?</li>
+            <li>How do you handle file uploads?</li>
+            <li>How do you deploy Django to production?</li>
+            <li>How do you scale Django horizontally?</li>
+            <li>When would you choose FastAPI instead of Django?</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mb-5">
+  <h2 class="section-title mb-4">12. Quick interview summary</h2>
+  <div class="alert alert-primary shadow-sm">
+    <strong>Django in one sentence:</strong> Django is a batteries-included Python web framework designed to help developers build secure, maintainable and database-driven web applications quickly.
+  </div>
+  <div class="alert alert-warning shadow-sm">
+    <strong>Remember:</strong> Django is not “better than everything.” Its strength is that it provides a broad, integrated set of tools. Flask emphasizes minimalism and flexibility; FastAPI emphasizes API development; Node.js provides a JavaScript runtime and a large ecosystem of web frameworks.
+  </div>
+</section>
+
+<section class="mb-5">
+  <h2 class="section-title mb-4">13. Official sources for this index</h2>
+  <div class="card shadow-card source-list">
+    <div class="card-body">
+      <ul>
+        <li><a href="https://www.djangoproject.com/start/overview/" target="_blank" rel="noopener">Django official overview</a></li>
+        <li><a href="https://docs.djangoproject.com/en/6.1/" target="_blank" rel="noopener">Django 6.1 documentation</a></li>
+        <li><a href="https://docs.djangoproject.com/en/6.1/intro/overview/" target="_blank" rel="noopener">Django at a glance</a></li>
+        <li><a href="https://docs.djangoproject.com/en/6.0/topics/security/" target="_blank" rel="noopener">Django security documentation</a></li>
+        <li><a href="https://www.djangoproject.com/weblog/2026/aug/05/django-61-released/" target="_blank" rel="noopener">Django 6.1 release announcement</a></li>
+      </ul>
+      <p class="mini mb-0">This index reflects the Django documentation and release information available in August 2026. Django 6.1 was released on August 5, 2026.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="container pb-5 text-center">
+  <hr>
+  <p class="mb-0">Django Notes • Index Page • Designed for learning and interview preparation</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
