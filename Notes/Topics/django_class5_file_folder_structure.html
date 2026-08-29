@@ -1,0 +1,179 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Django Class 5 — File & Folder Structure</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth;scroll-padding-top:75px}body{background:#f5f7fb;color:#243047;line-height:1.7;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.hero{background:linear-gradient(135deg,#0d6efd,#6f42c1);color:white;border-radius:0 0 24px 24px}.card{border:0;border-radius:16px;overflow:hidden}.card-header{font-weight:700}
+.codebox,.tree{background:#172033;color:#e8eefc;border-radius:12px;padding:18px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.diagram{background:#eef4ff;border-radius:14px;padding:20px;text-align:center;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap}
+.tip{border-left:5px solid #198754}.section-title{font-weight:750}footer{color:#667085}
+</style></head><body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm"><div class="container">
+<a class="navbar-brand fw-bold" href="#top">Django Class 5</a>
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+<div id="nav" class="collapse navbar-collapse"><ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#bigpicture">Big Picture</a></li><li class="nav-item"><a class="nav-link" href="#structure">Structure</a></li>
+<li class="nav-item"><a class="nav-link" href="#files">Files</a></li><li class="nav-item"><a class="nav-link" href="#cache">__pycache__</a></li>
+<li class="nav-item"><a class="nav-link" href="#flow">How It Works</a></li><li class="nav-item"><a class="nav-link" href="#revision">Revision</a></li>
+</ul></div></div></nav>
+
+<header id="top" class="hero py-5"><div class="container py-4"><span class="badge bg-light text-primary mb-3">CLASS 5</span>
+<h1 class="display-6 fw-bold">Django File & Folder Structure</h1><p class="lead mb-0">Understand each important Django file and folder using very simple, child-friendly examples.</p></div></header>
+
+<main class="container py-5">
+<section id="bigpicture" class="mb-5"><h2 class="section-title mb-3">1. First: What Are Files and Folders?</h2>
+<div class="card shadow-sm mb-4"><div class="card-header bg-primary text-white">Think about a school bag 🎒</div><div class="card-body">
+<p>Imagine your Django project is a <strong>school bag</strong>.</p><div class="diagram">🎒 Django Project
+  │
+  ├── 📁 Folders → boxes that organize related things
+  └── 📄 Files   → papers containing information or instructions</div>
+<p class="mt-4">A folder keeps related things together. A file contains information, settings, or instructions that Python and Django can use.</p>
+<div class="alert alert-info mb-0"><strong>Simple idea:</strong> A Django project is a collection of files and folders. Each one has a job.</div></div></div>
+<div class="card shadow-sm"><div class="card-header bg-success text-white">What is Django?</div><div class="card-body">
+<p><strong>Django</strong> is a <strong>Python web framework</strong>.</p><p>Think of a framework as a ready-made building kit. It gives us useful tools, files, and rules so we do not have to build everything from zero.</p>
+<div class="diagram">Python → Django → Tools + rules + structure → Web application</div></div></div></section>
+
+<section id="structure" class="mb-5"><h2 class="section-title mb-3">2. Django Project Structure</h2>
+<div class="card shadow-sm mb-4"><div class="card-header bg-dark text-white">Example: project named <code>mysite</code></div><div class="card-body">
+<p>After running <code>django-admin startproject mysite</code>, the basic structure is similar to:</p>
+<div class="tree">mysite/
+│
+├── manage.py
+│
+└── mysite/
+    ├── __init__.py
+    ├── asgi.py
+    ├── settings.py
+    ├── urls.py
+    └── wsgi.py</div>
+<p class="mt-4">After Python runs code, you may also see <code>__pycache__</code> folders.</p>
+<div class="alert alert-warning mb-0"><strong>As the project grows:</strong> You may also have <code>db.sqlite3</code>, Django app folders, <code>migrations/</code>, <code>templates/</code>, <code>static/</code>, and other files.</div>
+</div></div>
+<div class="card shadow-sm"><div class="card-header bg-info text-dark">Why do we see <code>mysite</code> twice?</div><div class="card-body">
+<div class="diagram">mysite/                 ← outer project folder
+│
+├── manage.py
+│
+└── mysite/             ← inner Python package
+    ├── settings.py
+    ├── urls.py
+    └── ...</div>
+<p class="mt-3">The outer folder is mainly a container for the project. The inner folder contains the main Python package and configuration files.</p></div></div></section>
+
+<section id="files" class="mb-5"><h2 class="section-title mb-3">3. Important Django Files</h2>
+<div class="card shadow-sm mb-4"><div class="card-header bg-primary text-white"><code>__init__.py</code></div><div class="card-body">
+<h5>What is it?</h5><p>A special Python file used for package initialization. It can contain code that should run when the package is initialized.</p>
+<h5>Child-friendly example 👦</h5><p>Imagine a classroom has a sign on its door saying:</p><div class="diagram">🚪 “This folder is a Python package.”</div>
+<div class="alert alert-info mt-3 mb-0"><strong>Remember:</strong> In a normal new Django project, you usually do not need to add anything here.</div></div></div>
+
+<div class="card shadow-sm mb-4"><div class="card-header bg-success text-white"><code>settings.py</code></div><div class="card-body">
+<h5>What is it?</h5><p>This file contains the main configuration of the Django project.</p><h5>Child-friendly example ⚙️</h5>
+<p>Think of it as the project's <strong>control room</strong>. It tells Django things such as installed apps, database settings, middleware, templates, static files, language, and time zone.</p>
+<div class="diagram">🏠 Project → ⚙️ settings.py → “How should this project behave?”</div>
+<div class="alert alert-success mt-3 mb-0"><strong>Easy memory:</strong> settings.py = project configuration.</div></div></div>
+
+<div class="card shadow-sm mb-4"><div class="card-header bg-warning text-dark"><code>urls.py</code></div><div class="card-body">
+<h5>What is it?</h5><p>It contains URL patterns that tell Django which code should handle a requested URL.</p><h5>Child-friendly example 🗺️</h5>
+<p>Imagine a school map:</p><div class="diagram">🏫 School
+ ├── Room 101 → Maths
+ ├── Room 102 → Science
+ └── Room 103 → English</div>
+<p class="mt-3"><code>urls.py</code> works like a map for website URLs: it helps Django decide where a request should go.</p>
+<div class="alert alert-warning mb-0"><strong>Easy memory:</strong> urls.py = URL map / traffic controller.</div></div></div>
+
+<div class="card shadow-sm mb-4"><div class="card-header bg-info text-dark"><code>manage.py</code></div><div class="card-body">
+<h5>What is it?</h5><p>A command-line helper for working with your Django project.</p><h5>Child-friendly example 🧰</h5>
+<p>Think of it as a <strong>remote control</strong> for common Django tasks.</p>
+<div class="codebox">python manage.py runserver
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser</div>
+<p class="mt-3 mb-0">Each command asks Django to perform a particular job.</p></div></div>
+
+<div class="card shadow-sm mb-4"><div class="card-header bg-secondary text-white"><code>wsgi.py</code></div><div class="card-body">
+<h5>Full form</h5><p><strong>WSGI = Web Server Gateway Interface</strong></p><h5>What is it?</h5><p>It provides an entry point for WSGI-compatible web servers to communicate with a Django application.</p>
+<h5>Child-friendly example 📞</h5><div class="diagram">🌐 Web Server
+      ↓
+🗣️ WSGI
+      ↓
+🐍 Django Application</div>
+<p class="mt-3">Think of it as a communication bridge between a compatible web server and the Django application.</p>
+<div class="alert alert-info mb-0"><strong>Easy memory:</strong> wsgi.py = WSGI server entry point.</div></div></div>
+
+<div class="card shadow-sm"><div class="card-header bg-danger text-white"><code>asgi.py</code></div><div class="card-body">
+<h5>Full form</h5><p><strong>ASGI = Asynchronous Server Gateway Interface</strong></p><h5>What is it?</h5><p>It provides an entry point for ASGI-compatible servers and supports asynchronous application features.</p>
+<h5>Child-friendly example 🚦</h5><div class="diagram">🌐 Web Server
+      ↓
+🚦 ASGI
+      ↓
+🐍 Django Application
+      ↓
+Asynchronous features can be supported</div>
+<p class="mt-3">Think of ASGI as a flexible communication bridge designed for modern asynchronous web application needs.</p>
+<div class="alert alert-danger mb-0"><strong>Easy memory:</strong> asgi.py = ASGI server entry point.</div></div></div></section>
+
+<section id="cache" class="mb-5"><h2 class="section-title mb-3">4. <code>__pycache__</code> Folder</h2>
+<div class="card shadow-sm"><div class="card-header bg-dark text-white"><code>__pycache__</code></div><div class="card-body">
+<h5>What is it?</h5><p>Python can automatically create this folder to store <strong>bytecode cache files</strong> for Python modules.</p>
+<h5>Child-friendly example 🧠</h5><p>Imagine you read a difficult lesson and make quick notes so you can work with it more easily later.</p>
+<div class="diagram">Python source code
+      ↓
+Python prepares bytecode
+      ↓
+__pycache__/
+      ↓
+Cached .pyc files</div>
+<p class="mt-3">These cached files can help Python avoid repeating some work when importing modules.</p>
+<div class="alert alert-warning mb-0"><strong>Do not worry about it:</strong> You normally do not create this folder yourself. Python creates it when needed, and it can be recreated after deletion.</div>
+</div></div></section>
+
+<section id="flow" class="mb-5"><h2 class="section-title mb-3">5. How These Files Work Together</h2>
+<div class="card shadow-sm mb-4"><div class="card-header bg-primary text-white">A simple request story</div><div class="card-body">
+<p>Suppose a user opens <code>http://127.0.0.1:8000/</code>.</p>
+<div class="diagram">👤 User
+   ↓
+🌐 Browser
+   ↓
+📍 URL request
+   ↓
+urls.py
+   ↓
+Django finds the matching code
+   ↓
+🐍 Django application
+   ↓
+📄 Response
+   ↓
+🌐 Browser</div>
+<p class="mt-4"><code>settings.py</code> provides project configuration. <code>manage.py</code> helps you perform project commands. <code>wsgi.py</code> and <code>asgi.py</code> provide server entry points.</p>
+</div></div>
+
+<div class="card shadow-sm"><div class="card-header bg-secondary text-white">Other items you may see later</div><div class="card-body">
+<table class="table table-bordered align-middle mb-0"><thead class="table-light"><tr><th>Item</th><th>Simple explanation</th></tr></thead><tbody>
+<tr><td><code>db.sqlite3</code></td><td>A SQLite database file commonly used in development.</td></tr>
+<tr><td><code>app_name/</code></td><td>A Django application folder for a particular feature or part of the website.</td></tr>
+<tr><td><code>migrations/</code></td><td>Usually inside an app; stores files describing database schema changes.</td></tr>
+<tr><td><code>templates/</code></td><td>A common place for HTML templates.</td></tr>
+<tr><td><code>static/</code></td><td>A common place for CSS, JavaScript, and image files.</td></tr>
+</tbody></table>
+</div></div></section>
+
+<section id="revision" class="mb-5"><h2 class="section-title mb-3">6. Quick Revision</h2>
+<div class="card shadow-sm mb-4"><div class="card-header bg-dark text-white">One-line memory guide</div><div class="card-body">
+<table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th>File / Folder</th><th>Remember it as...</th></tr></thead><tbody>
+<tr><td><code>__init__.py</code></td><td>Python package initialization.</td></tr>
+<tr><td><code>settings.py</code></td><td>Project configuration / control room.</td></tr>
+<tr><td><code>urls.py</code></td><td>URL map / traffic controller.</td></tr>
+<tr><td><code>manage.py</code></td><td>Command-line helper / remote control.</td></tr>
+<tr><td><code>wsgi.py</code></td><td>WSGI — Web Server Gateway Interface.</td></tr>
+<tr><td><code>asgi.py</code></td><td>ASGI — Asynchronous Server Gateway Interface.</td></tr>
+<tr><td><code>__pycache__</code></td><td>Python bytecode cache folder.</td></tr>
+</tbody></table></div></div>
+<div class="card shadow-sm tip"><div class="card-body"><h5 class="fw-bold">Interview Tip 💡</h5>
+<p>If asked about the Django project structure, explain each file by its job: <code>settings.py</code> for configuration, <code>urls.py</code> for URL routing, <code>manage.py</code> for commands, <code>wsgi.py</code>/<code>asgi.py</code> for server entry points, <code>__init__.py</code> for package initialization, and <code>__pycache__</code> for Python's cached bytecode.</p></div></div>
+</section>
+</main>
+<footer class="container py-4 border-top"><p class="mb-0">Django Class 5 — File and Folder Structure.</p></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>

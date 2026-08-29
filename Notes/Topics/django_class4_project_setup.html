@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class 4 — Django Project Setup</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+:root{--doc-bg:#f5f7fb;--ink:#243047;--muted:#667085}
+html{scroll-behavior:smooth;scroll-padding-top:78px}
+body{background:var(--doc-bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.65}
+.navbar{backdrop-filter:blur(10px)}
+.hero{background:linear-gradient(135deg,#0d6efd,#6f42c1);color:#fff;border-radius:0 0 24px 24px}
+.section-title{font-weight:750}
+.card{border:0;border-radius:16px;overflow:hidden}
+.card-header{border:0;font-weight:700}
+.codebox{background:#172033;color:#e8eefc;border-radius:12px;padding:16px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.step{display:flex;gap:14px;align-items:flex-start}
+.step-num{min-width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#0d6efd;color:#fff;font-weight:700}
+.diagram{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef4ff;border-radius:14px;padding:20px;white-space:pre-wrap}
+.tip{border-left:5px solid #198754}
+.warn{border-left:5px solid #ffc107}
+.danger{border-left:5px solid #dc3545}
+.tree{background:#172033;color:#e8eefc;border-radius:12px;padding:20px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.8}
+.badge-rule{font-size:.9rem}
+footer{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+<div class="container">
+<a class="navbar-brand fw-bold" href="#top">Django Class 4</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div id="nav" class="collapse navbar-collapse">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#overview">Overview</a></li>
+<li class="nav-item"><a class="nav-link" href="#check">Check Django</a></li>
+<li class="nav-item"><a class="nav-link" href="#create">Create Project</a></li>
+<li class="nav-item"><a class="nav-link" href="#structure">Structure</a></li>
+<li class="nav-item"><a class="nav-link" href="#server">Run Server</a></li>
+<li class="nav-item"><a class="nav-link" href="#rules">Name Rules</a></li>
+</ul>
+</div>
+</div>
+</nav>
+
+<header id="top" class="hero py-5">
+<div class="container py-4">
+<span class="badge bg-light text-primary mb-3">CLASS 4</span>
+<h1 class="display-6 fw-bold">Django Project Setup</h1>
+<p class="lead mb-0">Learn how to check Django, create a project, understand its structure, and run the development server.</p>
+</div>
+</header>
+
+<main class="container py-5">
+
+<section id="overview" class="mb-5">
+<h2 class="section-title mb-3">1. What We Will Learn</h2>
+<div class="card shadow-sm">
+<div class="card-header bg-primary text-white">Django project setup flow</div>
+<div class="card-body">
+<p>When starting a Django project, follow this simple order:</p>
+<div class="diagram">Check Django
+     ↓
+Create Django project
+     ↓
+Enter the project folder
+     ↓
+Run the development server
+     ↓
+Open the project in your browser</div>
+<div class="alert alert-info mt-4 mb-0">
+<strong>Goal:</strong> By the end, you should be able to create a Django project and see the Django welcome page in your browser.
+</div>
+</div>
+</div>
+</section>
+
+<section id="check" class="mb-5">
+<h2 class="section-title mb-3">2. Check Django Installation</h2>
+<div class="card shadow-sm">
+<div class="card-header bg-success text-white">Step 1 — Check Django</div>
+<div class="card-body">
+<p>Before creating a Django project, first check whether Django is installed.</p>
+<div class="codebox">django-admin --version</div>
+<p class="mt-3">If Django is installed correctly, the command displays the installed Django version.</p>
+<div class="alert alert-warning mb-0">
+<strong>Tip:</strong> If the command is not recognized, make sure Django is installed in the Python environment you are currently using and that the environment is activated when required.
+</div>
+</div>
+</div>
+</section>
+
+<section id="create" class="mb-5">
+<h2 class="section-title mb-3">3. Create a Django Project</h2>
+
+<div class="card shadow-sm mb-4">
+<div class="card-header bg-primary text-white">Step 2 — Create the project</div>
+<div class="card-body">
+<p>Use the following command:</p>
+<div class="codebox">django-admin startproject projectname</div>
+<p class="mt-3">Replace <code>projectname</code> with the name you want for your project.</p>
+
+<div class="alert alert-light border">
+<strong>Example:</strong>
+<div class="codebox mt-2">django-admin startproject mysite</div>
+</div>
+
+<p>After running the command, Django creates a folder containing the initial project files.</p>
+
+<div class="diagram">Command
+django-admin startproject mysite
+              ↓
+       Django creates
+              ↓
+          mysite/</div>
+</div>
+</div>
+
+<div class="card shadow-sm">
+<div class="card-header bg-info text-dark">What does this command mean?</div>
+<div class="card-body">
+<table class="table table-bordered align-middle mb-0">
+<thead class="table-light">
+<tr><th>Part</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>django-admin</code></td><td>Django's command-line utility.</td></tr>
+<tr><td><code>startproject</code></td><td>Tells Django to create a new project.</td></tr>
+<tr><td><code>projectname</code></td><td>The name you choose for your Django project.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section id="structure" class="mb-5">
+<h2 class="section-title mb-3">4. Django Project Structure</h2>
+
+<div class="card shadow-sm mb-4">
+<div class="card-header bg-dark text-white">Example structure</div>
+<div class="card-body">
+<p>If you create a project named <code>mysite</code>, Django creates a structure similar to this:</p>
+<div class="tree">mysite/
+│
+├── manage.py
+│
+└── mysite/
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py</div>
+</div>
+</div>
+
+<div class="card shadow-sm">
+<div class="card-header bg-secondary text-white">What are these files?</div>
+<div class="card-body">
+<div class="table-responsive">
+<table class="table table-hover align-middle mb-0">
+<thead class="table-light"><tr><th>File</th><th>Simple meaning</th></tr></thead>
+<tbody>
+<tr><td><code>manage.py</code></td><td>A command-line helper used to work with your Django project.</td></tr>
+<tr><td><code>settings.py</code></td><td>Contains the main project configuration.</td></tr>
+<tr><td><code>urls.py</code></td><td>Defines URL routes for the project.</td></tr>
+<tr><td><code>asgi.py</code></td><td>Entry point for ASGI-compatible servers.</td></tr>
+<tr><td><code>wsgi.py</code></td><td>Entry point for WSGI-compatible servers.</td></tr>
+<tr><td><code>__init__.py</code></td><td>Marks the directory as a Python package and can contain package initialization code.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="alert alert-info mt-4 mb-0">
+<strong>Beginner focus:</strong> For now, remember <code>manage.py</code>, <code>settings.py</code>, and <code>urls.py</code>. You will use these frequently as you learn Django.
+</div>
+</div>
+</div>
+</section>
+
+<section id="server" class="mb-5">
+<h2 class="section-title mb-3">5. Run the Django Project</h2>
+
+<div class="card shadow-sm mb-4">
+<div class="card-header bg-success text-white">Step 3 — Go to the correct folder</div>
+<div class="card-body">
+<p>After creating the project, go to the folder that contains <code>manage.py</code>.</p>
+<div class="diagram">mysite/
+│
+├── manage.py   ← run the command from here
+└── mysite/</div>
+<p class="mt-3">For example, if your terminal is outside the project folder:</p>
+<div class="codebox">cd mysite</div>
+</div>
+</div>
+
+<div class="card shadow-sm">
+<div class="card-header bg-primary text-white">Step 4 — Start the development server</div>
+<div class="card-body">
+<p>Run:</p>
+<div class="codebox">python manage.py runserver</div>
+<p class="mt-3">Django starts its development server. You should see a message containing a local address such as:</p>
+<div class="codebox">Starting development server at http://127.0.0.1:8000/</div>
+<p class="mt-3">Open that address in your browser.</p>
+<div class="alert alert-success mb-0">
+<strong>Default port:</strong> Django's development server uses <strong>port 8000</strong> by default.
+</div>
+</div>
+</div>
+
+<div class="card shadow-sm mt-4">
+<div class="card-header bg-warning text-dark">Complete flow</div>
+<div class="card-body">
+<div class="codebox">django-admin --version
+
+django-admin startproject mysite
+
+cd mysite
+
+python manage.py runserver</div>
+</div>
+</div>
+</section>
+
+<section id="rules" class="mb-5">
+<h2 class="section-title mb-3">6. Django Project Name Rules</h2>
+
+<div class="card shadow-sm mb-4">
+<div class="card-header bg-danger text-white">Choose the project name carefully</div>
+<div class="card-body">
+<p>A Django project name is used as a Python package name, so it should follow Python identifier rules.</p>
+
+<div class="row g-3">
+<div class="col-md-6">
+<div class="alert alert-success h-100 mb-0">
+<strong>Good names ✅</strong><br><br>
+<code>mysite</code><br>
+<code>my_project</code><br>
+<code>django_project</code><br>
+<code>employee_management</code>
+</div>
+</div>
+<div class="col-md-6">
+<div class="alert alert-danger h-100 mb-0">
+<strong>Avoid ❌</strong><br><br>
+<code>my-project</code><br>
+<code>my project</code><br>
+<code>123project</code><br>
+<code>project-name</code>
+</div>
+</div>
+</div>
+
+<div class="alert alert-warning mt-4 mb-0">
+<strong>Simple rule:</strong> Use letters, numbers, and underscores. Do not use hyphens (<code>-</code>) or spaces. Also, avoid starting the name with a number.
+</div>
+</div>
+</div>
+
+<div class="card shadow-sm tip">
+<div class="card-body">
+<h5 class="fw-bold">Interview Tip 💡</h5>
+<p class="mb-0">If asked how to create a Django project, remember: <strong><code>django-admin startproject projectname</code></strong>. Then enter the folder containing <strong><code>manage.py</code></strong> and run <strong><code>python manage.py runserver</code></strong>.</p>
+</div>
+</div>
+</section>
+
+<section class="mb-5">
+<h2 class="section-title mb-3">7. Quick Revision</h2>
+<div class="card shadow-sm">
+<div class="card-header bg-dark text-white">Remember these commands</div>
+<div class="card-body">
+<div class="table-responsive">
+<table class="table table-bordered align-middle mb-0">
+<thead class="table-light"><tr><th>Task</th><th>Command</th></tr></thead>
+<tbody>
+<tr><td>Check Django version</td><td><code>django-admin --version</code></td></tr>
+<tr><td>Create project</td><td><code>django-admin startproject projectname</code></td></tr>
+<tr><td>Go to project folder</td><td><code>cd projectname</code></td></tr>
+<tr><td>Run server</td><td><code>python manage.py runserver</code></td></tr>
+<tr><td>Default port</td><td><code>8000</code></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+
+</main>
+
+<footer class="container py-4 border-top">
+<p class="mb-0">Django Class 4 — Project setup, structure and development server.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

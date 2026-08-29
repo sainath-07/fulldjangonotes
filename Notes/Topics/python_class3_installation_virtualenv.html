@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Class 3 — Python, pip, Django & Virtual Environments</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --doc: #f5f7fb;
+        --ink: #243047;
+        --muted: #667085;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 78px;
+      }
+      body {
+        background: var(--doc);
+        color: var(--ink);
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.65;
+      }
+      .navbar {
+        backdrop-filter: blur(10px);
+      }
+      .hero {
+        background: linear-gradient(135deg, #0d6efd, #6f42c1);
+        color: #fff;
+        border-radius: 0 0 24px 24px;
+      }
+      .section-title {
+        font-weight: 750;
+      }
+      .card {
+        border: 0;
+        border-radius: 16px;
+      }
+      .card-header {
+        border: 0;
+        font-weight: 700;
+      }
+      .codebox {
+        background: #172033;
+        color: #e8eefc;
+        border-radius: 12px;
+        padding: 16px;
+        overflow: auto;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      }
+      .step {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .step-num {
+        min-width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: #0d6efd;
+        color: #fff;
+        font-weight: 700;
+      }
+      .diagram {
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        background: #eef4ff;
+        border-radius: 14px;
+        padding: 20px;
+        text-align: center;
+        white-space: pre-wrap;
+      }
+      .tip {
+        border-left: 5px solid #198754;
+      }
+      .warn {
+        border-left: 5px solid #ffc107;
+      }
+      .danger {
+        border-left: 5px solid #dc3545;
+      }
+      footer {
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="#top">Python Class 3</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#nav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="nav" class="collapse navbar-collapse">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#install">Installation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#verify">Verify</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#venv">Virtual Env</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#commands">Commands</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#remember">Remember</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <header id="top" class="hero py-5">
+      <div class="container py-4">
+        <span class="badge bg-light text-primary mb-3">CLASS 3</span>
+        <h1 class="display-6 fw-bold">
+          Python, pip, Django & Virtual Environments
+        </h1>
+        <p class="lead mb-0">
+          A simple, practical guide to installing Python tools and creating
+          isolated project environments.
+        </p>
+      </div>
+    </header>
+
+    <main class="container py-5">
+      <section id="install" class="mb-5">
+        <h2 class="section-title mb-3">1. Install Python, pip & Django</h2>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            Step 1 — Install Python
+          </div>
+          <div class="card-body">
+            <p>Download and install Python from the official Python website.</p>
+            <div class="alert alert-info">
+              <strong>Important:</strong> During Windows installation, make sure
+              you select <strong>“Add Python to PATH”</strong>. This makes the
+              <code>python</code> command available in Command Prompt.
+            </div>
+            <p class="mb-0">
+              When Python is installed normally, <strong>pip</strong> is also
+              included with modern Python installations.
+            </p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-success text-white">
+            Step 2 — Understand pip
+          </div>
+          <div class="card-body">
+            <p>
+              <strong>pip</strong> is Python's package installer. Think of it
+              like <strong>npm for Node.js</strong>.
+            </p>
+            <div class="diagram">
+              Node.js → npm → install JavaScript packages Python → pip → install
+              Python packages
+            </div>
+            <p class="mt-3 mb-0">
+              For example, Django is a Python package/framework, so we can
+              install it using pip.
+            </p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-header bg-dark text-white">
+            Step 3 — Install Django
+          </div>
+          <div class="card-body">
+            <p>Use this command in Command Prompt or PowerShell:</p>
+            <div class="codebox">pip install django</div>
+            <p class="mt-3 mb-0"><strong>General pattern:</strong></p>
+            <div class="codebox">pip install &lt;package-name&gt;</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="verify" class="mb-5">
+        <h2 class="section-title mb-3">
+          2. Check Whether Python, pip & Django Are Installed
+        </h2>
+
+        <div class="card shadow-sm">
+          <div class="card-header bg-info text-dark">
+            Useful verification commands
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>What you want to check</th>
+                    <th>Command</th>
+                    <th>What it tells you</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Python</td>
+                    <td><code>python --version</code></td>
+                    <td>Shows the installed Python version.</td>
+                  </tr>
+                  <tr>
+                    <td>pip</td>
+                    <td><code>pip --version</code></td>
+                    <td>Shows the installed pip version and location.</td>
+                  </tr>
+                  <tr>
+                    <td>Installed packages</td>
+                    <td><code>pip list</code></td>
+                    <td>
+                      Shows Python packages installed in the current
+                      environment.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Django version</td>
+                    <td><code>django-admin --version</code></td>
+                    <td>Shows the installed Django version.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="alert alert-warning mt-4 mb-0">
+              <strong>Correction to remember:</strong>
+              <code>pip list Django</code> is not the normal command for
+              checking Django. Use <code>pip list</code> and look for Django, or
+              use <code>django-admin --version</code> for the Django version.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="venv" class="mb-5">
+        <h2 class="section-title mb-3">3. Virtual Environments</h2>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-warning text-dark">
+            What is a virtual environment?
+          </div>
+          <div class="card-body">
+            <p>
+              A virtual environment is a separate Python space for one project.
+            </p>
+            <p class="mb-2">
+              Think of it like giving every project its
+              <strong>own toolbox</strong>.
+            </p>
+            <div class="diagram">
+              Project A └── .venv └── Django 4.x Project B └── .venv └── Django
+              5.x Each project can have its own packages and versions.
+            </div>
+            <div class="alert alert-success mt-3 mb-0">
+              <strong>Why use it?</strong> One project's packages do not need to
+              interfere with another project's packages.
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-secondary text-white">
+            Two ideas to keep separate
+          </div>
+          <div class="card-body">
+            <p>There are two different things people often mix up:</p>
+            <ol>
+              <li>
+                <strong>Installing the virtualenv tool globally:</strong> you
+                install the <code>virtualenv</code> package so the command is
+                available on your machine.
+              </li>
+              <li>
+                <strong>Creating a virtual environment for a project:</strong>
+                you run the command inside a project's root folder, creating an
+                environment folder for that project.
+              </li>
+            </ol>
+            <div class="alert alert-info mb-0">
+              <strong>Important:</strong> Installing
+              <code>virtualenv</code> globally does not mean one environment is
+              shared by every project. The environment itself can be created
+              separately for each project.
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            A. Install the virtualenv tool (installing virtualenv globally)
+          </div>
+          <div class="card-body">
+            <div class="step mb-3">
+              <div class="step-num">1</div>
+              <div>Open Command Prompt or PowerShell.</div>
+            </div>
+            <div class="step mb-3">
+              <div class="step-num">2</div>
+              <div>Install the tool:</div>
+            </div>
+            <div class="codebox">pip install virtualenv</div>
+            <p class="mt-3">
+              This installs the <code>virtualenv</code> command/tool so you can
+              create environments.
+            </p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white">
+            B. Create an environment inside a project (using virutal environment
+            tool to create environment for specific project)
+          </div>
+          <div class="card-body">
+            <div class="step mb-3">
+              <div class="step-num">1</div>
+              <div>Go to your project root folder.</div>
+            </div>
+            <div class="step mb-3">
+              <div class="step-num">2</div>
+              <div>Create an environment with a meaningful name:</div>
+            </div>
+            <div class="codebox">virtualenv myproject_venv</div>
+            <div class="alert alert-light border mt-3">
+              <strong>Naming tip:</strong> For most projects,
+              <code>.venv</code> is a clean and common name. If you need a more
+              descriptive name, use something like <code>blog_venv</code> or
+              <code>ecommerce_venv</code>.
+            </div>
+            <div class="step mb-3">
+              <div class="step-num">3</div>
+              <div>Activate it on Windows:</div>
+            </div>
+            <div class="codebox">myproject_venv\Scripts\activate</div>
+            <div class="step mb-3">
+              <div class="step-num">4</div>
+              <div>
+                When activated, your terminal usually shows the environment name
+                at the beginning.
+              </div>
+            </div>
+            <div class="codebox">
+              (myproject_venv) C:\Projects\myproject&gt;
+            </div>
+            <div class="step mb-3">
+              <div class="step-num">5</div>
+              <div>Deactivate it when finished:</div>
+            </div>
+            <div class="codebox">deactivate</div>
+            <div class="step">
+              <div class="step-num">6</div>
+              <div>
+                To delete the environment, first deactivate it and then remove
+                its folder.
+              </div>
+            </div>
+            <div class="codebox">rmdir /s /q myproject_venv</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="commands" class="mb-5">
+        <h2 class="section-title mb-3">4. Command Cheat Sheet</h2>
+        <div class="card shadow-sm">
+          <div class="card-header bg-dark text-white">Quick reference</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Purpose</th>
+                    <th>Command</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Check Python</td>
+                    <td><code>python --version</code></td>
+                  </tr>
+                  <tr>
+                    <td>Check pip</td>
+                    <td><code>pip --version</code></td>
+                  </tr>
+                  <tr>
+                    <td>Install a package</td>
+                    <td><code>pip install package_name</code></td>
+                  </tr>
+                  <tr>
+                    <td>Install Django</td>
+                    <td><code>pip install django</code></td>
+                  </tr>
+                  <tr>
+                    <td>List installed packages</td>
+                    <td><code>pip list</code></td>
+                  </tr>
+                  <tr>
+                    <td>Check Django version</td>
+                    <td><code>django-admin --version</code></td>
+                  </tr>
+                  <tr>
+                    <td>Install virtualenv tool</td>
+                    <td><code>pip install virtualenv</code></td>
+                  </tr>
+                  <tr>
+                    <td>Create environment</td>
+                    <td><code>virtualenv myproject_venv</code></td>
+                  </tr>
+                  <tr>
+                    <td>Activate on Windows</td>
+                    <td><code>myproject_venv\Scripts\activate</code></td>
+                  </tr>
+                  <tr>
+                    <td>Deactivate</td>
+                    <td><code>deactivate</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="remember" class="mb-5">
+        <h2 class="section-title mb-3">5. Remember This</h2>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-danger text-white">Common confusion</div>
+          <div class="card-body">
+            <div class="alert alert-danger mb-0">
+              <strong>Don't confuse these two:</strong><br /><br />
+              <code>pip install virtualenv</code> → installs the
+              <strong>tool</strong> used to create virtual environments.<br />
+              <code>virtualenv myproject_venv</code> → creates an actual
+              <strong>environment</strong> for a project.
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm tip mb-4">
+          <div class="card-body">
+            <h5 class="fw-bold">Interview Tip 💡</h5>
+            <p class="mb-0">
+              If an interviewer asks why we use virtual environments, say:
+              <strong
+                >“A virtual environment isolates a project's Python packages and
+                versions, so different projects can use different dependencies
+                without conflicting with each other.”</strong
+              >
+            </p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            Simple mental model
+          </div>
+          <div class="card-body">
+            <div class="diagram">
+              Python ↓ pip = package installer ↓ Django = Python
+              framework/package ↓ virtualenv = tool to create isolated
+              environments ↓ .venv / project_venv = isolated environment for one
+              project
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="container py-4 border-top">
+      <p class="mb-0">
+        Python Class 3 — Installation, pip, Django and virtual environments.
+      </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

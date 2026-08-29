@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Django Class 6 & 7 — Apps, Views & URL Routing</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 76px;
+      }
+      body {
+        background: #f5f7fb;
+        color: #243047;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.7;
+      }
+      .hero {
+        background: linear-gradient(135deg, #0d6efd, #6f42c1);
+        color: #fff;
+        border-radius: 0 0 24px 24px;
+      }
+      .card {
+        border: 0;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .card-header {
+        font-weight: 700;
+        border: 0;
+      }
+      .codebox,
+      .tree {
+        background: #172033;
+        color: #e8eefc;
+        border-radius: 12px;
+        padding: 18px;
+        overflow: auto;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      }
+      .codebox {
+        margin: 0;
+        white-space: pre;
+        line-height: 1.65;
+        font-size: 0.95rem;
+      }
+      .codebox code {
+        font-family: inherit;
+        color: inherit;
+      }
+      .diagram {
+        background: #eef4ff;
+        border-radius: 14px;
+        padding: 20px;
+        text-align: center;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        white-space: pre-wrap;
+      }
+      .section-title {
+        font-weight: 750;
+      }
+      .tip {
+        border-left: 5px solid #198754;
+      }
+      footer {
+        color: #667085;
+      }
+      .codebox {
+        tab-size: 4;
+      }
+    </style>
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm"
+    >
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="#top">Django Class 6 & 7 & 8</a>
+        <button
+          class="navbar-toggler"
+          data-bs-toggle="collapse"
+          data-bs-target="#nav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="nav" class="collapse navbar-collapse">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#class6">Class 6</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#app">Create App</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#appstructure">App Structure</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#class7">Class 7</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#views">Views</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#urls">URLconf</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#imports">Imports</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#flow">Complete Flow</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <header id="top" class="hero py-5">
+      <div class="container py-4">
+        <span class="badge bg-light text-primary mb-3"
+          >CLASS 6 + CLASS 7 + CLASS 8</span
+        >
+        <h1 class="display-6 fw-bold">Django Apps, Views & URL Routing</h1>
+        <p class="lead mb-0">
+          Learn how apps represent features, how views return responses, and how
+          URLs connect users to the correct view.
+        </p>
+      </div>
+    </header>
+
+    <main class="container py-5">
+      <section id="class6" class="mb-5">
+        <h2 class="section-title mb-3">Class 6 — Django Apps</h2>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">Project vs App</div>
+          <div class="card-body">
+            <p>
+              In Django, we normally have <strong>one project</strong> that can
+              contain <strong>many apps</strong>.
+            </p>
+            <div class="diagram">
+              🏠 Django Project │ ├── 📝 Blog App ├── 🛒 Shop App ├── 👤
+              Accounts App └── 💬 Chat App
+            </div>
+            <p class="mt-4">
+              <strong>App = a feature or a group of related features.</strong>
+            </p>
+            <p>
+              For example, a shopping website might have apps for products,
+              accounts, orders, and payments.
+            </p>
+            <div class="alert alert-info mb-0">
+              <strong>Easy memory:</strong> Project = the whole house. Apps =
+              different rooms inside the house.
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white">
+            Why use multiple apps?
+          </div>
+          <div class="card-body">
+            <p>
+              Apps keep code organized. Instead of putting every feature into
+              one huge folder, each feature gets its own place.
+            </p>
+            <div class="alert alert-success mb-0">
+              <strong>Remember:</strong> One Django project can contain many
+              Django apps.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="app" class="mb-5">
+        <h2 class="section-title mb-3">1. How to Create a Django App</h2>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            What does startapp mean?
+          </div>
+          <div class="card-body">
+            <p>
+              <code>startapp</code> tells Django to create a new app folder with
+              standard files for a feature.
+            </p>
+            <div class="diagram">
+              Project ↓ startapp ↓ New app folder ↓ Feature-specific code
+            </div>
+            <p class="mt-4">
+              Run the command from the folder where <code>manage.py</code> is
+              present, usually the outer project folder.
+            </p>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-header bg-dark text-white">Command</div>
+          <div class="card-body">
+            <pre
+              class="codebox"
+            ><code>python manage.py startapp appname</code></pre>
+            <p class="mt-3">Example:</p>
+            <pre
+              class="codebox"
+            ><code>python manage.py startapp blog</code></pre>
+            <p class="mt-3 mb-0">
+              Django creates a new <code>blog</code> folder.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="register" class="mb-5">
+        <h2 class="section-title mb-3">2. Register the App</h2>
+        <div class="card shadow-sm">
+          <div class="card-header bg-warning text-dark">
+            Add the app to INSTALLED_APPS
+          </div>
+          <div class="card-body">
+            <p>
+              Creating the folder is not enough. Django also needs to know that
+              the app belongs to the project.
+            </p>
+            <p>
+              Open the
+              <strong>inner project's <code>settings.py</code></strong> and add
+              the app name to <code>INSTALLED_APPS</code>.
+            </p>
+            <pre class="codebox"><code>INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    'blog',
+]</code></pre>
+            <div class="alert alert-info mt-3 mb-0">
+              <strong>Rule:</strong> If your app is named <code>blog</code>, add
+              <code>'blog'</code>.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="appstructure" class="mb-5">
+        <h2 class="section-title mb-3">3. Django App Folder Structure</h2>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-dark text-white">Example: blog app</div>
+          <div class="card-body">
+            <div class="tree">
+              blog/ │ ├── __init__.py ├── admin.py ├── apps.py ├── migrations/ │
+              └── __init__.py ├── models.py ├── tests.py ├── views.py └──
+              urls.py ← commonly created manually
+            </div>
+            <div class="alert alert-warning mt-3 mb-0">
+              <strong>Important:</strong> <code>urls.py</code> is commonly
+              created manually inside the app. The standard
+              <code>startapp</code> command does not create it.
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-header bg-info text-dark">
+            What does each item do?
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Item</th>
+                  <th>Simple explanation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>migrations/</code></td>
+                  <td>
+                    Stores files describing database structure changes for the
+                    app.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>admin.py</code></td>
+                  <td>
+                    Used to register/configure models for Django's admin site.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>apps.py</code></td>
+                  <td>Contains the configuration class for the Django app.</td>
+                </tr>
+                <tr>
+                  <td><code>models.py</code></td>
+                  <td>Defines the app's data models.</td>
+                </tr>
+                <tr>
+                  <td><code>tests.py</code></td>
+                  <td>A place to write automated tests.</td>
+                </tr>
+                <tr>
+                  <td><code>views.py</code></td>
+                  <td>
+                    Contains views that receive requests and return responses.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>urls.py</code></td>
+                  <td>Keeps URL routes for this specific app together.</td>
+                </tr>
+                <tr>
+                  <td><code>__init__.py</code></td>
+                  <td>Python package initialization file.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="class7" class="mb-5">
+        <h2 class="section-title mb-3">Class 7 — Introduction to Views</h2>
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            What happens when a user enters a URL?
+          </div>
+          <div class="card-body">
+            <div class="diagram">
+              👤 User enters URL ↓ 📍 Django checks URL patterns ↓ 🔎 Finds
+              matching route ↓ 👀 Calls connected View ↓ 📦 View creates
+              Response ↓ 🌐 Response goes to user
+            </div>
+            <p class="mt-4">
+              A <strong>view</strong> is code that handles a request and returns
+              a response.
+            </p>
+            <div class="alert alert-success mb-0">
+              <strong>Easy memory:</strong> URL tells Django <em>where</em>.
+              View tells Django <em>what to do</em>.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="views" class="mb-5">
+        <h2 class="section-title mb-3">4. What Is a View?</h2>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-success text-white">View definition</div>
+          <div class="card-body">
+            <p>
+              A Django view can be a <strong>function or a class</strong> that
+              receives a request and returns a response.
+            </p>
+            <div class="diagram">Request → View → Response</div>
+            <p class="mt-4">
+              <strong>HTTP response</strong> is information Django sends back to
+              the browser, such as HTML or JSON.
+            </p>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-header bg-info text-dark">
+            Simple function-based view
+          </div>
+          <div class="card-body">
+            <pre class="codebox"><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello from Django!")</code></pre>
+            <ul class="mt-3">
+              <li>
+                <code>request</code> contains information about the incoming
+                request.
+              </li>
+              <li>Django passes the request when it calls the view.</li>
+              <li><code>HttpResponse</code> creates an HTTP response.</li>
+              <li><code>HttpResponse</code> uses PascalCase.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="urls" class="mb-5">
+        <h2 class="section-title mb-3">5. URL Configuration — URLconf</h2>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-warning text-dark">What is URLconf?</div>
+          <div class="card-body">
+            <p>
+              <strong>URLconf</strong> means Django's URL configuration. It
+              connects URL patterns to views.
+            </p>
+            <div class="diagram">
+              URL pattern + Connected view ↓ Django knows which view to call
+            </div>
+            <p class="mt-4">
+              Think of it like a receptionist: “The user asked for
+              <code>/blog/</code>. Which view should handle it?”
+            </p>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-header bg-dark text-white">
+            Main project urls.py using include()
+          </div>
+          <!-- blog apps - views -->
+          <div class="card-body">
+            <strong>blogs/view.py</strong>
+            <pre class="codebox"><code>from django.shortcuts import render
+from django.http import HttpResponse
+
+# Create your views here.
+def home(request):
+    return HttpResponse("welcome to blog page")
+
+def about(request):
+    return HttpResponse("welcome to about page of blog")
+
+</code></pre>
+          </div>
+
+          <!-- blog urls -->
+
+          <div class="card-body">
+            <strong>blogs/urls.py</strong>
+            <pre class="codebox"><code>from . import views
+from django.urls import path
+
+urlpatterns=[
+    path("",views.home,name="home"),
+    path("about/",views.about,name="about"),
+]
+</code></pre>
+          </div>
+
+          <!-- main  project urls.py -->
+
+          <div class="card-body">
+            <strong>myproject/urls.py</strong>
+            <pre class="codebox"><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls')),
+]</code></pre>
+            <p class="mt-3">
+              <code>include('blog.urls')</code> tells Django to continue looking
+              in <code>blog/urls.py</code>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="functional" class="mb-5">
+        <h2 class="section-title mb-3">6. Function-Based View Import</h2>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            Import the views module
+          </div>
+          <div class="card-body">
+            <pre class="codebox"><code>from django.contrib import admin
+from django.urls import path
+from blog import views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('blog/', views.home, name='home'),
+]</code></pre>
+            <p class="mt-3">
+              <code>views.home</code> means the <code>home</code> function from
+              <code>blog/views.py</code>.
+            </p>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-header bg-info text-dark">
+            Import the function directly
+          </div>
+          <div class="card-body">
+            <pre class="codebox"><code>from django.contrib import admin
+from django.urls import path
+from blog.views import home
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('blog/', home, name='home'),
+]</code></pre>
+            <div class="alert alert-info mt-3 mb-0">
+              Both approaches work. They only differ in how the view is imported
+              and referenced.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="imports" class="mb-5">
+        <h2 class="section-title mb-3">7. Class-Based View Import</h2>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-danger text-white">Syntax</div>
+          <div class="card-body">
+            <p>
+              For a class-based view, use <code>.as_view()</code> in the URL
+              pattern.
+            </p>
+            <pre class="codebox"><code>from django.urls import path
+from blog.views import HomeView
+
+urlpatterns = [
+    path('blog/', HomeView.as_view(), name='home'),
+]</code></pre>
+            <div class="alert alert-danger mt-3 mb-0">
+              <strong>Remember:</strong> Use <code>HomeView.as_view()</code>,
+              not just <code>HomeView</code>.
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-header bg-secondary text-white">
+            Example class view
+          </div>
+          <div class="card-body">
+            <pre class="codebox"><code>from django.http import HttpResponse
+from django.views import View
+
+class HomeView(View):
+    def get(self, request):
+        return HttpResponse("Hello from class-based view!")</code></pre>
+            <p class="mt-3">
+              The class extends Django's <code>View</code> class. The
+              <code>get()</code> method handles a GET request.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="appurls" class="mb-5">
+        <h2 class="section-title mb-3">
+          8. Why Create urls.py Inside the App?
+        </h2>
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white">
+            Keep feature routes together
+          </div>
+          <div class="card-body">
+            <p>
+              With many apps, putting every route into one main
+              <code>urls.py</code> can become difficult to manage.
+            </p>
+            <div class="diagram">
+              Main project urls.py │ ├── include → blog/urls.py ├── include →
+              shop/urls.py └── include → accounts/urls.py
+            </div>
+            <p class="mt-4">
+              This is similar to the router pattern often used in Node.js: each
+              feature keeps its routes together, while the main URL
+              configuration includes them.
+            </p>
+            <div class="alert alert-info mb-0">
+              <strong>Easy memory:</strong> Main urls.py = central traffic
+              controller. App urls.py = routes for one feature.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="flow" class="mb-5">
+        <h2 class="section-title mb-3">9. Complete Class 6 + 7 Flow</h2>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-dark text-white">
+            From project creation to response
+          </div>
+          <div class="card-body">
+            <ol>
+              <li>Create the Django project.</li>
+              <li>
+                Create an app: <code>python manage.py startapp blog</code>.
+              </li>
+              <li>
+                Register <code>blog</code> inside <code>INSTALLED_APPS</code>.
+              </li>
+              <li>
+                Create a function or class inside <code>blog/views.py</code>.
+              </li>
+              <li>
+                Create <code>blog/urls.py</code> and connect URLs to views.
+              </li>
+              <li>
+                Include <code>blog.urls</code> from the main project's
+                <code>urls.py</code>.
+              </li>
+              <li>Run the server and open the route in the browser.</li>
+            </ol>
+            <div class="diagram">
+              Browser ↓ Main project urls.py ↓ include('blog.urls') ↓
+              blog/urls.py ↓ blog/views.py ↓ HttpResponse ↓ Browser
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm tip">
+          <div class="card-body">
+            <h5 class="fw-bold">Interview Tips 💡</h5>
+            <ul class="mb-0">
+              <li>
+                <strong>One project, many apps:</strong> apps represent features
+                or related functionality.
+              </li>
+              <li>
+                <strong>View:</strong> a function or class that handles a
+                request and returns a response.
+              </li>
+              <li><strong>URLconf:</strong> connects URL patterns to views.</li>
+              <li>
+                <strong>Function import:</strong>
+                <code>from blog import views</code> → <code>views.home</code>.
+              </li>
+              <li>
+                <strong>Direct import:</strong>
+                <code>from blog.views import home</code> → <code>home</code>.
+              </li>
+              <li>
+                <strong>Class import:</strong>
+                <code>from blog.views import HomeView</code> →
+                <code>HomeView.as_view()</code>.
+              </li>
+              <li>
+                <strong>Organization:</strong> keep each app's routes in its own
+                <code>urls.py</code> and include them from the main URLconf.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-5">
+        <h2 class="section-title mb-3">10. Quick Revision</h2>
+        <div class="card shadow-sm">
+          <div class="card-header bg-secondary text-white">
+            Commands and syntax
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Purpose</th>
+                  <th>Syntax</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Create app</td>
+                  <td><code>python manage.py startapp blog</code></td>
+                </tr>
+                <tr>
+                  <td>Register app</td>
+                  <td>
+                    <code>'blog'</code> inside <code>INSTALLED_APPS</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Include app URLs</td>
+                  <td><code>path('', include('blog.urls'))</code></td>
+                </tr>
+                <tr>
+                  <td>Function view</td>
+                  <td><code>path('blog/', views.home, name='home')</code></td>
+                </tr>
+                <tr>
+                  <td>Direct function import</td>
+                  <td><code>from blog.views import home</code></td>
+                </tr>
+                <tr>
+                  <td>Class import</td>
+                  <td><code>from blog.views import HomeView</code></td>
+                </tr>
+                <tr>
+                  <td>Class view route</td>
+                  <td>
+                    <code>path('blog/', HomeView.as_view(), name='home')</code>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="class7">
+        <h2>class 8 - just task given to create a 2 apps in one project</h2>
+      </section>
+    </main>
+    <footer class="container py-4 border-top">
+      <p class="mb-0">Django Class 6 & 7 & 8 — Apps, Views and URL Routing.</p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
