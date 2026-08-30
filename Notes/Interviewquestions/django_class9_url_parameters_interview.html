@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Django Class 9 — Interview Ready: URL Parameters</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+:root{--ink:#172033;--muted:#667085;--soft:#f5f7fb}
+html{scroll-behavior:smooth;scroll-padding-top:82px}
+body{background:var(--soft);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.65}
+.navbar{background:#10233f!important;backdrop-filter:blur(10px)}
+.navbar-brand{font-weight:800}.hero{background:linear-gradient(135deg,#10233f,#2457c5);color:#fff;border-radius:0 0 28px 28px}
+.doc-card{border:0;border-radius:18px;overflow:hidden}.doc-card .card-header{border:0;padding:14px 20px;font-weight:800}
+.section-title{font-weight:800}.muted{color:var(--muted)}
+.codebox{background:#0d1524;color:#e7edf7;border-radius:12px;padding:18px;overflow:auto;font-size:.88rem;line-height:1.55;margin:0}
+.toggle-btn{border-radius:9px;font-weight:700}.answer{display:none;margin-top:12px}.answer.show{display:block}
+.answer-label{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:#198754}
+.question-no{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:#e9f0ff;color:#1557c0;font-weight:800;margin-right:8px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px}.flowbox{background:#fff;border:1px solid #dbe4f0;border-radius:12px;padding:12px 15px;box-shadow:0 4px 14px rgba(20,40,80,.06);font-weight:650}.arrow{font-size:1.35rem;color:#2563eb}
+.note{border-left:5px solid #0d6efd}.tip{border-left:5px solid #198754}.warn{border-left:5px solid #ffc107}.danger{border-left:5px solid #dc3545}
+.badge-level{font-size:.7rem}.table td,.table th{vertical-align:middle}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+<div class="container-fluid px-4">
+<a class="navbar-brand" href="#top">Django Class 9 • Interview</a>
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">☰</button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#basics">Basics</a></li>
+<li class="nav-item"><a class="nav-link" href="#routing">Routing Flow</a></li>
+<li class="nav-item"><a class="nav-link" href="#questions">Questions</a></li>
+<li class="nav-item"><a class="nav-link" href="#coding">Coding</a></li>
+<li class="nav-item"><a class="nav-link" href="#mistakes">Mistakes</a></li>
+<li class="nav-item"><a class="nav-link" href="#rapid">Rapid Fire</a></li>
+</ul>
+</div></div></nav>
+
+<header id="top" class="hero py-5">
+<div class="container py-4">
+<span class="badge bg-light text-primary mb-3">CLASS 9 • INTERVIEW READY</span>
+<h1 class="display-5 fw-bold">Django URL Parameters</h1>
+<p class="lead mb-2">Views • URL configurations • dynamic routes • <code>path()</code> • <code>re_path()</code> • <code>kwargs</code></p>
+<p class="mb-0 opacity-75">Click <b>Show Answer</b> after trying each question yourself.</p>
+</div></header>
+
+<main class="container py-5">
+
+<section id="basics" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-primary text-white">1. Core concepts you must know</div>
+<div class="card-body p-4">
+<div class="row g-4">
+<div class="col-lg-4"><h3 class="h5">Views with parameters</h3><p>A view can receive values captured from a URL.</p><pre class="codebox"><code>def user(request, user_id):
+    return HttpResponse(user_id)</code></pre></div>
+<div class="col-lg-4"><h3 class="h5">URL configuration</h3><p>A URLconf maps URL patterns to view callables. Django checks patterns in order and uses the first matching pattern.</p><pre class="codebox"><code>path("user/&lt;int:user_id&gt;/",
+     views.user)</code></pre></div>
+<div class="col-lg-4"><h3 class="h5">Project main URLs</h3><p>The root URLconf can delegate a URL prefix to an app using <code>include()</code>.</p><pre class="codebox"><code>path("blog/",
+     include("blog.urls"))</code></pre></div>
+</div>
+<div class="alert alert-info note mt-4 mb-0"><b>Interview sentence:</b> Django URL routing maps an incoming path to a view, captures dynamic values from the route, and passes named captured values to the view as keyword arguments.</div>
+</div></div>
+</section>
+
+<section id="routing" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-success text-white">2. How a dynamic URL reaches a view</div>
+<div class="card-body p-4">
+<div class="flow">
+<div class="flowbox">Browser<br><code>/user/25/</code></div><div class="arrow">→</div>
+<div class="flowbox">Project<br><code>urls.py</code></div><div class="arrow">→</div>
+<div class="flowbox">App<br><code>urls.py</code></div><div class="arrow">→</div>
+<div class="flowbox"><code>&lt;int:user_id&gt;</code><br>captures 25</div><div class="arrow">→</div>
+<div class="flowbox">View<br><code>user_id=25</code></div>
+</div>
+<div class="alert alert-warning warn mt-4"><b>Important:</b> The variable name in the route becomes the keyword argument name. For example, <code>&lt;str:user_name&gt;</code> means the view receives <code>user_name=...</code>.</div>
+<h3 class="h5 mt-4">path converters</h3>
+<div class="table-responsive">
+<table class="table table-bordered bg-white">
+<thead><tr><th>Converter</th><th>Example</th><th>What it matches</th></tr></thead>
+<tbody>
+<tr><td><code>str</code></td><td><code>&lt;str:name&gt;</code></td><td>Non-empty string without <code>/</code></td></tr>
+<tr><td><code>int</code></td><td><code>&lt;int:id&gt;</code></td><td>Zero or positive integer</td></tr>
+<tr><td><code>slug</code></td><td><code>&lt;slug:title&gt;</code></td><td>Slug-style text</td></tr>
+<tr><td><code>uuid</code></td><td><code>&lt;uuid:id&gt;</code></td><td>UUID value</td></tr>
+<tr><td><code>path</code></td><td><code>&lt;path:rest&gt;</code></td><td>String that can include <code>/</code></td></tr>
+</tbody>
+</table>
+</div>
+</div></div>
+</section>
+
+<section id="questions" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-dark text-white">3. Interview questions — fundamentals</div>
+<div class="card-body p-4">
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">1</span>What is URL routing in Django?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p>URL routing is the process of matching an incoming URL path with a URL pattern and then sending the request to the matching view. Django normally checks <code>urlpatterns</code> from top to bottom and stops at the first match.</p><div class="alert alert-info note"><b>Interview tip:</b> Say “URLconf maps URL patterns to views.”</div></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">2</span>What is a dynamic URL? Why do we need it?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p>A dynamic URL contains a value that can change for each request. For example, <code>/blog/1/</code> and <code>/blog/2/</code> can use one route with <code>&lt;int:id&gt;</code> instead of separate routes for every blog.</p></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">3</span>Explain <code>&lt;int:user_id&gt;</code> in <code>path()</code>.</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p><code>int</code> is the path converter and <code>user_id</code> is the variable name. Django matches an integer and passes the converted value to the view as <code>user_id</code>.</p><pre class="codebox"><code>path("user/&lt;int:user_id&gt;/", views.user)
+
+# /user/25/
+# view receives user_id=25</code></pre></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">4</span>What is the difference between <code>path()</code> and <code>re_path()</code>?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p><code>path()</code> uses readable path converters such as <code>int</code>, <code>str</code>, <code>slug</code>, and <code>uuid</code>. <code>re_path()</code> uses regular expressions. Use <code>path()</code> for most normal routes and <code>re_path()</code> when regex matching is actually needed.</p></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">5</span>When would you choose <code>re_path()</code>?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p>Choose <code>re_path()</code> when the URL rule cannot be expressed cleanly with Django's path converters and a regular expression gives the required matching rule.</p><pre class="codebox"><code>re_path(
+    r"^article/(?P&lt;year&gt;[0-9]{4})/$",
+    views.article
+)</code></pre></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">6</span>What is <code>kwargs</code> in a Django view?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p><code>kwargs</code> is a Python dictionary used to collect named keyword arguments. A view can use <code>**kwargs</code> to receive multiple named URL values without declaring every name separately.</p><pre class="codebox"><code>def product(request, **kwargs):
+    # kwargs might be:
+    # {"productid": 101, "productname": "Laptop"}
+    ...</code></pre></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">7</span>Is <code>kwargs</code> a URL-routing method like <code>path()</code>?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p>No. <code>path()</code> and <code>re_path()</code> define URL patterns. <code>**kwargs</code> is a Python function parameter that collects named keyword arguments passed to the view.</p></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">8</span>What happens if the URL variable name and view parameter name do not match?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p>For a normal named route parameter, Django passes the captured value using that route name. If the view does not accept that keyword, the call can fail with an unexpected keyword argument error.</p><pre class="codebox"><code># Route
+path("user/&lt;int:user_id&gt;/", views.user)
+
+# Wrong view
+def user(request, id):
+    ...
+
+# Correct
+def user(request, user_id):
+    ...</code></pre></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">9</span>Why is URL pattern order important?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p>Django checks URL patterns in order and stops at the first match. Therefore, a broad pattern placed before a more specific pattern can capture a URL before the intended pattern gets a chance.</p></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">10</span>What does <code>include()</code> do in project <code>urls.py</code>?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p><code>include()</code> delegates URL matching to another URLconf, commonly an app's <code>urls.py</code>. This keeps project-level routing and app-level routing organized.</p><pre class="codebox"><code>path("blog/", include("blog.urls"))</code></pre></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">11</span>How does a class-based view connect to <code>path()</code>?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p>Pass the result of <code>as_view()</code> to <code>path()</code>.</p><pre class="codebox"><code>from .views import UserDetailView
+
+path(
+    "user/&lt;int:user_id&gt;/",
+    UserDetailView.as_view(),
+    name="user-detail"
+)</code></pre></div>
+</div>
+
+<div class="question">
+<h3 class="h5"><span class="question-no">12</span>Does Django's URLconf inspect GET or POST parameters when matching a route?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p>No. URLconf matching is based on the requested URL path. Query-string data such as <code>?page=3</code> is not part of the URL pattern matching process.</p></div>
+</div>
+
+</div></div>
+</section>
+
+<section id="coding" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-primary text-white">4. Code-based interview questions</div>
+<div class="card-body p-4">
+
+<div class="question mb-5">
+<h3 class="h5"><span class="question-no">13</span>Write a route for <code>/product/101/</code> and pass the ID to the view.</h3>
+<pre class="codebox"><code># Write your answer here first.
+
+</code></pre>
+<button class="btn btn-success btn-sm toggle-btn mt-2" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Expected answer</div><pre class="codebox"><code># urls.py
+path("product/&lt;int:product_id&gt;/",
+     views.product,
+     name="product")
+
+# views.py
+def product(request, product_id):
+    return HttpResponse(
+        f"Product ID: {product_id}"
+    )</code></pre></div>
+</div>
+
+<div class="question mb-5">
+<h3 class="h5"><span class="question-no">14</span>What is wrong with this code?</h3>
+<pre class="codebox"><code># urls.py
+path("user/&lt;int:user_id&gt;/", views.user)
+
+# views.py
+def user(request, id):
+    return HttpResponse(id)</code></pre>
+<button class="btn btn-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Expected answer</div><p>The URL captures a keyword named <code>user_id</code>, but the view expects <code>id</code>. Rename the view parameter or route variable so they agree.</p><pre class="codebox"><code>def user(request, user_id):
+    return HttpResponse(user_id)</code></pre></div>
+</div>
+
+<div class="question mb-5">
+<h3 class="h5"><span class="question-no">15</span>Write a route for username + user ID using <code>path()</code>.</h3>
+<pre class="codebox"><code># Requirement:
+# /user/Sai/25/
+# username = "Sai"
+# user_id = 25</code></pre>
+<button class="btn btn-success btn-sm toggle-btn mt-2" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Expected answer</div><pre class="codebox"><code>path(
+    "user/&lt;str:username&gt;/&lt;int:user_id&gt;/",
+    views.user
+)
+
+def user(request, username, user_id):
+    return HttpResponse(
+        f"{username} - {user_id}"
+    )</code></pre></div>
+</div>
+
+<div class="question mb-5">
+<h3 class="h5"><span class="question-no">16</span>Convert this regex route to a <code>path()</code> route.</h3>
+<pre class="codebox"><code>re_path(
+    r"^article/(?P&lt;year&gt;[0-9]{4})/$",
+    views.article
+)</code></pre>
+<button class="btn btn-success btn-sm toggle-btn mt-2" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Expected answer</div><pre class="codebox"><code>path(
+    "article/&lt;int:year&gt;/",
+    views.article
+)</code></pre><p>This is simpler when the requirement is simply “a positive integer year.”</p></div>
+</div>
+
+<div class="question mb-5">
+<h3 class="h5"><span class="question-no">17</span>Use <code>re_path()</code> to accept exactly a four-digit year.</h3>
+<pre class="codebox"><code># Requirement:
+# /article/2026/
+# exactly four digits</code></pre>
+<button class="btn btn-success btn-sm toggle-btn mt-2" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Expected answer</div><pre class="codebox"><code>re_path(
+    r"^article/(?P&lt;year&gt;[0-9]{4})/$",
+    views.article,
+    name="article"
+)</code></pre><p>With <code>re_path()</code>, captured regex values are passed as strings. If you need an integer, convert it in your application logic or use a suitable <code>path()</code> converter where exact four-digit validation is not required.</p></div>
+</div>
+
+<div class="question mb-5">
+<h3 class="h5"><span class="question-no">18</span>Use <code>**kwargs</code> to handle two dynamic URL values.</h3>
+<pre class="codebox"><code># URL:
+# /product/101/Laptop/</code></pre>
+<button class="btn btn-success btn-sm toggle-btn mt-2" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Expected answer</div><pre class="codebox"><code># urls.py
+path(
+    "product/&lt;int:product_id&gt;/&lt;str:product_name&gt;/",
+    views.product
+)
+
+# views.py
+def product(request, **kwargs):
+    product_id = kwargs["product_id"]
+    product_name = kwargs["product_name"]
+
+    return HttpResponse(
+        f"{product_id} - {product_name}"
+    )</code></pre></div>
+</div>
+
+<div class="question mb-5">
+<h3 class="h5"><span class="question-no">19</span>Find the output for this route.</h3>
+<pre class="codebox"><code>path(
+    "user/&lt;int:id&gt;/&lt;str:name&gt;/",
+    views.user
+)
+
+def user(request, id, name):
+    return HttpResponse(
+        f"{id}:{name}"
+    )
+
+# Request:
+# /user/10/Alex/</code></pre>
+<button class="btn btn-success btn-sm toggle-btn mt-2" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Answer</div><p>The output is <code>10:Alex</code>. Django converts <code>10</code> to an integer because of the <code>int</code> converter.</p></div>
+</div>
+
+<div class="question mb-5">
+<h3 class="h5"><span class="question-no">20</span>What is wrong with this route?</h3>
+<pre class="codebox"><code>path("/user/&lt;int:id&gt;/", views.user)</code></pre>
+<button class="btn btn-success btn-sm toggle-btn mt-2" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Expected answer</div><p>Django URL patterns normally should not begin with a leading slash. Use:</p><pre class="codebox"><code>path("user/&lt;int:id&gt;/", views.user)</code></pre></div>
+</div>
+
+<div class="question">
+<h3 class="h5"><span class="question-no">21</span>Write the project URL configuration for an app called <code>users</code>.</h3>
+<pre class="codebox"><code># project/urls.py
+# Connect the users app under /users/</code></pre>
+<button class="btn btn-success btn-sm toggle-btn mt-2" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Expected answer</div><pre class="codebox"><code>from django.urls import path, include
+
+urlpatterns = [
+    path(
+        "users/",
+        include("users.urls")
+    ),
+]</code></pre></div>
+</div>
+
+</div></div>
+</section>
+
+<section id="scenario" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-info text-dark">5. Scenario-based interview questions</div>
+<div class="card-body p-4">
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">22</span>You have 10,000 products. Would you create 10,000 URL patterns?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Strong answer</div><p>No. I would create one dynamic route such as <code>products/&lt;int:product_id&gt;/</code>. The product ID changes per request, while the same view can fetch and display the requested product.</p></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">23</span>A route works for <code>/user/25/</code> but not <code>/user/abc/</code>. Why?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Strong answer</div><p>If the route uses <code>&lt;int:user_id&gt;</code>, Django expects an integer. <code>abc</code> does not match that converter. If text is required, use <code>&lt;str:user_id&gt;</code> or another suitable converter.</p></div>
+</div>
+
+<div class="question mb-4">
+<h3 class="h5"><span class="question-no">24</span>Your application has hundreds of URLs. How would you keep <code>urls.py</code> maintainable?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Strong answer</div><p>Keep app-specific routes in each app's <code>urls.py</code>, use <code>include()</code> from the project URLconf, give routes meaningful names, and avoid unnecessary regex when <code>path()</code> is enough.</p></div>
+</div>
+
+<div class="question">
+<h3 class="h5"><span class="question-no">25</span>A regex route and a normal path route both match a URL. Which one runs?</h3>
+<button class="btn btn-outline-success btn-sm toggle-btn" onclick="toggle(this)">Show Answer</button>
+<div class="answer"><div class="answer-label">Strong answer</div><p>The first matching URL pattern in <code>urlpatterns</code> runs. This is why URL order matters.</p></div>
+</div>
+
+</div></div>
+</section>
+
+<section id="mistakes" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-danger text-white">6. Common interview traps</div>
+<div class="card-body p-4">
+<div class="row g-3">
+<div class="col-md-6"><div class="alert alert-danger danger h-100"><b>Trap 1:</b> Saying <code>kwargs</code> creates the URL. It does not. It collects keyword arguments in Python.</div></div>
+<div class="col-md-6"><div class="alert alert-warning warn h-100"><b>Trap 2:</b> Saying <code>re_path()</code> is always better. Regex is more flexible but usually less readable.</div></div>
+<div class="col-md-6"><div class="alert alert-info note h-100"><b>Trap 3:</b> Forgetting that <code>&lt;int:id&gt;</code> converts the value to an integer.</div></div>
+<div class="col-md-6"><div class="alert alert-danger danger h-100"><b>Trap 4:</b> Using <code>MyView</code> instead of <code>MyView.as_view()</code> for a class-based view in <code>path()</code>.</div></div>
+<div class="col-md-6"><div class="alert alert-warning warn h-100"><b>Trap 5:</b> Putting a broad route before a more specific route and then wondering why the specific route never runs.</div></div>
+<div class="col-md-6"><div class="alert alert-info note h-100"><b>Trap 6:</b> Confusing URL path parameters with query parameters such as <code>?page=2</code>.</div></div>
+</div>
+</div></div>
+</section>
+
+<section id="rapid" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-secondary text-white">7. Rapid-fire revision</div>
+<div class="card-body p-4">
+<div class="table-responsive">
+<table class="table table-bordered bg-white">
+<thead><tr><th>Question</th><th>Short interview answer</th></tr></thead>
+<tbody>
+<tr><td>What is URLconf?</td><td>A Python mapping of URL patterns to views.</td></tr>
+<tr><td>Dynamic route?</td><td>A route containing captured values such as <code>&lt;int:id&gt;</code>.</td></tr>
+<tr><td>path()?</td><td>Readable URL pattern helper using converters.</td></tr>
+<tr><td>re_path()?</td><td>URL pattern helper using regular expressions.</td></tr>
+<tr><td>kwargs?</td><td>A dictionary for named keyword arguments.</td></tr>
+<tr><td>Why include()?</td><td>Delegate URL patterns to another URLconf.</td></tr>
+<tr><td>What decides matching order?</td><td>The order of entries in <code>urlpatterns</code>.</td></tr>
+<tr><td>CBV in path()?</td><td>Use <code>MyView.as_view()</code>.</td></tr>
+<tr><td>What does int converter do?</td><td>Matches an integer and returns it as an <code>int</code>.</td></tr>
+<tr><td>Leading slash in path()?</td><td>Normally omit it: <code>path("user/", ...)</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="alert alert-success tip mb-0"><b>Final interview strategy:</b> First explain the concept in one sentence. Then show a tiny route + view example. Finally mention the important edge case or common mistake.</div>
+</div></div>
+</section>
+
+<section class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-dark text-white">8. Mini mock interview</div>
+<div class="card-body p-4">
+<p><b>Interviewer:</b> “Explain how <code>/users/25/</code> reaches a Django view.”</p>
+<button class="btn btn-outline-primary btn-sm toggle-btn" onclick="toggle(this)">Show Strong Answer</button>
+<div class="answer"><div class="answer-label">Model response</div><p>“Django starts with the root URLconf, checks <code>urlpatterns</code> in order, and may use <code>include()</code> to delegate to an app URLconf. A route such as <code>users/&lt;int:user_id&gt;/</code> captures <code>25</code> using the integer converter. Django then calls the matching view and passes <code>user_id=25</code> as a keyword argument. The view uses that ID to perform the required operation.”</p></div>
+</div></div>
+</section>
+
+</main>
+
+<footer class="container text-center py-4 muted">
+Django Class 9 • Interview Ready URL Parameters
+</footer>
+
+<script>
+function toggle(btn){
+  const answer=btn.nextElementSibling;
+  answer.classList.toggle("show");
+  btn.textContent=answer.classList.contains("show") ? "Hide Answer" : (btn.textContent.includes("Strong") ? "Show Strong Answer" : "Show Answer");
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

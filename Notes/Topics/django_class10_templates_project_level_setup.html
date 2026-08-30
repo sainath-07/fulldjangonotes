@@ -1,0 +1,105 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Django Class 10 - Templates</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><style>html{scroll-behavior:smooth;scroll-padding-top:80px}body{background:#f5f7fb;color:#172033;font-family:system-ui,sans-serif;line-height:1.7}.navbar{background:#10233f!important}.hero{background:linear-gradient(135deg,#10233f,#2563eb);color:white;border-radius:0 0 28px 28px}.card{border:0;border-radius:18px;overflow:hidden}.card-header{font-weight:800;border:0}.code,.tree{background:#0d1524;color:#e7edf7;border-radius:12px;padding:18px;overflow:auto;font-family:monospace;font-size:.88rem;line-height:1.55}.tree{background:white;color:#172033;border:1px solid #dbe4f0}.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}.box{background:white;border:1px solid #dbe4f0;border-radius:12px;padding:12px 15px;box-shadow:0 4px 14px #14285012;font-weight:600}.arrow{font-size:1.4rem;color:#2563eb}.note{border-left:5px solid #0d6efd}.tip{border-left:5px solid #198754}.warn{border-left:5px solid #ffc107}.danger{border-left:5px solid #dc3545}.step{display:flex;gap:14px}.num{min-width:38px;height:38px;border-radius:50%;background:#e9f0ff;color:#1557c0;display:flex;align-items:center;justify-content:center;font-weight:800}</style></head><body>
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"><div class="container-fluid px-4"><a class="navbar-brand fw-bold" href="#top">Django Class 10</a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">☰</button><div class="collapse navbar-collapse" id="nav"><ul class="navbar-nav ms-auto"><li class="nav-item"><a class="nav-link" href="#what">Templates</a></li><li class="nav-item"><a class="nav-link" href="#works">How It Works</a></li><li class="nav-item"><a class="nav-link" href="#types">Types</a></li><li class="nav-item"><a class="nav-link" href="#setup">Setup</a></li><li class="nav-item"><a class="nav-link" href="#structure">Structure</a></li><li class="nav-item"><a class="nav-link" href="#code">Code</a></li><li class="nav-item"><a class="nav-link" href="#mistakes">Mistakes</a></li><li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li></ul></div></div></nav>
+<header id="top" class="hero py-5"><div class="container py-4"><span class="badge bg-light text-primary mb-3">CLASS 10 • DJANGO TEMPLATES</span><h1 class="display-5 fw-bold">Templates - Project Level Setup</h1><p class="lead mb-0">Learn what templates are, how Django finds them, and how to connect a project-level template to a view and URL.</p></div></header>
+<main class="container py-5">
+<section id="what" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-primary text-white">1. What is a template?</div><div class="card-body p-4"><h2 class="h4 fw-bold">Simple meaning</h2><p>A Django <b>template</b> is usually an HTML file that Django uses to create the page shown in the browser.</p><p>Templates keep the presentation part separate from Python view code. Instead of building the whole HTML response inside Python, we keep the HTML in a template and render it.</p><div class="flow my-4"><div class="box">HTML template<br><code>home.html</code></div><div class="arrow">+</div><div class="box">Django view<br><code>views.py</code></div><div class="arrow">→</div><div class="box">HTML response<br>Browser</div></div><div class="alert alert-info note mb-0"><b>Interview definition:</b> A Django template is a presentation file, commonly HTML, that Django processes to generate the response sent to the browser.</div></div></div></section>
+<section id="works" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-success text-white">2. How does a template work?</div><div class="card-body p-4"><div class="flow my-4"><div class="box">Browser requests URL</div><div class="arrow">→</div><div class="box">URLconf finds view</div><div class="arrow">→</div><div class="box">View calls <code>render()</code></div><div class="arrow">→</div><div class="box">Django finds template</div><div class="arrow">→</div><div class="box">HTML response</div></div><pre class="code"><code>from django.shortcuts import render
+
+def home(request):
+    return render(request, "home.html")</code></pre><p class="mt-3">The <code>render()</code> shortcut loads the template, can receive context data, renders it, and returns an HTTP response.</p><div class="alert alert-success tip"><b>Easy memory:</b> <code>URL → View → render() → Template → HTML Response → Browser</code></div></div></div></section>
+<section id="types" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-info text-dark">3. Template location types</div><div class="card-body p-4"><div class="row g-4"><div class="col-md-6"><div class="card bg-light h-100"><div class="card-body"><h3 class="h5">Project-level templates</h3><p>A shared <code>templates/</code> folder is placed in the project root, commonly beside <code>manage.py</code>. Its location is added to <code>TEMPLATES['DIRS']</code>.</p><div class="alert alert-primary note mb-0"><b>Useful for:</b> shared or site-wide templates.</div></div></div></div><div class="col-md-6"><div class="card bg-light h-100"><div class="card-body"><h3 class="h5">App-level templates</h3><p>Templates can live inside a Django app. With <code>APP_DIRS=True</code>, Django can search installed apps for templates.</p><div class="alert alert-success tip mb-0"><b>Useful for:</b> templates that mainly belong to one app.</div></div></div></div></div><div class="table-responsive mt-4"><table class="table table-bordered bg-white"><thead><tr><th>Point</th><th>Project-level</th><th>App-level</th></tr></thead><tbody><tr><td>Location</td><td>Near <code>manage.py</code></td><td>Inside an installed app</td></tr><tr><td>Discovery</td><td><code>DIRS</code></td><td><code>APP_DIRS=True</code></td></tr><tr><td>Best for</td><td>Shared pages</td><td>App-specific pages</td></tr></tbody></table></div><div class="alert alert-warning warn"><b>Learning note:</b> This class intentionally creates <code>views.py</code> in the inner project package. In a real project, views are normally placed inside Django apps.</div></div></div></section>
+<section id="setup" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-warning text-dark">4. Project-level template setup - step by step</div><div class="card-body p-4">
+<div class="step mb-4"><div class="num">1</div><div><h3 class="h5">Create the template folder</h3><p>Create <code>templates</code> in the outer project directory where <code>manage.py</code> is present.</p><pre class="tree">myproject/\n├── manage.py\n├── myproject/\n└── templates/</pre><p class="small text-secondary">Your supplied example uses <code>template</code>. That is also possible. The folder name and <code>DIRS</code> path must match. This document uses the common name <code>templates</code>.</p></div></div>
+<div class="step mb-4"><div class="num">2</div><div><h3 class="h5">Create the HTML file</h3><p>Create <code>home.html</code> inside the template folder.</p><pre class="code"><code>templates/
+└── home.html</code></pre></div></div>
+<div class="step mb-4"><div class="num">3</div><div><h3 class="h5">Configure settings.py</h3><p>Add the template folder to <code>TEMPLATES['DIRS']</code>.</p><pre class="code"><code>TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        ...
+    },
+]</code></pre></div></div>
+<div class="step mb-4"><div class="num">4</div><div><h3 class="h5">Create the view</h3><p>For this learning example, put the view in the inner project package and import <code>render</code>.</p><pre class="code"><code>from django.shortcuts import render
+
+def home(request):
+    return render(request, 'home.html')</code></pre></div></div>
+<div class="step mb-4"><div class="num">5</div><div><h3 class="h5">Add the view to urls.py</h3><pre class="code"><code>from django.contrib import admin
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('admin/', admin.site.urls),
+]</code></pre></div></div>
+<div class="step"><div class="num">6</div><div><h3 class="h5">Open the URL</h3><p>When you visit the URL, Django calls the view, the view renders <code>home.html</code>, and the browser receives the HTML.</p><div class="alert alert-success tip"><b>Final flow:</b> <code>/ → views.home() → render(request, 'home.html') → templates/home.html → browser</code></div></div></div>
+</div></div></section>
+<section id="structure" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-secondary text-white">5. Project structure</div><div class="card-body p-4"><pre class="tree">myproject/
+│
+├── manage.py
+│
+├── myproject/                 ← inner project package
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+└── templates/                 ← project-level templates
+    └── home.html</pre><div class="alert alert-info note mt-4"><b>Remember:</b> The outer folder contains <code>manage.py</code> and the project-level <code>templates</code> folder. The inner package contains project configuration such as <code>settings.py</code> and <code>urls.py</code>.</div><div class="alert alert-warning warn"><b>Real-project rule:</b> Views normally belong to apps. The inner project package is mainly for project configuration.</div></div></div></section>
+<section id="code" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-primary text-white">6. Complete code</div><div class="card-body p-4"><h3 class="h5">A. settings.py</h3><pre class="code"><code>import os
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]</code></pre><div class="alert alert-secondary mt-3"><b>Alternative syntax:</b> <code>os.path.join(BASE_DIR, 'templates')</code> can also be used. If you use it, import <code>os</code>.</div><h3 class="h5 mt-4">B. myproject/views.py</h3><pre class="code"><code>from django.shortcuts import render
+
+def home(request):
+    return render(request, 'home.html')</code></pre><h3 class="h5 mt-4">C. myproject/urls.py</h3><pre class="code"><code>from django.contrib import admin
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('admin/', admin.site.urls),
+]</code></pre><h3 class="h5 mt-4">D. templates/home.html</h3><pre class="code"><code>&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8" /&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+  &lt;title&gt;Django Template&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Welcome to Django Template page:&lt;/h1&gt;
+  &lt;p&gt;This HTML is loaded from a Django template.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div></div></section>
+<section id="app-level" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-success text-white">7. App-level templates</div><div class="card-body p-4"><p>In a real application, it is common to keep templates inside the app that owns the feature.</p><pre class="tree">myproject/
+├── manage.py
+├── myproject/
+│   ├── settings.py
+│   └── urls.py
+└── users/
+    ├── views.py
+    ├── urls.py
+    └── templates/
+        └── users/
+            └── home.html</pre><pre class="code mt-3"><code># users/views.py
+from django.shortcuts import render
+
+def home(request):
+    return render(request, "users/home.html")</code></pre><div class="alert alert-success tip mt-3"><b>Best practice:</b> Use project-level templates for shared pages and app-level templates for templates owned mainly by one app.</div></div></div></section>
+<section id="mistakes" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-danger text-white">8. Common mistakes</div><div class="card-body p-4"><div class="row g-3"><div class="col-md-6"><div class="alert alert-danger danger h-100"><b>1. Folder mismatch</b><br><code>templates/</code> is created but settings uses <code>template</code>.</div></div><div class="col-md-6"><div class="alert alert-danger danger h-100"><b>2. Wrong DIRS</b><br>The project-level directory is not correctly added to <code>DIRS</code>.</div></div><div class="col-md-6"><div class="alert alert-warning warn h-100"><b>3. Wrong template name</b><br>The path passed to <code>render()</code> does not match the discoverable template.</div></div><div class="col-md-6"><div class="alert alert-warning warn h-100"><b>4. Wrong BASE_DIR assumption</b><br>The path built from <code>BASE_DIR</code> does not point to the folder you created.</div></div><div class="col-md-6"><div class="alert alert-info note h-100"><b>5. APP_DIRS confusion</b><br><code>APP_DIRS=True</code> helps with app-level template discovery; it does not replace project-level <code>DIRS</code>.</div></div><div class="col-md-6"><div class="alert alert-danger danger h-100"><b>6. Views in wrong place</b><br>This lesson uses the inner project for learning. Real projects normally keep views in apps.</div></div><div class="col-md-6"><div class="alert alert-warning warn h-100"><b>7. Duplicate names</b><br>Namespace app templates such as <code>users/home.html</code> to avoid collisions.</div></div><div class="col-md-6"><div class="alert alert-info note h-100"><b>8. Template vs static</b><br>Templates generate HTML. Static files are CSS, JS, images, and other assets.</div></div></div></div></div></section>
+<section id="interview" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-warning text-dark">9. Interview tips</div><div class="card-body p-4"><div class="alert alert-primary note"><b>Q: What is a Django template?</b><br>A Django template is a presentation file, usually HTML, that Django processes to generate the response sent to the client.</div><div class="alert alert-primary note"><b>Q: Project-level vs app-level templates?</b><br>Project-level templates are commonly configured through <code>DIRS</code>. App-level templates live inside an installed app and can be discovered when <code>APP_DIRS=True</code>.</div><div class="alert alert-primary note"><b>Q: Why use render()?</b><br><code>render()</code> provides a convenient way to load a template, pass context data if needed, render it, and return an HTTP response.</div><div class="alert alert-primary note mb-0"><b>Q: Where should views normally be placed?</b><br>In a real Django project, views normally belong to Django apps. The inner project package is mainly for project configuration.</div></div></div></section>
+<section id="revision" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-dark text-white">10. Quick revision</div><div class="card-body p-4"><div class="table-responsive"><table class="table table-bordered bg-white"><thead><tr><th>Term</th><th>Simple meaning</th></tr></thead><tbody><tr><td>Template</td><td>Usually an HTML file used to create the browser page.</td></tr><tr><td><code>render()</code></td><td>Renders a template and returns an HTTP response.</td></tr><tr><td><code>DIRS</code></td><td>Directories searched for project-level templates.</td></tr><tr><td><code>APP_DIRS</code></td><td>Enables template discovery inside installed apps.</td></tr><tr><td>Project-level</td><td>Shared template directory configured through <code>DIRS</code>.</td></tr><tr><td>App-level</td><td>Templates stored inside an app.</td></tr><tr><td><code>BASE_DIR</code></td><td>Base filesystem path used to build project paths.</td></tr></tbody></table></div><div class="alert alert-success tip mb-0"><b>Remember:</b> <code>URL → View → render() → Template → HTML Response → Browser</code></div></div></div></section>
+</main><footer class="container text-center py-4 text-secondary">Django Class 10 • Templates - Project Level Setup</footer><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script></body></html>

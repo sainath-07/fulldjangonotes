@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django Class 9 — URL Parameters</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+:root{--ink:#172033;--muted:#617087;--blue:#2563eb;--soft:#f4f7fb}
+html{scroll-behavior:smooth;scroll-padding-top:86px}
+body{background:var(--soft);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.7}
+.navbar{backdrop-filter:blur(10px);background:rgba(13,32,59,.96)!important}
+.navbar-brand{font-weight:700}
+.hero{background:linear-gradient(135deg,#0d203b,#1d4ed8);color:white;border-radius:0 0 28px 28px}
+.hero .badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2)}
+.doc-card{border:0;border-radius:18px;overflow:hidden}
+.doc-card .card-header{font-weight:700;border:0;padding:14px 20px}
+.section-title{font-weight:800;letter-spacing:-.02em}
+.codebox{background:#101827;color:#e7edf7;border-radius:12px;padding:18px;overflow:auto;font-size:.9rem;line-height:1.55}
+.codebox code{color:inherit}
+.note{border-left:5px solid #0d6efd}
+.tip{border-left:5px solid #198754}
+.warn{border-left:5px solid #ffc107}
+.danger{border-left:5px solid #dc3545}
+.flow{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px}
+.flow .box{padding:13px 16px;border-radius:12px;background:#fff;border:1px solid #dbe4f0;box-shadow:0 5px 15px rgba(20,40,80,.06);font-weight:600}
+.arrow{font-size:1.4rem;color:#2563eb}
+.param{color:#b45309;font-weight:700}
+small,.muted{color:var(--muted)}
+table{vertical-align:middle}
+.toc a{text-decoration:none}
+footer{color:#667085}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+<div class="container-fluid px-4">
+<a class="navbar-brand" href="#top">Django Class 9</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">☰</button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#learn">Learn</a></li>
+<li class="nav-item"><a class="nav-link" href="#app-folder">App Folder</a></li>
+<li class="nav-item"><a class="nav-link" href="#parameters">URL Parameters</a></li>
+<li class="nav-item"><a class="nav-link" href="#methods">path / re_path / kwargs</a></li>
+<li class="nav-item"><a class="nav-link" href="#project-urls">Project URLs</a></li>
+<li class="nav-item"><a class="nav-link" href="#code">Code</a></li>
+<li class="nav-item"><a class="nav-link" href="#mistakes">Mistakes</a></li>
+<li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+</ul>
+</div>
+</div>
+</nav>
+
+<header id="top" class="hero py-5">
+<div class="container py-4">
+<span class="badge rounded-pill px-3 py-2 mb-3">CLASS 9 • DJANGO URLS</span>
+<h1 class="display-5 fw-bold">URL Parameters</h1>
+<p class="lead mb-0">Learn how Django creates dynamic URLs and sends values from the URL to a view.</p>
+</div>
+</header>
+
+<main class="container py-5">
+
+<section id="learn" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-primary text-white">What you will learn</div>
+<div class="card-body p-4">
+<div class="row g-3">
+<div class="col-md-4"><div class="p-3 bg-light rounded-3"><b>1. Views with parameters</b><br><span class="muted">Receive values such as user_id or user_name.</span></div></div>
+<div class="col-md-4"><div class="p-3 bg-light rounded-3"><b>2. URL configurations</b><br><span class="muted">Create routes with dynamic parts.</span></div></div>
+<div class="col-md-4"><div class="p-3 bg-light rounded-3"><b>3. Project main URLs</b><br><span class="muted">Connect the project URL file to an app URL file.</span></div></div>
+</div>
+</div></div>
+</section>
+
+<section id="app-folder" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-success text-white">App folder — where should urls.py live?</div>
+<div class="card-body p-4">
+<p>A Django <b>project</b> contains the main configuration, while a Django <b>app</b> contains a feature or part of the application. For normal app-level routing, create <code>urls.py</code> inside the app folder.</p>
+<div class="flow my-4">
+<div class="box">Project<br><small>project/urls.py</small></div><div class="arrow">→</div>
+<div class="box">include()</div><div class="arrow">→</div>
+<div class="box">App<br><small>app/urls.py</small></div><div class="arrow">→</div>
+<div class="box">View function</div>
+</div>
+<div class="alert alert-info note mb-0"><b>Simple rule:</b> The project URL file decides <i>which app</i> handles a URL. The app URL file decides <i>which view</i> handles the URL inside that app.</div>
+</div></div>
+</section>
+
+<section id="parameters" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-warning text-dark">URL parameters</div>
+<div class="card-body p-4">
+<h2 class="section-title h4">What are URL parameters?</h2>
+<p>URL parameters are dynamic values placed inside a URL. Instead of creating a separate URL for every user or product, one URL pattern can handle many values.</p>
+<div class="row g-3 mb-4">
+<div class="col-md-4"><div class="p-3 bg-light rounded-3"><code>blog/1</code><br><small>blog ID = 1</small></div></div>
+<div class="col-md-4"><div class="p-3 bg-light rounded-3"><code>blog/2</code><br><small>blog ID = 2</small></div></div>
+<div class="col-md-4"><div class="p-3 bg-light rounded-3"><code>products/101</code><br><small>product ID = 101</small></div></div>
+</div>
+<div class="alert alert-success tip"><b>Why?</b> A dynamic URL avoids writing hundreds of hard-coded routes such as <code>blog/1</code>, <code>blog/2</code>, <code>blog/3</code>...</div>
+<h3 class="h5 mt-4">Three concepts used in this lesson</h3>
+<ol>
+<li><b>path()</b> — the normal and recommended way to create URL patterns.</li>
+<li><b>re_path()</b> — uses regular expressions when the URL rule is more complex.</li>
+<li><b>kwargs</b> — a Python dictionary of named values passed from the URL resolver to a view. It is not itself a URL-routing function.</li>
+</ol>
+</div></div>
+</section>
+
+<section id="methods" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-info text-dark">path(), re_path(), and kwargs — what, why, and how?</div>
+<div class="card-body p-4">
+<div class="row g-4">
+<div class="col-lg-4">
+<h3 class="h5">path()</h3>
+<p><b>What:</b> Django's readable URL pattern helper.</p>
+<p><b>Why:</b> Use it for most normal dynamic routes.</p>
+<p><b>How:</b> Put a converter and variable name inside <code>&lt;...&gt;</code>.</p>
+<pre class="codebox"><code>path("name/&lt;str:user_name&gt;",
+     views.username)</code></pre>
+</div>
+<div class="col-lg-4">
+<h3 class="h5">re_path()</h3>
+<p><b>What:</b> A URL pattern helper that accepts a regular expression.</p>
+<p><b>Why:</b> Use it when a pattern needs regex-level matching.</p>
+<p><b>How:</b> Write the regex and capture named groups.</p>
+<pre class="codebox"><code>re_path(
+ r"^article/(?P&lt;year&gt;[0-9]{4})/"
+ r"(?P&lt;month&gt;[0-9]{2})/$",
+ views.dob
+)</code></pre>
+</div>
+<div class="col-lg-4">
+<h3 class="h5">kwargs</h3>
+<p><b>What:</b> A dictionary containing named URL values.</p>
+<p><b>Why:</b> It lets a view accept several named values without declaring each one separately.</p>
+<p><b>How:</b> Django can call the view with keyword arguments such as <code>productid</code> and <code>productname</code>.</p>
+<pre class="codebox"><code>def productDetails(request, **kwargs):
+    return HttpResponse(
+      f"productDetails: {kwargs}"
+    )</code></pre>
+</div>
+</div>
+
+<hr class="my-4">
+<h3 class="h5">path() vs re_path()</h3>
+<div class="table-responsive">
+<table class="table table-bordered bg-white">
+<thead><tr><th>Point</th><th>path()</th><th>re_path()</th></tr></thead>
+<tbody>
+<tr><td>Syntax</td><td>Converters such as <code>&lt;int:id&gt;</code></td><td>Regular expression</td></tr>
+<tr><td>Readability</td><td>Easy to read</td><td>More complex</td></tr>
+<tr><td>Best for</td><td>Normal dynamic URLs</td><td>Special or complex matching rules</td></tr>
+<tr><td>Example</td><td><code>path("user/&lt;int:id&gt;/", ...)</code></td><td><code>re_path(r"^user/(?P&lt;id&gt;[0-9]+)/$", ...)</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="alert alert-warning warn"><b>Interview point:</b> Prefer <code>path()</code> when a converter can express the requirement. Reach for <code>re_path()</code> when you genuinely need regular-expression matching.</div>
+</div></div>
+</section>
+
+<section id="dynamic" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-secondary text-white">How does the dynamic variable name work?</div>
+<div class="card-body p-4">
+<p>In <code>&lt;int:user_id&gt;</code>, <code>int</code> is the converter and <code>user_id</code> is the variable name. Django captures the value from the URL and sends it to the view using that name.</p>
+<pre class="codebox"><code>path("userDetails/&lt;int:user_id&gt;/&lt;str:user_name&gt;",
+     views.userDetails)</code></pre>
+<div class="flow my-4">
+<div class="box">/userDetails/25/Sai</div><div class="arrow">→</div>
+<div class="box"><span class="param">user_id = 25</span><br><span class="param">user_name = "Sai"</span></div><div class="arrow">→</div>
+<div class="box">views.userDetails(request, user_id=25, user_name="Sai")</div>
+</div>
+<div class="alert alert-danger danger"><b>Names must match:</b> If the route uses <code>&lt;str:user_name&gt;</code>, the view must accept <code>user_name</code> (or use <code>**kwargs</code>). Changing the route name to <code>&lt;str:name&gt;</code> while leaving the view as <code>user_name</code> causes an argument mismatch.</div>
+</div></div>
+</section>
+
+<section id="project-urls" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-primary text-white">Project main urls.py — class-based import syntax</div>
+<div class="card-body p-4">
+<p>The main project <code>urls.py</code> can connect an app's URL configuration with <code>include()</code>. You can also import a class-based view directly and pass the result of <code>.as_view()</code> to <code>path()</code>.</p>
+<h3 class="h5">Recommended app include</h3>
+<pre class="codebox"><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("", include("myapp.urls")),
+]</code></pre>
+<h3 class="h5 mt-4">Class-based view import syntax</h3>
+<pre class="codebox"><code># project/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+from myapp.views import UserDetailView
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("user/&lt;int:user_id&gt;/",
+         UserDetailView.as_view(),
+         name="user-detail"),
+]</code></pre>
+<div class="alert alert-info note"><b>Remember:</b> For a class-based view, URL configuration normally uses <code>ClassName.as_view()</code>, not just <code>ClassName</code>. If you keep routes inside the app, import the app URL module with <code>include("myapp.urls")</code>.</div>
+</div></div>
+</section>
+
+<section id="code" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-success text-white">Complete working example</div>
+<div class="card-body p-4">
+<h3 class="h5">1. views.py</h3>
+<pre class="codebox"><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Welcome to Home page...")
+
+def username(request, user_name):
+    return HttpResponse(
+        f'&lt;h2&gt;user page, user name: {user_name}&lt;/h2&gt;'
+    )
+
+def userDetails(request, user_name, user_id):
+    return HttpResponse(
+        f'&lt;h2&gt;User Details of user name and user id - '
+        f'user_name:{user_name}, user_id: {user_id}&lt;/h2&gt;'
+    )
+
+def productDetails(request, **kwargs):
+    return HttpResponse(
+        f'productDetails page with kwargs: {kwargs}'
+    )
+
+def dob(request, year, month):
+    return HttpResponse(
+        f'&lt;h2&gt;dob: year:{year} month:{month} &lt;/h2&gt;'
+    )</code></pre>
+
+<h3 class="h5 mt-4">2. app/urls.py</h3>
+<pre class="codebox"><code>from . import views
+from django.urls import path, re_path
+
+urlpatterns = [
+    path("", views.home, name="home"),
+
+    # Handling a single dynamic route with path.
+    path("name/&lt;str:user_name&gt;",
+         views.username,
+         name="user_name"),
+
+    # Handling multiple dynamic routes with path.
+    path("userDetails/&lt;int:user_id&gt;/&lt;str:user_name&gt;",
+         views.userDetails,
+         name="userDetails"),
+
+    # Passing multiple dynamic routes and handling with kwargs.
+    path("productdetails/&lt;int:productid&gt;/&lt;str:productname&gt;/",
+         views.productDetails,
+         name="productDetails"),
+
+    # Complex dynamic path with re_path.
+    re_path(
+        r"^article/(?P&lt;year&gt;[0-9]{4})/"
+        r"(?P&lt;month&gt;[0-9]{2})/$",
+        views.dob,
+        name="dob"
+    ),
+]</code></pre>
+
+<h3 class="h5 mt-4">3. project/urls.py</h3>
+<pre class="codebox"><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("", include("myapp.urls")),
+]</code></pre>
+
+<div class="alert alert-success tip mt-4"><b>Small correction from the original example:</b> <code>kwargs</code> is the correct spelling. The original code/comment used <code>kwars</code> in a few places. The variable name <code>kwargs</code> is conventional and clearer.</div>
+</div></div>
+</section>
+
+<section id="routes" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-dark text-white">Route examples — see the flow</div>
+<div class="card-body p-4">
+<div class="table-responsive">
+<table class="table table-hover">
+<thead><tr><th>URL</th><th>Pattern</th><th>Values received</th></tr></thead>
+<tbody>
+<tr><td><code>/name/Sai</code></td><td><code>&lt;str:user_name&gt;</code></td><td><code>user_name = "Sai"</code></td></tr>
+<tr><td><code>/userDetails/25/Sai</code></td><td><code>&lt;int:user_id&gt;/&lt;str:user_name&gt;</code></td><td><code>user_id=25</code>, <code>user_name="Sai"</code></td></tr>
+<tr><td><code>/productdetails/101/Laptop/</code></td><td><code>&lt;int:productid&gt;/&lt;str:productname&gt;</code></td><td><code>{"productid":101,"productname":"Laptop"}</code></td></tr>
+<tr><td><code>/article/2026/08/</code></td><td><code>(?P&lt;year&gt;[0-9]{4})/... </code></td><td><code>year=2026</code>, <code>month=08</code></td></tr>
+</tbody>
+</table>
+</div>
+</div></div>
+</section>
+
+<section id="mistakes" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-danger text-white">Common developer mistakes</div>
+<div class="card-body p-4">
+<div class="row g-3">
+<div class="col-md-6"><div class="alert alert-danger danger h-100"><b>1. Wrong variable name</b><br>Route: <code>&lt;int:user_id&gt;</code><br>View: <code>def userDetails(request, id):</code><br><br>These names do not match.</div></div>
+<div class="col-md-6"><div class="alert alert-warning warn h-100"><b>2. Wrong converter</b><br><code>&lt;int:user_id&gt;</code> will not match a non-integer value such as <code>abc</code>.</div></div>
+<div class="col-md-6"><div class="alert alert-warning warn h-100"><b>3. Forgetting slashes</b><br>Be consistent with the URL pattern and understand whether your project uses a trailing slash.</div></div>
+<div class="col-md-6"><div class="alert alert-danger danger h-100"><b>4. Calling a class directly</b><br>For a class-based view, use <code>MyView.as_view()</code> in the URL pattern.</div></div>
+<div class="col-md-6"><div class="alert alert-info note h-100"><b>5. Using regex when path() is enough</b><br>Do not make a simple route harder to read without a reason.</div></div>
+<div class="col-md-6"><div class="alert alert-info note h-100"><b>6. Thinking kwargs is a routing method</b><br><code>kwargs</code> is how named keyword values can be received by the view. <code>path()</code> and <code>re_path()</code> define the route.</div></div>
+</div>
+</div></div>
+</section>
+
+<section id="interview" class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-warning text-dark">Interview tips & quick revision</div>
+<div class="card-body p-4">
+<div class="alert alert-primary note"><b>One-line answer:</b> Django URL parameters make routes dynamic by capturing values from the URL and passing those values to the view as named arguments.</div>
+<ul>
+<li><b>path()</b> is the usual choice for dynamic routes.</li>
+<li><b>re_path()</b> is useful when regular-expression matching is required.</li>
+<li>The name inside <code>&lt;...&gt;</code> becomes the keyword argument name.</li>
+<li><code>&lt;int:id&gt;</code> converts the captured value to an integer before the view receives it.</li>
+<li><code>**kwargs</code> collects named keyword arguments into a dictionary.</li>
+<li>For class-based views, use <code>MyView.as_view()</code> in <code>path()</code>.</li>
+</ul>
+<h3 class="h5 mt-4">Memory diagram</h3>
+<div class="flow">
+<div class="box">Browser<br><code>/name/Sai</code></div><div class="arrow">→</div>
+<div class="box">URL pattern<br><code>&lt;str:user_name&gt;</code></div><div class="arrow">→</div>
+<div class="box">Django captures<br><code>user_name="Sai"</code></div><div class="arrow">→</div>
+<div class="box">View<br><code>username(request, user_name)</code></div>
+</div>
+</div></div>
+</section>
+
+<section class="mb-5">
+<div class="card doc-card shadow-sm">
+<div class="card-header bg-secondary text-white">Practice questions</div>
+<div class="card-body p-4">
+<ol>
+<li>Create a route <code>/student/&lt;int:id&gt;/</code> and display the ID in a view.</li>
+<li>Create a route with both <code>username</code> and <code>age</code>.</li>
+<li>Rewrite a simple <code>re_path()</code> route using <code>path()</code>.</li>
+<li>Write a view that receives dynamic URL values using only <code>**kwargs</code>.</li>
+<li>Write the project <code>urls.py</code> that includes an app's <code>urls.py</code>.</li>
+<li>Create a class-based view and connect it using <code>MyView.as_view()</code>.</li>
+</ol>
+</div></div>
+</section>
+
+</main>
+
+<footer class="container text-center py-4">
+Django Class 9 • URL Parameters • Learning notes
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

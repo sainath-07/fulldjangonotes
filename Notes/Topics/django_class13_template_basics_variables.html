@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django Class 13 - Template Basics & Variables</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth;scroll-padding-top:75px}body{background:#f5f7fb;color:#172033;line-height:1.7;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.navbar{background:#10233f!important}.hero{background:linear-gradient(135deg,#10233f,#6f42c1);color:#fff;border-radius:0 0 28px 28px}.card{border:0;border-radius:18px;overflow:hidden}.card-header{font-weight:800;padding:14px 20px}.code{background:#0d1524;color:#e7edf7;border-radius:12px;padding:18px;overflow:auto;font-size:.88rem;line-height:1.55}.tree{background:#fff;border:1px solid #dbe4f0;border-radius:12px;padding:18px;font-family:monospace;white-space:pre;overflow:auto}.note{border-left:5px solid #0d6efd}.tip{border-left:5px solid #198754}.warn{border-left:5px solid #ffc107}.danger{border-left:5px solid #dc3545}.flow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px}.box{background:#fff;border:1px solid #dbe4f0;border-radius:12px;padding:12px 16px;font-weight:700;box-shadow:0 4px 14px #dbe4f055}.arrow{font-size:1.3rem;color:#6f42c1}.var{background:#eef2ff;padding:2px 6px;border-radius:5px;font-family:monospace}.table td,.table th{vertical-align:middle}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+<div class="container-fluid px-4"><a class="navbar-brand fw-bold" href="#top">Django Class 13</a>
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">☰</button>
+<div class="collapse navbar-collapse" id="nav"><ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#learn">Learn</a></li><li class="nav-item"><a class="nav-link" href="#setup">Setup</a></li><li class="nav-item"><a class="nav-link" href="#views">Views</a></li><li class="nav-item"><a class="nav-link" href="#variables">Variables</a></li><li class="nav-item"><a class="nav-link" href="#data">Data Access</a></li><li class="nav-item"><a class="nav-link" href="#nested">Nested</a></li><li class="nav-item"><a class="nav-link" href="#defaults">Defaults</a></li><li class="nav-item"><a class="nav-link" href="#escape">Safe & Autoescape</a></li><li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li></ul></div></div></nav>
+
+<header id="top" class="hero py-5"><div class="container py-4"><span class="badge bg-light text-dark mb-3">CLASS 13 • DJANGO TEMPLATES</span><h1 class="display-5 fw-bold">Template Basics & Variables</h1><p class="lead mb-0">Learn template setup, variables, nested data, default filters, and safe HTML handling in simple terms.</p></div></header>
+
+<main class="container py-5">
+
+<section id="learn" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-primary text-white">1. What will we learn?</div><div class="card-body p-4">
+<div class="row g-3"><div class="col-md-4"><div class="alert alert-primary note h-100"><b>Template setup</b><br>Connect Django with HTML templates.</div></div><div class="col-md-4"><div class="alert alert-success tip h-100"><b>Variables</b><br>Display values passed from views.</div></div><div class="col-md-4"><div class="alert alert-warning warn h-100"><b>Filters & security</b><br>Use defaults and HTML escaping correctly.</div></div></div>
+<div class="flow mt-4"><div class="box">Python data</div><div class="arrow">→</div><div class="box">views.py</div><div class="arrow">→</div><div class="box">Context</div><div class="arrow">→</div><div class="box">{{ variable }}</div><div class="arrow">→</div><div class="box">Browser</div></div>
+</div></div></section>
+
+<section id="setup" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-success text-white">2. Template setup</div><div class="card-body p-4">
+<p>A Django template is usually an HTML file. Django must know where to search for templates.</p>
+<pre class="code"><code>TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]</code></pre>
+<div class="alert alert-info note mb-0"><b>Remember:</b> <code>DIRS</code> can point to project-level template directories. <code>APP_DIRS=True</code> enables discovery of templates inside installed apps.</div>
+</div></div></section>
+
+<section id="views" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-info text-dark">3. Rendering templates using views.py</div><div class="card-body p-4">
+<p>A view creates data and passes it to a template using a context dictionary.</p>
+<pre class="code"><code>from django.shortcuts import render
+
+def home(request):
+    context = {
+        "name": "Sainath",
+        "age": 25,
+        "course": "Django"
+    }
+    return render(request, "home.html", context)</code></pre>
+<pre class="code mt-3"><code>&lt;h1&gt;Welcome {{ name }}&lt;/h1&gt;
+&lt;p&gt;Age: {{ age }}&lt;/p&gt;
+&lt;p&gt;Course: {{ course }}&lt;/p&gt;</code></pre>
+<div class="alert alert-success tip mb-0"><b>Easy rule:</b> A context key becomes the template variable name. <code>"name": "Sainath"</code> is accessed as <code>{{ name }}</code>.</div>
+</div></div></section>
+
+<section id="variables" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-primary text-white">4. {{ variables }} basics</div><div class="card-body p-4">
+<p>Template variables use double curly braces:</p><pre class="code"><code>{{ variable_name }}</code></pre>
+<p>Example:</p><pre class="code"><code>context = {
+    "username": "Rahul",
+    "age": 30
+}</code></pre>
+<pre class="code mt-3"><code>&lt;h2&gt;Name: {{ username }}&lt;/h2&gt;
+&lt;p&gt;Age: {{ age }}&lt;/p&gt;</code></pre>
+<div class="alert alert-primary note"><b>Important:</b> Django template syntax is intentionally simpler than normal Python expressions.</div>
+<div class="alert alert-warning warn mb-0"><b>Missing values:</b> An unresolved ordinary template variable commonly renders as an empty string. Default filters can provide fallback text.</div>
+</div></div></section>
+
+<section id="data" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-secondary text-white">5. Dictionary, list, object & attribute access</div><div class="card-body p-4">
+<h3 class="h5">Dictionary</h3><pre class="code"><code>context = {
+    "user": {
+        "name": "Amit",
+        "email": "amit@example.com"
+    }
+}</code></pre><pre class="code mt-3"><code>{{ user.name }}
+{{ user.email }}</code></pre>
+<h3 class="h5 mt-4">List</h3><pre class="code"><code>context = {
+    "fruits": ["Apple", "Banana", "Mango"]
+}</code></pre><pre class="code mt-3"><code>{{ fruits.0 }}
+{{ fruits.1 }}
+{{ fruits.2 }}</code></pre>
+<div class="alert alert-info note">List indexes start from <code>0</code>.</div>
+<h3 class="h5 mt-4">Object attribute</h3><pre class="code"><code>class User:
+    def __init__(self, name):
+        self.name = name
+
+user = User("Priya")
+context = {"user": user}</code></pre><pre class="code mt-3"><code>{{ user.name }}</code></pre>
+<p>Django's dot notation can resolve dictionary keys, object attributes, and list indexes according to its template variable lookup rules.</p>
+<div class="alert alert-success tip mb-0"><b>Memory:</b> <code>{{ user.name }}</code>, <code>{{ fruits.0 }}</code> and similar dot lookups are common in templates.</div>
+</div></div></section>
+
+<section id="nested" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-dark text-white">6. Nested variables — {{ user.profile.name }}</div><div class="card-body p-4">
+<pre class="code"><code>context = {
+    "user": {
+        "profile": {
+            "name": "Anil"
+        }
+    }
+}</code></pre>
+<pre class="code mt-3"><code>&lt;h2&gt;Name: {{ user.profile.name }}&lt;/h2&gt;</code></pre>
+<div class="flow my-4"><div class="box">user</div><div class="arrow">→</div><div class="box">profile</div><div class="arrow">→</div><div class="box">name</div><div class="arrow">→</div><div class="box">Anil</div></div>
+<div class="alert alert-primary note"><b>Meaning:</b> Django follows the value through multiple levels of dot lookup.</div>
+<div class="alert alert-warning warn mb-0"><b>Mistake:</b> The nested path must be resolvable. If an intermediate value cannot be resolved, output may be empty.</div>
+</div></div></section>
+
+<section id="defaults" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-warning text-dark">7. default & default_if_none</div><div class="card-body p-4">
+<h3 class="h5">Without a filter</h3><pre class="code"><code>&lt;h2&gt;Value: {{ empty_value }}&lt;/h2&gt;</code></pre>
+<h3 class="h5 mt-4">default</h3><p><code>default</code> uses the fallback when the value is false/empty according to Django's template filter behavior.</p>
+<pre class="code"><code>&lt;h2&gt;
+{{ empty_value|default:"Value is empty, so we show this text" }}
+&lt;/h2&gt;</code></pre>
+<h3 class="h5 mt-4">default_if_none</h3><p><code>default_if_none</code> uses the fallback <b>only when the value is None</b>.</p>
+<pre class="code"><code>&lt;h2&gt;
+{{ empty_value|default_if_none:"If value is None, we show this text" }}
+&lt;/h2&gt;</code></pre>
+<div class="table-responsive mt-4"><table class="table table-bordered bg-white"><thead><tr><th>Value</th><th>default</th><th>default_if_none</th></tr></thead><tbody>
+<tr><td><code>None</code></td><td>Fallback</td><td>Fallback</td></tr><tr><td><code>""</code></td><td>Fallback</td><td>Empty string</td></tr><tr><td><code>0</code></td><td>Fallback</td><td>0</td></tr><tr><td><code>False</code></td><td>Fallback</td><td>False</td></tr><tr><td><code>"Hello"</code></td><td>Hello</td><td>Hello</td></tr>
+</tbody></table></div>
+<div class="alert alert-success tip mb-0"><b>Easy difference:</b> <code>default</code> handles false/empty values; <code>default_if_none</code> is specifically for <code>None</code>.</div>
+</div></div></section>
+
+<section id="escape" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-danger text-white">8. Safe vs autoescape</div><div class="card-body p-4">
+<h3 class="h5">What is autoescape?</h3><p>Django automatically escapes HTML-sensitive characters in normal variable output. This helps prevent untrusted content from being interpreted as HTML.</p>
+<pre class="code"><code>context = {
+    "content": "&lt;b&gt;Welcome to Blog template page.&lt;/b&gt;"
+}</code></pre>
+<p>Without <code>safe</code>:</p><pre class="code"><code>Content: {{ content }}</code></pre>
+<p>The HTML-looking value is escaped instead of being treated as a real <code>&lt;b&gt;</code> element.</p>
+<div class="alert alert-warning warn"><b>Think of autoescape as protection:</b> variable content is escaped by default so HTML markup is not automatically interpreted.</div>
+<h3 class="h5 mt-4">What is safe?</h3><p>The <code>safe</code> filter marks a value as safe HTML, so Django does not escape it.</p>
+<pre class="code"><code>Content: {{ content|safe }}</code></pre>
+<p>If the value contains <code>&lt;b&gt;Welcome to Blog template page.&lt;/b&gt;</code>, the browser can display:</p>
+<div class="alert alert-light border"><b>Welcome to Blog template page.</b></div>
+<div class="alert alert-danger danger"><b>Security warning:</b> Never blindly use <code>|safe</code> on user-provided or untrusted HTML. Unsafe content can create XSS vulnerabilities.</div>
+<h3 class="h5 mt-4">escape</h3><p>The <code>escape</code> filter explicitly escapes HTML-sensitive characters.</p><pre class="code"><code>{{ content|escape }}</code></pre>
+<div class="table-responsive mt-3"><table class="table table-bordered bg-white"><thead><tr><th>Behavior</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Autoescape</td><td>Escapes normal variable output by default.</td></tr><tr><td><code>safe</code></td><td>Treats a value as safe HTML; use only for trusted content.</td></tr><tr><td><code>escape</code></td><td>Escapes HTML-sensitive characters.</td></tr>
+</tbody></table></div>
+</div></div></section>
+
+<section id="mistakes" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-danger text-white">9. Common developer mistakes</div><div class="card-body p-4"><div class="row g-3">
+<div class="col-md-6"><div class="alert alert-danger danger h-100"><b>Wrong context key</b><br>View sends <code>username</code>, template uses <code>user_name</code>.</div></div>
+<div class="col-md-6"><div class="alert alert-warning warn h-100"><b>Wrong nested path</b><br>Using <code>{{ user.profile.name }}</code> when the required relationship does not exist.</div></div>
+<div class="col-md-6"><div class="alert alert-danger danger h-100"><b>Unsafe safe filter</b><br>Using <code>|safe</code> on untrusted user input.</div></div>
+<div class="col-md-6"><div class="alert alert-info note h-100"><b>Confusing defaults</b><br>Use <code>default_if_none</code> when only <code>None</code> should trigger the fallback.</div></div>
+<div class="col-md-6"><div class="alert alert-warning warn h-100"><b>Template not found</b><br>Check template location, <code>DIRS</code>, <code>APP_DIRS</code>, and installed apps.</div></div>
+<div class="col-md-6"><div class="alert alert-info note h-100"><b>Expecting Python syntax</b><br>Django templates have their own limited syntax; do not treat them like normal Python code.</div></div>
+</div></div></div></section>
+
+<section id="interview" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-dark text-white">10. Interview-ready questions</div><div class="card-body p-4">
+<div class="accordion" id="questions">
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#q1">Q1. How do you pass data from a view to a template?</button></h2><div id="q1" class="accordion-collapse collapse show" data-bs-parent="#questions"><div class="accordion-body"><b>Answer:</b> Put the data in a context dictionary and pass it to <code>render(request, template_name, context)</code>.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q2">Q2. What does {{ variable }} mean?</button></h2><div id="q2" class="accordion-collapse collapse" data-bs-parent="#questions"><div class="accordion-body"><b>Answer:</b> It asks Django to resolve a template variable and output its value.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q3">Q3. How do you access dictionary data?</button></h2><div id="q3" class="accordion-collapse collapse" data-bs-parent="#questions"><div class="accordion-body"><b>Answer:</b> Django commonly uses dot notation, such as <code>{{ user.name }}</code>, subject to its template variable lookup rules.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q4">Q4. How do you access a list item?</button></h2><div id="q4" class="accordion-collapse collapse" data-bs-parent="#questions"><div class="accordion-body"><b>Answer:</b> Use dot notation with the index, such as <code>{{ fruits.0 }}</code>.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q5">Q5. Difference between default and default_if_none?</button></h2><div id="q5" class="accordion-collapse collapse" data-bs-parent="#questions"><div class="accordion-body"><b>Answer:</b> <code>default</code> uses a fallback for false/empty values, while <code>default_if_none</code> uses it only for <code>None</code>.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q6">Q6. What is autoescape?</button></h2><div id="q6" class="accordion-collapse collapse" data-bs-parent="#questions"><div class="accordion-body"><b>Answer:</b> Autoescape escapes HTML-sensitive characters in variable output by default, helping protect against unsafe HTML interpretation.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q7">Q7. What does safe do and why can it be dangerous?</button></h2><div id="q7" class="accordion-collapse collapse" data-bs-parent="#questions"><div class="accordion-body"><b>Answer:</b> <code>safe</code> prevents escaping for that value and allows trusted HTML to render. Applying it to untrusted content can create XSS vulnerabilities.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q8">Q8. Explain {{ user.profile.name }}.</button></h2><div id="q8" class="accordion-collapse collapse" data-bs-parent="#questions"><div class="accordion-body"><b>Answer:</b> It is nested variable lookup: Django resolves <code>user</code>, then <code>profile</code>, then <code>name</code>.</div></div></div>
+</div>
+<div class="alert alert-primary note mt-4 mb-0"><b>Interview tip:</b> Explain both the syntax and the reason. For <code>safe</code>, always mention the security risk of trusting unvalidated HTML.</div>
+</div></div></section>
+
+<section id="revision" class="mb-5"><div class="card shadow-sm"><div class="card-header bg-success text-white">11. Quick revision</div><div class="card-body p-4"><div class="table-responsive"><table class="table table-bordered bg-white"><thead><tr><th>Concept</th><th>Syntax / meaning</th></tr></thead><tbody>
+<tr><td>Variable</td><td><code>{{ name }}</code> — displays a value.</td></tr>
+<tr><td>Dictionary/object</td><td><code>{{ user.name }}</code> — dot lookup.</td></tr>
+<tr><td>List</td><td><code>{{ fruits.0 }}</code> — zero-based index.</td></tr>
+<tr><td>Nested</td><td><code>{{ user.profile.name }}</code> — multiple levels.</td></tr>
+<tr><td>default</td><td><code>{{ value|default:"..." }}</code> — fallback for false/empty values.</td></tr>
+<tr><td>default_if_none</td><td><code>{{ value|default_if_none:"..." }}</code> — fallback only for None.</td></tr>
+<tr><td>safe</td><td><code>{{ content|safe }}</code> — trusted HTML is not escaped.</td></tr>
+<tr><td>escape</td><td><code>{{ content|escape }}</code> — escapes HTML-sensitive characters.</td></tr>
+</tbody></table></div><div class="alert alert-success tip mb-0"><b>Memory:</b> View → Context → Template Variable → Optional Filter → HTML Response</div></div></div></section>
+
+</main>
+<footer class="container text-center py-4 text-secondary">Django Class 13 • Template Basics & Variables</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>

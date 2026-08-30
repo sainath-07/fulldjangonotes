@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django Class 15 - Template Tags</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth;scroll-padding-top:75px}body{background:#f4f7fb;color:#172033;line-height:1.7;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.navbar{background:#10233f!important}.hero{background:linear-gradient(135deg,#10233f,#0d6efd);color:#fff;border-radius:0 0 30px 30px}.card{border:0;border-radius:18px;overflow:hidden}.card-header{font-weight:800;padding:15px 20px}.code{background:#0d1524;color:#e8eef7;border-radius:12px;padding:18px;overflow:auto;font-size:.88rem;line-height:1.55}.code code{color:#e8eef7}.diagram{background:#fff;border:1px solid #dce5f0;border-radius:16px;padding:22px}.flow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px}.box{background:#fff;border:1px solid #d9e2ee;border-radius:12px;padding:12px 16px;font-weight:700;text-align:center;box-shadow:0 5px 16px #10233f18}.arrow{font-size:1.3rem;font-weight:800;color:#0d6efd}.note{border-left:5px solid #0d6efd}.tip{border-left:5px solid #198754}.warn{border-left:5px solid #ffc107}.danger{border-left:5px solid #dc3545}.result{background:#f8fafc;border:1px solid #dce5f0;border-radius:10px;padding:10px 14px}.table td,.table th{vertical-align:middle}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"><div class="container-fluid px-4"><a class="navbar-brand fw-bold" href="#top">Django Class 15</a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">☰</button><div class="collapse navbar-collapse" id="nav"><ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#intro">Basics</a></li><li class="nav-item"><a class="nav-link" href="#if">if</a></li><li class="nav-item"><a class="nav-link" href="#for">for</a></li><li class="nav-item"><a class="nav-link" href="#with">with</a></li><li class="nav-item"><a class="nav-link" href="#cycle">cycle</a></li><li class="nav-item"><a class="nav-link" href="#firstof">firstof</a></li><li class="nav-item"><a class="nav-link" href="#now">now</a></li><li class="nav-item"><a class="nav-link" href="#verbatim">verbatim</a></li><li class="nav-item"><a class="nav-link" href="#autoescape">autoescape</a></li><li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+</ul></div></div></nav>
+
+<header id="top" class="hero py-5"><div class="container py-4"><span class="badge bg-light text-dark mb-3">CLASS 15 • DJANGO TEMPLATES</span><h1 class="display-5 fw-bold">Template Tags</h1><p class="lead mb-0">Learn how Django template tags control logic, loops, reusable values, formatting, and HTML escaping.</p></div></header>
+
+<main class="container py-5">
+
+<section id="intro" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-success text-white">1. Template Tags — The Big Picture</div><div class="card-body p-4">
+<p>Template tags are Django instructions written inside <code>{% ... %}</code>. Variables such as <code>{{ name }}</code> mainly display data, while tags tell the template what to do.</p>
+<div class="diagram"><div class="flow"><div class="box">View<br><small>Python data</small></div><div class="arrow">→</div><div class="box">Template Tags<br><small>logic / loops</small></div><div class="arrow">→</div><div class="box">HTML<br><small>browser output</small></div></div></div>
+<div class="table-responsive mt-4"><table class="table table-bordered bg-white"><thead><tr><th>Tag</th><th>Main purpose</th></tr></thead><tbody>
+<tr><td><code>{% if %}</code></td><td>Condition checking</td></tr><tr><td><code>{% for %}</code></td><td>Loop through data</td></tr><tr><td><code>{% with %}</code></td><td>Store a value in a temporary template variable</td></tr><tr><td><code>{% cycle %}</code></td><td>Rotate through values, often useful for rows</td></tr><tr><td><code>{% firstof %}</code></td><td>Display the first truthy value</td></tr><tr><td><code>{% now %}</code></td><td>Display the current date/time</td></tr><tr><td><code>{% verbatim %}</code></td><td>Prevent Django from parsing a template block</td></tr><tr><td><code>{% autoescape %}</code></td><td>Turn automatic HTML escaping on or off for a block</td></tr>
+</tbody></table></div><div class="alert alert-info note mb-0"><b>Memory:</b> <code>{{ }}</code> is commonly used to display a value. <code>{% %}</code> is used for template instructions.</div>
+</div></div></section>
+
+<section id="setup" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-dark text-white">2. Project Setup Used in This Class</div><div class="card-body p-4">
+<h3 class="h5">blog/views.py</h3><pre class="code"><code>from django.shortcuts import render
+from datetime import datetime
+
+def blogPage(request):
+    blogs = [
+        {'title': 'Django basics', 'is_featured': True, 'author': 'Sainath biradar'},
+        {'title': 'Django Advanced', 'is_featured': False, 'author': ''},
+        {'title': 'Django REST Framework', 'is_featured': True, 'author': 'Veda Vyas PB'},
+    ]
+    context = {
+        'name': "blogpage....",
+        'blogs': blogs,
+        'today': datetime.now(),
+        'html_code': '&lt;b&gt;Welcome to My blog&lt;/b&gt;'
+    }
+    return render(request, 'blog/blog.html', context)</code></pre>
+<h3 class="h5 mt-4">blog/urls.py</h3><pre class="code"><code>from . import views
+from django.urls import path
+
+urlpatterns = [
+    path('', views.blogPage, name='blogPage')
+]</code></pre>
+<h3 class="h5 mt-4">innerProject/urls.py</h3><pre class="code"><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls'))
+]</code></pre>
+<div class="alert alert-success tip mb-0"><b>Flow:</b> URL → view → context data → template → template tags → final HTML.</div>
+</div></div></section>
+
+<section id="if" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-primary text-white">3. {% if %} ... {% else %}</div><div class="card-body p-4">
+<p>Use <code>if</code> when the template needs to make a decision.</p><pre class="code"><code>{% if blogs.0.is_featured %}
+    &lt;h2&gt;Featured blog: {{ blogs.0.title }}&lt;/h2&gt;
+{% else %}
+    &lt;h2&gt;No featured Blog: {{ blogs.0.title }}&lt;/h2&gt;
+{% endif %}</code></pre>
+<div class="diagram mt-3"><div class="flow"><div class="box">Condition</div><div class="arrow">→</div><div class="box">True → HTML A</div><div class="arrow">/</div><div class="box">False → HTML B</div></div></div>
+<div class="alert alert-warning warn mt-3 mb-0"><b>Common mistake:</b> Remember to close the block with <code>{% endif %}</code>.</div>
+</div></div></section>
+
+<section id="for" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-success text-white">4. {% for %} ... {% empty %}</div><div class="card-body p-4">
+<p>Use <code>for</code> to repeat HTML for every item in a list or other iterable.</p><pre class="code"><code>&lt;ul&gt;
+{% for blog in blogs %}
+    &lt;li&gt;{{ forloop.counter }}. {{ blog.title }} {{ blog.author }}&lt;/li&gt;
+{% empty %}
+    &lt;li&gt;No blog available&lt;/li&gt;
+{% endfor %}
+&lt;/ul&gt;</code></pre>
+<h3 class="h5 mt-4">Useful <code>forloop</code> variables</h3><div class="table-responsive"><table class="table table-bordered bg-white"><thead><tr><th>Variable</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>forloop.counter</code></td><td>Current iteration, starting at 1</td></tr><tr><td><code>forloop.counter0</code></td><td>Current iteration, starting at 0</td></tr><tr><td><code>forloop.first</code></td><td>True on the first iteration</td></tr><tr><td><code>forloop.last</code></td><td>True on the last iteration</td></tr><tr><td><code>forloop.revcounter</code></td><td>Iterations remaining including current</td></tr>
+</tbody></table></div><div class="alert alert-info note mb-0"><b>Why {% empty %}?</b> It gives a useful message when the collection has no items.</div>
+</div></div></section>
+
+<section id="with" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-info text-dark">5. {% with %}</div><div class="card-body p-4">
+<p><code>with</code> assigns a value to a temporary variable. It is useful when an expression is long or reused.</p><pre class="code"><code>{% with total_blogs=blogs|length %}
+    &lt;p&gt;Total Blogs: {{ total_blogs }}&lt;/p&gt;
+{% endwith %}</code></pre>
+<div class="diagram mt-3"><div class="flow"><div class="box"><code>blogs|length</code></div><div class="arrow">→</div><div class="box"><code>total_blogs</code></div><div class="arrow">→</div><div class="box">Use inside block</div></div></div>
+<div class="alert alert-success tip mt-3 mb-0"><b>Important:</b> The variable created by <code>with</code> is available only inside its block.</div>
+</div></div></section>
+
+<section id="cycle" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-warning text-dark">6. {% cycle %}</div><div class="card-body p-4">
+<p><code>cycle</code> rotates through the values you provide. It is useful inside loops for alternating table-row styles or CSS classes.</p><pre class="code"><code>{% for blog in blogs %}
+&lt;tr style="background-color: {% cycle 'lightblue' 'lightgreen' %};"&gt;
+    &lt;td&gt;{{ forloop.counter }}&lt;/td&gt;
+    &lt;td&gt;{{ blog.title }}&lt;/td&gt;
+&lt;/tr&gt;
+{% endfor %}</code></pre>
+<div class="diagram mt-3"><div class="flow"><div class="box">Row 1<br>lightblue</div><div class="arrow">→</div><div class="box">Row 2<br>lightgreen</div><div class="arrow">→</div><div class="box">Row 3<br>lightblue</div><div class="arrow">→</div><div class="box">...</div></div></div>
+</div></div></section>
+
+<section id="firstof" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-secondary text-white">7. {% firstof %}</div><div class="card-body p-4">
+<p><code>firstof</code> evaluates values from left to right and displays the first truthy value. It can also use a fallback.</p><pre class="code"><code>{% firstof blogs.0.author "added" %}</code></pre>
+<div class="alert alert-warning warn mt-3"><b>Correction to the supplied example:</b> The context variable is <code>blogs</code>, not <code>blog</code> outside the loop. Use <code>blogs.0.author</code>.</div>
+<div class="alert alert-info note mb-0"><b>Memory:</b> first available <em>truthy</em> value wins.</div>
+</div></div></section>
+
+<section id="now" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-primary text-white">8. {% now %}</div><div class="card-body p-4">
+<p>The <code>now</code> tag displays the current date and/or time using a Django date format string.</p><pre class="code"><code>{% now "Y-m-d H:i" %}</code></pre>
+<div class="result mt-3">Example format: <b>2026-08-30 19:46</b></div>
+<div class="alert alert-info note mt-3 mb-0"><b>Tip:</b> The actual value depends on the current time and Django's configured timezone.</div>
+</div></div></section>
+
+<section id="verbatim" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-dark text-white">9. {% verbatim %}</div><div class="card-body p-4">
+<p>Use <code>verbatim</code> when you want Django to leave template-looking syntax untouched. This is useful when showing template syntax as an example.</p><pre class="code"><code>{% verbatim %}
+&lt;p&gt;Author: {{ blog.1.author }}&lt;/p&gt;
+{% endverbatim %}</code></pre>
+<div class="diagram mt-3"><div class="flow"><div class="box">Template-looking text</div><div class="arrow">→</div><div class="box">verbatim</div><div class="arrow">→</div><div class="box">Shown without Django parsing it</div></div></div>
+</div></div></section>
+
+<section id="autoescape" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-danger text-white">10. {% autoescape on/off %}</div><div class="card-body p-4">
+<p><code>autoescape</code> controls automatic HTML escaping for variables inside a template block.</p>
+<h3 class="h5">Default behavior</h3><p>In normal Django HTML templates, autoescaping is enabled by default. HTML inside a variable is normally displayed as text rather than interpreted as markup.</p>
+<pre class="code"><code>&lt;p&gt;Default: {{ html_code }}&lt;/p&gt;</code></pre>
+<h3 class="h5 mt-4">Trusted HTML</h3><pre class="code"><code>&lt;p&gt;Trusted HTML: {{ html_code|safe }}&lt;/p&gt;</code></pre>
+<h3 class="h5 mt-4">Turn autoescape off for a block</h3><pre class="code"><code>{% autoescape off %}
+    &lt;p&gt;{{ html_code }}&lt;/p&gt;
+{% endautoescape %}</code></pre>
+<div class="alert alert-danger danger mt-3"><b>Security warning:</b> Never use <code>|safe</code> or <code>autoescape off</code> blindly with user-provided HTML. It can create XSS vulnerabilities.</div>
+<div class="diagram"><div class="flow"><div class="box">HTML in variable</div><div class="arrow">→</div><div class="box">Autoescape ON</div><div class="arrow">→</div><div class="box">HTML shown as text</div></div><hr><div class="flow"><div class="box">HTML in variable</div><div class="arrow">→</div><div class="box">safe / autoescape OFF</div><div class="arrow">→</div><div class="box">HTML may render</div></div></div>
+<div class="alert alert-info note mt-3 mb-0"><b>Interview memory:</b> Autoescape is a safety feature. <code>safe</code> means you are telling Django to trust the value; it does not sanitize unsafe HTML.</div>
+</div></div></section>
+
+<section id="comparison" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-success text-white">11. Quick Comparison</div><div class="card-body p-4"><div class="table-responsive"><table class="table table-bordered bg-white"><thead><tr><th>Tag</th><th>Easy question</th><th>Example</th></tr></thead><tbody>
+<tr><td><code>if</code></td><td>Show A or B?</td><td><code>{% if user %}</code></td></tr><tr><td><code>for</code></td><td>Repeat for each item?</td><td><code>{% for blog in blogs %}</code></td></tr><tr><td><code>with</code></td><td>Give a value a short name?</td><td><code>{% with total=blogs|length %}</code></td></tr><tr><td><code>cycle</code></td><td>Alternate values?</td><td><code>{% cycle "a" "b" %}</code></td></tr><tr><td><code>firstof</code></td><td>First truthy value?</td><td><code>{% firstof a b "N/A" %}</code></td></tr><tr><td><code>now</code></td><td>Current date/time?</td><td><code>{% now "Y-m-d" %}</code></td></tr><tr><td><code>verbatim</code></td><td>Do not parse this?</td><td><code>{% verbatim %}...{% endverbatim %}</code></td></tr><tr><td><code>autoescape</code></td><td>Escape HTML variables?</td><td><code>{% autoescape off %}</code></td></tr>
+</tbody></table></div></div></div></section>
+
+<section id="mistakes" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-warning text-dark">12. Common Developer Mistakes</div><div class="card-body p-4"><div class="row g-3">
+<div class="col-md-6"><div class="alert alert-danger danger h-100"><b>1. Forgetting closing tags</b><br>Close blocks with <code>endif</code>, <code>endfor</code>, <code>endwith</code>, and the correct closing tag.</div></div>
+<div class="col-md-6"><div class="alert alert-warning warn h-100"><b>2. Wrong variable name</b><br>The context contains <code>blogs</code>, not <code>blog</code> outside the loop.</div></div>
+<div class="col-md-6"><div class="alert alert-info note h-100"><b>3. Confusing tags and filters</b><br><code>{% for %}</code> is a tag. <code>{{ name|upper }}</code> uses a filter.</div></div>
+<div class="col-md-6"><div class="alert alert-danger danger h-100"><b>4. Disabling autoescape carelessly</b><br>Do not trust arbitrary user HTML.</div></div>
+<div class="col-md-6"><div class="alert alert-success tip h-100"><b>5. Too much logic in templates</b><br>Keep complex business logic in Python.</div></div>
+<div class="col-md-6"><div class="alert alert-info note h-100"><b>6. Misunderstanding firstof</b><br>It selects the first truthy value, not merely the first variable that exists.</div></div>
+</div></div></div></section>
+
+<section id="interview" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-dark text-white">13. Interview-Ready Questions</div><div class="card-body p-4">
+<div class="accordion" id="interviewQs">
+
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#q1">Q1. What is the difference between a Django template variable and a template tag?</button></h2><div id="q1" class="accordion-collapse collapse show"><div class="accordion-body"><b>Answer:</b> A variable such as <code>{{ name }}</code> mainly displays data. A tag such as <code>{% if user %}</code> gives instructions to the template and can control rendering.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q2">Q2. How does {% if %} work?</button></h2><div id="q2" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> Django evaluates the condition. A truthy condition renders the first block; otherwise the <code>else</code> block is used when present.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q3">Q3. What is {% empty %} used for?</button></h2><div id="q3" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> It provides fallback HTML when a <code>for</code> loop receives an empty collection.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q4">Q4. What is forloop.counter?</button></h2><div id="q4" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> It gives the current loop number starting from 1. <code>forloop.counter0</code> starts from 0.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q5">Q5. Why use {% with %}?</button></h2><div id="q5" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> It assigns a computed value to a shorter temporary name and makes it available inside the block.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q6">Q6. Where is {% cycle %} commonly used?</button></h2><div id="q6" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> It is commonly used inside loops to alternate CSS classes, colors, or table-row styles.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q7">Q7. How does {% firstof %} work?</button></h2><div id="q7" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> It checks values from left to right and outputs the first truthy value. A fallback can be supplied.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q8">Q8. What is {% verbatim %} used for?</button></h2><div id="q8" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> It prevents Django from parsing template syntax inside the block. This is useful when displaying template code literally.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q9">Q9. What is autoescape?</button></h2><div id="q9" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> Autoescaping converts HTML-sensitive characters in variable output so HTML from variables is normally treated as text. It helps protect against XSS.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q10">Q10. Difference between autoescape off and |safe?</button></h2><div id="q10" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> <code>autoescape off</code> disables escaping for a template block. <code>|safe</code> marks a particular value as safe. Both require care with untrusted content.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q11">Q11. Coding: Show “Featured” only when a blog is featured.</button></h2><div id="q11" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b><pre class="code mt-2"><code>{% if blog.is_featured %}
+    &lt;span&gt;Featured&lt;/span&gt;
+{% endif %}</code></pre></div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q12">Q12. Coding: Display “No blogs available” when the list is empty.</button></h2><div id="q12" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b><pre class="code mt-2"><code>{% for blog in blogs %}
+    &lt;p&gt;{{ blog.title }}&lt;/p&gt;
+{% empty %}
+    &lt;p&gt;No blogs available&lt;/p&gt;
+{% endfor %}</code></pre></div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q13">Q13. Coding: Show the first available value from name, username, then Guest.</button></h2><div id="q13" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b><pre class="code mt-2"><code>{% firstof name username "Guest" %}</code></pre></div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q14">Q14. Why should complex business logic stay out of templates?</button></h2><div id="q14" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> Templates are mainly for presentation. Keeping complex logic in Python makes code easier to test, maintain, and understand.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q15">Q15. What security risk can appear with |safe or autoescape off?</button></h2><div id="q15" class="accordion-collapse collapse"><div class="accordion-body"><b>Answer:</b> Untrusted HTML can contain malicious scripts or markup, leading to Cross-Site Scripting (XSS).</div></div></div>
+
+</div>
+<div class="alert alert-primary note mt-4 mb-0"><b>Interview formula:</b> Explain <strong>what → why → syntax → example → common mistake/security point</strong>.</div>
+</div></div></section>
+
+<section id="revision" class="mb-4"><div class="card shadow-sm"><div class="card-header bg-success text-white">14. ⭐ One-Minute Revision</div><div class="card-body p-4">
+<div class="table-responsive"><table class="table table-bordered bg-white"><thead><tr><th>Tag</th><th>Remember it as</th></tr></thead><tbody>
+<tr><td><code>if</code></td><td>Decision</td></tr><tr><td><code>for</code></td><td>Repeat</td></tr><tr><td><code>with</code></td><td>Temporary name</td></tr><tr><td><code>cycle</code></td><td>Alternate values</td></tr><tr><td><code>firstof</code></td><td>First truthy value</td></tr><tr><td><code>now</code></td><td>Current date/time</td></tr><tr><td><code>verbatim</code></td><td>Do not parse</td></tr><tr><td><code>autoescape</code></td><td>HTML escaping control</td></tr>
+</tbody></table></div><div class="alert alert-success tip mb-0"><b>Final memory:</b> Template tags tell Django <em>what to do</em>; template variables tell Django <em>what value to display</em>.</div>
+</div></div></section>
+</main>
+<footer class="container text-center py-4 text-secondary">Django Class 15 • Template Tags • Interview Ready Notes</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>
