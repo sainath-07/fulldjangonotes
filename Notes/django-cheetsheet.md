@@ -2,14 +2,14 @@ Django cheet sheet:
 
 for all below task: create a virutal env 
 
-#Task-1 : CREATE PROJECT , APP & RUN SERVER.
+## Task-1 : CREATE PROJECT , APP & RUN SERVER.
 1. project setup, check Django installed, run app form venv.
 
-#Task-2: CREATE ROUTES,DYNAMIC ROUTES,MULTIPLE DYNAMIC ROUTES.
+## Task-2: CREATE ROUTES,DYNAMIC ROUTES,MULTIPLE DYNAMIC ROUTES.
 1. creating basic get server routes. send response with httpsResponse
 2. creating basic dynamic routes with path, re_path, kwargs
 
-#Task-3: TEMPLATES.
+## Task-3: TEMPLATES.
 3. creating template both project level and app level
 
 
@@ -42,7 +42,7 @@ displayed data passed from view with filters.
 template task4:- class:15
 templates tags
 create a template in app and register both app and template
-1. make sure to pass html string code like something........ and display content with both html  tag and with out html tag  use safe, but html result  should return bold content because we have passed html content with bold content
+1. make sure to pass html string code like something........ and display content with both html  tag and with out html tag  use safe, but html result  should return bold content because we have passed html content with <b></b> content
 2. pass content make sure content have both array data and object data from view and display in templates .html page with as variables and templates tags
 *  display object with index
 * `{% if %}...{% else %}`
@@ -56,7 +56,24 @@ create a template in app and register both app and template
 crate a static folder and add css,image,js
 register static
 pass dummy content from apps template html page with customly created template tags
-create a template in outerproject and include  navbar.html page
- in navbar navigation both view name and anchor tag href name should be same.
+create a template in outerproject and include  navbar.html page in base html
+in navbar navigation both view name and anchor tag href name should be same.
+connect both templates base.html page and app level template html page with extends
+display static css color differently for both app level html page and templates folder base html page.
 
-
+##  task3 - ORM task.... :
+1. create a model in app.
+2. register app
+3. migrate a model
+4. add data manually in SQLite db
+5. use commands to reterive data with commands like
+get()
+all()
+filter()
+ordering  and chaining
+exclude - opposite of filter
+values - returns data as dictionaries
+first / last  - get first or last record
+count() - total number of records
+6. display model data in templates html page with passing data
+from views to apps template .html page.
