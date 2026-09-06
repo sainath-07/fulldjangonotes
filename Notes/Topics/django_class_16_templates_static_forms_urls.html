@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Django Class 16 — Templates, Static Files, Forms & URLs</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; scroll-padding-top: 82px; }
+    body { background:#f5f7fb; color:#263238; line-height:1.65; }
+    .sticky-nav { position:sticky; top:0; z-index:1030; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+    .hero { background:linear-gradient(135deg,#182848,#4b6cb7); color:white; padding:48px 0; }
+    .section-card { border:0; border-radius:16px; overflow:hidden; box-shadow:0 5px 20px rgba(25,40,65,.08); margin-bottom:28px; }
+    .section-card .card-header { color:white; font-weight:700; font-size:1.12rem; padding:14px 20px; border:0; }
+    .header-blue{background:#2563eb}.header-green{background:#168a58}.header-purple{background:#6d4cc2}
+    .header-orange{background:#d97706}.header-red{background:#c83e4d}.header-teal{background:#087f8c}
+    pre { background:#18212f; color:#e8eef7; border-radius:12px; padding:18px; overflow:auto; font-size:.92rem; }
+    code { color:#b42318; }
+    pre code { color:inherit; }
+    .alert-soft { border:0; border-left:5px solid; border-radius:10px; }
+    .alert-info-soft { background:#eaf4ff; border-color:#0d6efd; }
+    .alert-warning-soft { background:#fff7df; border-color:#f0ad00; }
+    .alert-success-soft { background:#eaf8f0; border-color:#198754; }
+    .diagram { background:#fff; border:1px dashed #b9c3d0; border-radius:14px; padding:20px; }
+    .flow { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; }
+    .box { background:#eef4ff; border:1px solid #b8cdf7; border-radius:10px; padding:12px 16px; text-align:center; min-width:145px; font-weight:600; }
+    .arrow { font-size:1.4rem; color:#68778d; }
+    .tip { background:#fff9e8; border-left:5px solid #f2b01e; padding:16px; border-radius:10px; }
+    .small-muted { color:#68778d; font-size:.94rem; }
+    .toc a { text-decoration:none; }
+    .checklist li { margin-bottom:7px; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-nav">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#top">Django Class 16</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#base">Base Template</a></li>
+        <li class="nav-item"><a class="nav-link" href="#inheritance">Inheritance</a></li>
+        <li class="nav-item"><a class="nav-link" href="#navbar">Navbar</a></li>
+        <li class="nav-item"><a class="nav-link" href="#templates-folder">Templates Folder</a></li>
+        <li class="nav-item"><a class="nav-link" href="#static">Static Files</a></li>
+        <li class="nav-item"><a class="nav-link" href="#forms">Forms & CSRF</a></li>
+        <li class="nav-item"><a class="nav-link" href="#urltag">URL Tag</a></li>
+        <li class="nav-item"><a class="nav-link" href="#summary">Summary</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header id="top" class="hero">
+  <div class="container">
+    <span class="badge bg-light text-dark mb-3">Django • Class 16</span>
+    <h1 class="display-5 fw-bold">Templates, Inheritance, Static Files, Forms & URLs</h1>
+    <p class="lead mb-0">Learn how Django templates connect together and how forms, CSRF protection, static files, and named URLs work.</p>
+  </div>
+</header>
+
+<main class="container py-4">
+
+  <section class="card section-card" id="base">
+    <div class="card-header header-blue">1. How to Create a Base Template</div>
+    <div class="card-body">
+      <p>A <strong>base template</strong> is a common HTML file that contains the parts shared by many pages, such as the navbar, footer, CSS links, and page layout.</p>
+      <p>Usually, we create a file named <code>base.html</code> inside the templates folder.</p>
+      <pre><code>project/
+├── templates/
+│   └── base.html
+├── blog/
+│   └── templates/
+│       └── blog/
+│           └── home.html
+└── manage.py</code></pre>
+      <h5>Example: <code>base.html</code></h5>
+      <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;My Blog&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;nav&gt;My Blog Navbar&lt;/nav&gt;
+
+  {% block content %}
+  {% endblock %}
+
+  &lt;footer&gt;My Blog Footer&lt;/footer&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <div class="alert-soft alert-info-soft p-3 mt-3">
+        <strong>Purpose:</strong> Write common HTML only once. Child pages can reuse it instead of repeating the same code.
+      </div>
+    </div>
+  </section>
+
+  <section class="card section-card" id="inheritance">
+    <div class="card-header header-green">2. How Template Inheritance Works</div>
+    <div class="card-body">
+      <p>Django template inheritance lets one HTML file use another HTML file as its parent.</p>
+      <div class="diagram my-3">
+        <div class="flow">
+          <div class="box">base.html<br><span class="small-muted">Common layout</span></div>
+          <div class="arrow">→</div>
+          <div class="box">home.html<br><span class="small-muted">Child page</span></div>
+          <div class="arrow">→</div>
+          <div class="box">Final HTML page</div>
+        </div>
+      </div>
+      <p>In the child page, use:</p>
+      <pre><code>{% extends 'base.html' %}
+
+{% block content %}
+  &lt;h1&gt;Welcome to Home Page&lt;/h1&gt;
+  &lt;p&gt;This content is specific to the home page.&lt;/p&gt;
+{% endblock %}</code></pre>
+      <div class="alert-soft alert-success-soft p-3">
+        <strong>Remember:</strong> <code>{% extends 'base.html' %}</code> tells Django which parent template to use. The <code>{% block content %}</code> section tells Django where the child-page content should appear.
+      </div>
+    </div>
+  </section>
+
+  <section class="card section-card" id="navbar">
+    <div class="card-header header-purple">3. How to Include a Navbar</div>
+    <div class="card-body">
+      <p>The easiest approach is to keep the navbar inside <code>base.html</code>. Every page that extends <code>base.html</code> will then receive the navbar automatically.</p>
+      <pre><code>&lt;!-- base.html --&gt;
+
+&lt;nav class="navbar"&gt;
+  &lt;a href="{% url 'home' %}"&gt;Home&lt;/a&gt;
+  &lt;a href="{% url 'about' %}"&gt;About&lt;/a&gt;
+&lt;/nav&gt;
+
+{% block content %}
+{% endblock %}</code></pre>
+      <p>This is useful because you do not need to copy the navbar into every page.</p>
+      <div class="tip"><strong>Interview tip:</strong> If a navbar appears on every page, putting it in <code>base.html</code> is a clean and reusable approach.</div>
+    </div>
+  </section>
+
+  <section class="card section-card" id="templates-folder">
+    <div class="card-header header-orange">4. Templates Folder Name and <code>DIRS</code> in settings.py</div>
+    <div class="card-body">
+      <p>If you create a project-level folder named <code>templates</code>, register that same folder in <code>settings.py</code>.</p>
+      <h5>Folder</h5>
+      <pre><code>myproject/
+├── templates/
+│   └── base.html
+└── manage.py</code></pre>
+      <h5>settings.py</h5>
+      <pre><code>TEMPLATES = [
+    {
+        ...
+        'DIRS': [BASE_DIR / 'templates'],
+        ...
+    },
+]</code></pre>
+      <div class="alert-soft alert-warning-soft p-3">
+        <strong>Important:</strong> The folder name and the folder path you register must point to the same directory. If the folder is named <code>templates</code>, use <code>BASE_DIR / 'templates'</code>.
+      </div>
+      <p class="small-muted">Django then knows where to look for project-level templates such as <code>base.html</code>.</p>
+    </div>
+  </section>
+
+  <section class="card section-card" id="static">
+    <div class="card-header header-teal">5. How Static Files Are Set Up</div>
+    <div class="card-body">
+      <p>Static files are files such as <strong>CSS, JavaScript, images, fonts</strong>, and other files that are served as part of your website.</p>
+      <h5>Step 1 — Create a static folder</h5>
+      <pre><code>myproject/
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── app.js
+│   └── images/
+│       └── logo.png
+└── manage.py</code></pre>
+      <h5>Step 2 — Register the folder in settings.py</h5>
+      <p>Keep the existing static URL and add <code>STATICFILES_DIRS</code>:</p>
+      <pre><code>STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]</code></pre>
+      <h5>Step 3 — Load static in the HTML file</h5>
+      <p>At the top of the template, use the Django static template tag:</p>
+      <pre><code>{% load static %}</code></pre>
+      <p>Now you can access CSS, JavaScript, and images.</p>
+      <pre><code>&lt;link rel="stylesheet" href="{% static 'css/style.css' %}"&gt;
+
+&lt;script src="{% static 'js/app.js' %}"&gt;&lt;/script&gt;
+
+&lt;img src="{% static 'images/logo.png' %}" alt="Logo"&gt;</code></pre>
+      <div class="alert-soft alert-info-soft p-3">
+        <strong>Simple flow:</strong> <code>static/</code> folder → register with <code>STATICFILES_DIRS</code> → <code>{% load static %}</code> → use <code>{% static '...' %}</code>.
+      </div>
+    </div>
+  </section>
+
+  <section class="card section-card" id="forms">
+    <div class="card-header header-red">6. How to Use Forms and the CSRF Token</div>
+    <div class="card-body">
+      <p>HTML forms send data from the browser to the server. In Django, a POST form should normally include a <strong>CSRF token</strong>.</p>
+      <p>The CSRF token helps protect a user from a type of unwanted or forged request sent from another website.</p>
+      <h5>Example form</h5>
+      <pre><code>&lt;form action="" method="POST"&gt;
+  {% csrf_token %}
+
+  &lt;input type="text"
+         name="username"
+         placeholder="username" /&gt;
+
+  &lt;input type="password"
+         name="password"
+         placeholder="password" /&gt;
+
+  &lt;button type="submit"&gt;Login&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+      <div class="alert-soft alert-warning-soft p-3">
+        <strong>Important:</strong> Add <code>{% csrf_token %}</code> inside the form, especially when the form sends a POST request.
+      </div>
+      <h5>How it works</h5>
+      <div class="diagram my-3">
+        <div class="flow">
+          <div class="box">Browser<br>fills form</div>
+          <div class="arrow">→</div>
+          <div class="box">Django form<br>includes CSRF token</div>
+          <div class="arrow">→</div>
+          <div class="box">Server checks<br>the request</div>
+        </div>
+      </div>
+      <p class="small-muted">The token is generated by Django and checked when the request reaches the server.</p>
+    </div>
+  </section>
+
+  <section class="card section-card" id="urltag">
+    <div class="card-header header-blue">7. How to Use the Django <code>url</code> Template Tag</div>
+    <div class="card-body">
+      <p>The <code>url</code> template tag creates a URL using the <strong>name</strong> given to a URL pattern. This is better than hard-coding URLs throughout your HTML.</p>
+      <h5>Step 1 — Give the URL a name</h5>
+      <pre><code>urlpatterns = [
+    path('', views.blogHome, name="home"),
+    path('about/', views.about, name="about"),
+]</code></pre>
+      <h5>Step 2 — Use the same name in the template</h5>
+      <pre><code>&lt;li&gt;
+  &lt;a href="{% url 'home' %}"&gt;Home&lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="{% url 'about' %}"&gt;About&lt;/a&gt;
+&lt;/li&gt;</code></pre>
+      <div class="alert-soft alert-success-soft p-3">
+        <strong>Rule:</strong> The value inside <code>{% url '...' %}</code> must match the <code>name</code> value in <code>urls.py</code>.
+      </div>
+      <div class="diagram my-3">
+        <div class="flow">
+          <div class="box"><code>name="home"</code><br>in urls.py</div>
+          <div class="arrow">↔</div>
+          <div class="box"><code>{% url 'home' %}</code><br>in template</div>
+          <div class="arrow">→</div>
+          <div class="box">Home page</div>
+        </div>
+      </div>
+      <p><strong>Why use named URLs?</strong> If the actual path changes later, your templates can continue using the URL name instead of repeating the old path everywhere.</p>
+    </div>
+  </section>
+
+  <section class="card section-card" id="complete-flow">
+    <div class="card-header header-purple">8. Putting Everything Together</div>
+    <div class="card-body">
+      <p>A typical Django page can use all of these concepts together:</p>
+      <pre><code>{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+  &lt;link rel="stylesheet"
+        href="{% static 'css/style.css' %}"&gt;
+
+  &lt;h1&gt;Login&lt;/h1&gt;
+
+  &lt;form method="POST"&gt;
+    {% csrf_token %}
+
+    &lt;input type="text" name="username"
+           placeholder="username"&gt;
+
+    &lt;input type="password" name="password"
+           placeholder="password"&gt;
+
+    &lt;button type="submit"&gt;Login&lt;/button&gt;
+  &lt;/form&gt;
+
+  &lt;a href="{% url 'home' %}"&gt;Go to Home&lt;/a&gt;
+
+{% endblock %}</code></pre>
+
+      <div class="row g-3 mt-2">
+        <div class="col-md-3"><div class="box w-100">base.html<br><small>common layout</small></div></div>
+        <div class="col-md-3"><div class="box w-100">extends<br><small>reuse layout</small></div></div>
+        <div class="col-md-3"><div class="box w-100">static<br><small>CSS / JS / images</small></div></div>
+        <div class="col-md-3"><div class="box w-100">CSRF + URL<br><small>secure form + navigation</small></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card section-card" id="summary">
+    <div class="card-header header-green">9. Class 16 Quick Revision</div>
+    <div class="card-body">
+      <ul class="checklist">
+        <li><strong>Base template:</strong> Create <code>base.html</code> for common page structure.</li>
+        <li><strong>Inheritance:</strong> Use <code>{% extends 'base.html' %}</code> to reuse the base template.</li>
+        <li><strong>Blocks:</strong> Use <code>{% block content %}</code> where child-page content should appear.</li>
+        <li><strong>Navbar:</strong> Put a common navbar in <code>base.html</code> so all child pages can reuse it.</li>
+        <li><strong>Templates DIRS:</strong> If your folder is <code>templates</code>, register <code>BASE_DIR / 'templates'</code> in <code>TEMPLATES['DIRS']</code>.</li>
+        <li><strong>Static files:</strong> Register <code>STATICFILES_DIRS = [BASE_DIR / 'static']</code>.</li>
+        <li><strong>Load static:</strong> Use <code>{% load static %}</code> before using the static template tag.</li>
+        <li><strong>Static usage:</strong> Use <code>{% static 'css/style.css' %}</code>, <code>{% static 'js/app.js' %}</code>, etc.</li>
+        <li><strong>CSRF:</strong> Add <code>{% csrf_token %}</code> inside POST forms.</li>
+        <li><strong>Named URL:</strong> Give a URL a name in <code>urls.py</code>, then use the same name with <code>{% url 'home' %}</code>.</li>
+      </ul>
+
+      <div class="tip mt-3">
+        <strong>Interview-ready idea:</strong> Django templates separate common layout from page-specific content. Template inheritance reduces repeated HTML, static-file settings manage CSS/JS/images, CSRF protects form submissions, and named URLs make navigation easier to maintain.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bg-dark text-white py-4 mt-4">
+  <div class="container text-center">
+    <div class="fw-bold">Django Class 16</div>
+    <div class="small text-secondary">Templates • Inheritance • Navbar • Static Files • Forms • CSRF • URL Tag</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

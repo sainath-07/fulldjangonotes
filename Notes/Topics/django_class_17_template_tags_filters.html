@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Django Class 16 — Template Tags & Filters</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    html { scroll-behavior: smooth; scroll-padding-top: 78px; }
+    body { background: #f5f7fb; color: #263238; line-height: 1.7; }
+    .navbar { position: sticky; top: 0; z-index: 1030; }
+    .hero {
+      background: linear-gradient(135deg, #172554, #2563eb);
+      color: white; border-radius: 0 0 24px 24px;
+    }
+    .section-card {
+      border: 0; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 5px 18px rgba(0,0,0,.08); margin-bottom: 28px;
+    }
+    .section-header { color: white; padding: 16px 22px; font-weight: 700; }
+    .blue { background: #2563eb; }
+    .green { background: #198754; }
+    .purple { background: #6f42c1; }
+    .orange { background: #fd7e14; }
+    .red { background: #dc3545; }
+    .teal { background: #0f766e; }
+    pre {
+      background: #111827; color: #e5e7eb; padding: 18px;
+      border-radius: 10px; overflow-x: auto; font-size: .9rem;
+    }
+    code { color: #b42318; }
+    pre code { color: inherit; }
+    .tag { background: #e7f1ff; border: 1px solid #b6d4fe; padding: 3px 8px; border-radius: 6px; }
+    .diagram-box {
+      border: 2px dashed #b8c2cc; border-radius: 12px; padding: 18px;
+      background: #fff; text-align: center;
+    }
+    .flow {
+      display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+      gap: 10px; margin: 12px 0;
+    }
+    .flow-item {
+      padding: 10px 14px; border-radius: 9px; background: #eef2ff;
+      border: 1px solid #c7d2fe; font-weight: 600;
+    }
+    .arrow { font-size: 1.4rem; color: #64748b; }
+    .interview { border-left: 5px solid #ffc107; background: #fff8df; }
+    .tip { border-left: 5px solid #0d6efd; background: #eef6ff; }
+    .warning { border-left: 5px solid #dc3545; background: #fff0f1; }
+    .success-box { border-left: 5px solid #198754; background: #edfff5; }
+    .table th { white-space: nowrap; }
+    .toc a { text-decoration: none; }
+    .mini-title { font-weight: 700; color: #334155; }
+    .footer { background: #111827; color: #cbd5e1; }
+  </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#top">Django Class 16</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#overview">Overview</a></li>
+        <li class="nav-item"><a class="nav-link" href="#regroup">regroup</a></li>
+        <li class="nav-item"><a class="nav-link" href="#widthratio">widthratio</a></li>
+        <li class="nav-item"><a class="nav-link" href="#filter">filter</a></li>
+        <li class="nav-item"><a class="nav-link" href="#combine">Combining</a></li>
+        <li class="nav-item"><a class="nav-link" href="#css">CSS</a></li>
+        <li class="nav-item"><a class="nav-link" href="#structure">Structure</a></li>
+        <li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header id="top" class="hero py-5">
+  <div class="container">
+    <span class="badge bg-light text-primary mb-3">Django Templates • Class 16</span>
+    <h1 class="display-5 fw-bold">Template Tags, Filters & CSS</h1>
+    <p class="lead mb-0">
+      Learn how to group data, calculate simple percentages, transform text,
+      combine filters with template tags, and control page colors with CSS.
+    </p>
+  </div>
+</header>
+
+<main class="container py-4">
+
+<section id="overview" class="section-card card">
+  <div class="section-header blue">1. Class 16 Overview</div>
+  <div class="card-body">
+    <p>Django templates contain HTML plus special Django syntax. Template <strong>tags</strong> perform actions, while <strong>filters</strong> change or format a value.</p>
+
+    <div class="diagram-box my-3">
+      <div class="flow">
+        <div class="flow-item">Python / View Data</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">Django Template</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">Tag / Filter</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">HTML in Browser</div>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>Easy rule:</strong> A <code>tag</code> usually controls template logic or performs an operation.
+      A <code>filter</code> modifies a value.
+    </div>
+
+    <table class="table table-bordered align-middle">
+      <thead class="table-light">
+        <tr><th>Feature</th><th>Purpose</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>{% regroup %}</code></td><td>Groups a list by an attribute.</td><td>Group students by class.</td></tr>
+        <tr><td><code>{% widthratio %}</code></td><td>Calculates a ratio and converts it to a width value.</td><td>Calculate progress percentage.</td></tr>
+        <tr><td><code>{% filter %}</code></td><td>Applies a filter to a block of text.</td><td>Convert a block to uppercase.</td></tr>
+        <tr><td><code>|upper</code></td><td>Changes a value to uppercase.</td><td><code>{{ student.name|upper }}</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="regroup" class="section-card card">
+  <div class="section-header green">2. {% regroup %} — Group a List by Attribute</div>
+  <div class="card-body">
+    <h5 class="mini-title">What is regroup?</h5>
+    <p><code>{% regroup %}</code> takes a list of objects and creates groups based on an attribute.</p>
+
+    <div class="alert alert-warning">
+      <strong>Important:</strong> The data should normally be sorted by the attribute you want to group.
+      For example, if grouping by <code>class</code>, sort the students by <code>class</code> first.
+    </div>
+
+    <h5 class="mini-title">Syntax</h5>
+    <pre><code>{% regroup list by attribute as grouped_list %}</code></pre>
+
+    <h5 class="mini-title">Your example</h5>
+    <pre><code>{% regroup student_list by class as grouped_students %}
+
+&lt;ul&gt;
+  {% for group in grouped_students %}
+    &lt;li&gt;
+      {{ group.grouper }}
+
+      &lt;ul&gt;
+        {% for student in group.list %}
+          &lt;li&gt;{{ student.name }}&lt;/li&gt;
+          &lt;li&gt;{{ student.class }}&lt;/li&gt;
+        {% endfor %}
+      &lt;/ul&gt;
+    &lt;/li&gt;
+  {% endfor %}
+&lt;/ul&gt;</code></pre>
+
+    <h5 class="mini-title">How it works</h5>
+    <div class="diagram-box">
+      <p class="mb-2"><strong>Input:</strong> student_list</p>
+      <div class="flow">
+        <div class="flow-item">Class A → Students</div>
+        <div class="flow-item">Class B → Students</div>
+        <div class="flow-item">Class C → Students</div>
+      </div>
+      <p class="mb-0"><strong>group.grouper</strong> = group value &nbsp; | &nbsp; <strong>group.list</strong> = students in that group</p>
+    </div>
+
+    <div class="success-box p-3 mt-3">
+      <strong>Remember:</strong> <code>group.grouper</code> gives the grouping value, and
+      <code>group.list</code> gives the objects inside that group.
+    </div>
+  </div>
+</section>
+
+<section id="widthratio" class="section-card card">
+  <div class="section-header purple">3. {% widthratio %} — Simple Percentage / Ratio Calculation</div>
+  <div class="card-body">
+    <p><code>{% widthratio %}</code> calculates a ratio and scales it to a maximum width.</p>
+
+    <h5 class="mini-title">Syntax</h5>
+    <pre><code>{% widthratio this_value max_value max_width %}</code></pre>
+
+    <p>Conceptually, Django calculates:</p>
+    <div class="alert alert-secondary text-center">
+      <strong>result ≈ (this_value ÷ max_value) × max_width</strong>
+    </div>
+
+    <h5 class="mini-title">Examples from the class</h5>
+    <pre><code>progress: {% widthratio 50 500 100 %}%
+progress: {% widthratio 50 100 100 %}%
+progress: {% widthratio 20 100 100 %}%</code></pre>
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="card h-100 border">
+          <div class="card-body">
+            <h6>50 / 500</h6>
+            <div class="progress">
+              <div class="progress-bar" style="width:10%">10%</div>
+            </div>
+            <small class="text-muted">Scaled to a maximum of 100.</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border">
+          <div class="card-body">
+            <h6>50 / 100</h6>
+            <div class="progress">
+              <div class="progress-bar" style="width:50%">50%</div>
+            </div>
+            <small class="text-muted">Half of the maximum.</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border">
+          <div class="card-body">
+            <h6>20 / 100</h6>
+            <div class="progress">
+              <div class="progress-bar" style="width:20%">20%</div>
+            </div>
+            <small class="text-muted">One fifth of the maximum.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip p-3 mt-3">
+      <strong>Interview tip:</strong> The third value is not always a percentage.
+      It is the maximum width to which the ratio is scaled. Using <code>100</code> makes the result easy to read as a percentage.
+    </div>
+
+    <h5 class="mini-title mt-4">Using <code>as</code> to save the result</h5>
+    <pre><code>{% widthratio this_value max_value max_width as width %}
+
+&lt;div style="width: {{ width }}%;"&gt;
+  Progress
+&lt;/div&gt;</code></pre>
+  </div>
+</section>
+
+<section id="filter" class="section-card card">
+  <div class="section-header orange">4. {% filter %} Block</div>
+  <div class="card-body">
+    <h5 class="mini-title">What is a filter block?</h5>
+    <p>The <code>{% filter %}</code> tag applies one or more filters to all the text inside the block.</p>
+
+    <h5 class="mini-title">Syntax</h5>
+    <pre><code>{% filter filter_name %}
+    text
+{% endfilter %}</code></pre>
+
+    <h5 class="mini-title">Your examples</h5>
+    <pre><code>{% filter upper %}
+this text will be converted to uppercase
+{% endfilter %}
+
+{% filter lower %}
+this text will be converted to lowercase
+{% endfilter %}
+
+{% filter title %}
+this text will be converted to title case
+{% endfilter %}</code></pre>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-4"><div class="alert alert-primary mb-0"><strong>upper</strong><br>THIS TEXT WILL BE CONVERTED TO UPPERCASE</div></div>
+      <div class="col-md-4"><div class="alert alert-success mb-0"><strong>lower</strong><br>this text will be converted to lowercase</div></div>
+      <div class="col-md-4"><div class="alert alert-warning mb-0"><strong>title</strong><br>This Text Will Be Converted To Title Case</div></div>
+    </div>
+
+    <div class="warning p-3 mt-3">
+      <strong>Small correction:</strong> In the original example, the comments for <code>lower</code> and <code>title</code> say “converted to uppercase”.
+      The actual behavior is different: <code>lower</code> makes text lowercase and <code>title</code> makes it title case.
+    </div>
+  </div>
+</section>
+
+<section id="combine" class="section-card card">
+  <div class="section-header teal">5. Combining Filters + Template Tags</div>
+  <div class="card-body">
+    <p>You can use a template tag to control a loop and use a filter inside the loop to format each value.</p>
+
+    <pre><code>{% for student in student_list %}
+  &lt;div&gt;
+    &lt;span&gt;student:&lt;/span&gt;
+    &lt;span&gt;{{ student.name|upper }}&lt;/span&gt;
+  &lt;/div&gt;
+{% endfor %}</code></pre>
+
+    <div class="diagram-box">
+      <div class="flow">
+        <div class="flow-item">student_list</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">{% for %}</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">{{ student.name|upper }}</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">UPPERCASE HTML</div>
+      </div>
+    </div>
+
+    <div class="alert alert-info mt-3">
+      <strong>Key idea:</strong> <code>{% for %}</code> controls repetition.
+      <code>|upper</code> changes the value being displayed.
+    </div>
+
+    <h5 class="mini-title">Tag vs Filter</h5>
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr><th>Question</th><th>Tag</th><th>Filter</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Used with</td><td><code>{% ... %}</code></td><td><code>{{ value|... }}</code></td></tr>
+        <tr><td>Main job</td><td>Template logic / operation</td><td>Modify a value</td></tr>
+        <tr><td>Examples</td><td><code>for</code>, <code>regroup</code>, <code>widthratio</code></td><td><code>upper</code>, <code>lower</code>, <code>title</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="css" class="section-card card">
+  <div class="section-header red">6. Adding CSS Color to Each Route / View</div>
+  <div class="card-body">
+    <p>CSS controls how HTML looks. In Django, a template can load a static CSS file and use a block from the base template to define page-specific CSS.</p>
+
+    <h5 class="mini-title">blog/templates/blog/blog.html</h5>
+    <pre><code>{% extends 'base.html' %}
+
+{% block title %}blog title{% endblock %}
+
+{% load static %}
+
+{% block css %}
+    &lt;link rel="stylesheet" href="{% static 'style.css' %}"&gt;
+{% endblock %}
+
+{% block content %}
+    &lt;h1&gt;blog html page&lt;/h1&gt;
+    ...
+{% endblock %}</code></pre>
+
+    <h5 class="mini-title">blog/static/style.css</h5>
+    <pre><code>h1 {
+    color: red;
+}</code></pre>
+
+    <h5 class="mini-title">templates/base.html</h5>
+    <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+
+    &lt;title&gt;
+        {% block title %}base title{% endblock %}
+    &lt;/title&gt;
+
+    {% load static %}
+
+    {% block css %}
+        &lt;link rel="stylesheet"
+              href="{% static 'css/style.css' %}"&gt;
+    {% endblock %}
+&lt;/head&gt;
+
+&lt;body&gt;
+    {% block content %}
+        &lt;h1&gt;base html page&lt;/h1&gt;
+    {% endblock %}
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+    <h5 class="mini-title">static/css/style.css</h5>
+    <pre><code>h1 {
+    color: blue;
+}</code></pre>
+
+    <div class="alert alert-warning">
+      <strong>Important:</strong> The child template overrides the <code>css</code> block from the base template.
+      Therefore, the blog page can load its own <code>style.css</code>.
+    </div>
+
+    <div class="diagram-box">
+      <div class="flow">
+        <div class="flow-item">base.html</div>
+        <div class="arrow">← extends</div>
+        <div class="flow-item">blog.html</div>
+        <div class="arrow">+</div>
+        <div class="flow-item">blog/static/style.css</div>
+      </div>
+      <p class="mb-0">The final page combines the base layout, child content, and the selected CSS.</p>
+    </div>
+  </div>
+</section>
+
+<section id="structure" class="section-card card">
+  <div class="section-header blue">7. Folder Structure</div>
+  <div class="card-body">
+    <p>Your simplified project structure can look like this:</p>
+    <pre><code>mainproject/
+│
+├── templates/
+│   └── base.html
+│
+├── static/
+│   └── css/
+│       └── style.css
+│
+├── blogapp/
+│   ├── templates/
+│   │   └── blog/
+│   │       └── blog.html
+│   │
+│   └── static/
+│       └── style.css
+│
+└── innermainproject/
+    ├── settings.py
+    ├── urls.py
+    └── ...</code></pre>
+
+    <div class="tip p-3">
+      <strong>Static-file idea:</strong> Django's <code>{% static %}</code> tag creates the correct URL for a static file.
+      Make sure your Django static-file settings and app/static directory structure are configured correctly.
+    </div>
+  </div>
+</section>
+
+<section id="spaceless" class="section-card card">
+  <div class="section-header purple">8. {% spaceless %} — Quick Note</div>
+  <div class="card-body">
+    <p>Your <code>base.html</code> also contains an empty <code>{% spaceless %}</code> block.</p>
+    <pre><code>{% spaceless %}
+{% endspaceless %}</code></pre>
+
+    <p><code>spaceless</code> removes whitespace between HTML tags in its block. It does <strong>not</strong> remove normal spaces inside text.</p>
+
+    <div class="alert alert-secondary">
+      In the supplied example, the block is empty, so it does not have a useful effect. You can remove it unless you plan to place HTML inside it.
+    </div>
+  </div>
+</section>
+
+<section id="interview" class="section-card card">
+  <div class="section-header orange">9. Interview Questions & Quick Revision</div>
+  <div class="card-body">
+
+    <div class="interview p-3 mb-3">
+      <strong>Q1. What does {% regroup %} do?</strong>
+      <p class="mb-0">It groups objects in a list based on an attribute and stores the groups in a new template variable.</p>
+    </div>
+
+    <div class="interview p-3 mb-3">
+      <strong>Q2. What are group.grouper and group.list?</strong>
+      <p class="mb-0"><code>group.grouper</code> is the grouping value. <code>group.list</code> contains the objects belonging to that group.</p>
+    </div>
+
+    <div class="interview p-3 mb-3">
+      <strong>Q3. What does {% widthratio %} do?</strong>
+      <p class="mb-0">It calculates a ratio and scales it using the supplied maximum width.</p>
+    </div>
+
+    <div class="interview p-3 mb-3">
+      <strong>Q4. Why use “100” as the third widthratio value?</strong>
+      <p class="mb-0">When the maximum width is 100, the result is easy to use as a percentage-like value.</p>
+    </div>
+
+    <div class="interview p-3 mb-3">
+      <strong>Q5. What is the difference between {% filter %} and |upper?</strong>
+      <p class="mb-0"><code>{% filter %}</code> applies a filter to a whole block. <code>|upper</code> applies the filter to one value or expression.</p>
+    </div>
+
+    <div class="interview p-3 mb-3">
+      <strong>Q6. Why use {% load static %}?</strong>
+      <p class="mb-0">It loads Django's static template tag library so you can use <code>{% static 'file-path' %}</code> to reference static files.</p>
+    </div>
+
+    <div class="interview p-3">
+      <strong>Q7. How can a child template use page-specific CSS?</strong>
+      <p class="mb-0">The base template can provide a <code>{% block css %}</code>, and the child template can override that block with its own stylesheet link.</p>
+    </div>
+
+    <h5 class="mini-title mt-4">One-minute revision</h5>
+    <table class="table table-striped table-bordered">
+      <tbody>
+        <tr><th>{% regroup %}</th><td>Group objects by an attribute.</td></tr>
+        <tr><th>{% widthratio %}</th><td>Calculate a scaled ratio.</td></tr>
+        <tr><th>{% filter %}</th><td>Apply a filter to a text block.</td></tr>
+        <tr><th>|upper</th><td>Convert a value to uppercase.</td></tr>
+        <tr><th>|lower</th><td>Convert a value to lowercase.</td></tr>
+        <tr><th>|title</th><td>Convert text to title case.</td></tr>
+        <tr><th>{% load static %}</th><td>Enable Django static template tags.</td></tr>
+        <tr><th>{% block css %}</th><td>Allow a child template to provide CSS.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer py-4 mt-4">
+  <div class="container text-center">
+    <p class="mb-1 fw-semibold">Django Class 16</p>
+    <small>Template Tags • Filters • Static CSS • Template Inheritance</small>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

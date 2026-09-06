@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ORM - Simple Documentation</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    body { background:#f5f7fb; color:#263238; line-height:1.7; }
+    .navbar { box-shadow:0 2px 12px rgba(0,0,0,.08); }
+    .hero {
+      background: linear-gradient(135deg,#0d6efd,#6f42c1);
+      color:white; border-radius:0 0 24px 24px;
+      padding:70px 20px 55px;
+    }
+    .section-card {
+      border:0; border-radius:16px; overflow:hidden;
+      box-shadow:0 8px 24px rgba(31,45,61,.08);
+      margin-bottom:28px;
+    }
+    .section-header { color:white; padding:16px 22px; font-weight:700; }
+    .header-blue { background:#0d6efd; }
+    .header-purple { background:#6f42c1; }
+    .header-green { background:#198754; }
+    .header-orange { background:#fd7e14; }
+    .flow-box {
+      border:2px solid #dee2e6; border-radius:12px;
+      padding:18px 12px; background:white; text-align:center;
+      height:100%;
+    }
+    .flow-arrow { font-size:28px; color:#6c757d; display:flex; align-items:center; justify-content:center; }
+    .code-box {
+      background:#212529; color:#e9ecef; border-radius:10px;
+      padding:18px; font-family:Consolas,monospace; overflow:auto;
+    }
+    .tip { border-left:5px solid #ffc107; background:#fff8df; }
+    .check { color:#198754; font-weight:700; }
+    footer { background:#212529; color:#adb5bd; }
+  </style>
+</head>
+
+<body>
+
+<!-- Sticky Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#top">ORM Guide</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#what">What is ORM?</a></li>
+        <li class="nav-item"><a class="nav-link" href="#working">Working Flow</a></li>
+        <li class="nav-item"><a class="nav-link" href="#example">Real-Life Example</a></li>
+        <li class="nav-item"><a class="nav-link" href="#advantages">Advantages</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div id="top" class="hero">
+  <div class="container text-center">
+    <span class="badge bg-light text-primary mb-3 px-3 py-2">DATABASE FUNDAMENTALS</span>
+    <h1 class="display-5 fw-bold">Object-Relational Mapping (ORM)</h1>
+    <p class="lead mb-0">A simple guide to understand what ORM is, how it works, and why developers use it.</p>
+  </div>
+</div>
+
+<main class="container py-5">
+
+  <!-- What is ORM -->
+  <section id="what" class="section-card card">
+    <div class="section-header header-blue">
+      <h2 class="h4 mb-0">1. What is ORM?</h2>
+    </div>
+    <div class="card-body p-4">
+      <p><strong>ORM</strong> stands for <strong>Object-Relational Mapping</strong>.</p>
+      <p>
+        ORM is a technique that allows us to work with a database using
+        <strong>programming language objects</strong> instead of writing SQL queries for every operation.
+      </p>
+
+      <div class="alert alert-primary">
+        <strong>Simple meaning:</strong> ORM acts like a translator between your application code and the database.
+      </div>
+
+      <div class="row g-3 my-3">
+        <div class="col-md-4">
+          <div class="flow-box">
+            <div class="fs-2">👨‍💻</div>
+            <h5>Application</h5>
+            <p class="mb-0">JavaScript, Python, Java, etc.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="flow-box">
+            <div class="fs-2">🔄</div>
+            <h5>ORM</h5>
+            <p class="mb-0">Converts objects into database operations.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="flow-box">
+            <div class="fs-2">🗄️</div>
+            <h5>Database</h5>
+            <p class="mb-0">MySQL, PostgreSQL, SQLite, etc.</p>
+          </div>
+        </div>
+      </div>
+
+      <h5 class="mt-4">Without ORM</h5>
+      <p>You normally write SQL yourself:</p>
+      <div class="code-box mb-4">SELECT * FROM users WHERE id = 10;</div>
+
+      <h5>With ORM</h5>
+      <p>You work with an object/model provided by the ORM:</p>
+      <div class="code-box">const user = await User.findByPk(10);</div>
+
+      <div class="alert tip mt-4 mb-0">
+        <strong>Interview tip:</strong> Remember this sentence:
+        <em>“ORM maps database tables to objects in application code and allows developers to work with the database using programming-language objects.”</em>
+      </div>
+    </div>
+  </section>
+
+  <!-- Working Flow -->
+  <section id="working" class="section-card card">
+    <div class="section-header header-purple">
+      <h2 class="h4 mb-0">2. ORM Working Flow</h2>
+    </div>
+    <div class="card-body p-4">
+      <p>Think of ORM as a bridge between your code and the database.</p>
+
+      <div class="row g-2 align-items-stretch my-4">
+        <div class="col-md">
+          <div class="flow-box">
+            <span class="badge bg-primary">STEP 1</span>
+            <h6 class="mt-2">Write Code</h6>
+            <small>Create, read, update, or delete an object.</small>
+          </div>
+        </div>
+        <div class="col-md-auto flow-arrow">→</div>
+        <div class="col-md">
+          <div class="flow-box">
+            <span class="badge bg-secondary">STEP 2</span>
+            <h6 class="mt-2">ORM Receives It</h6>
+            <small>The ORM understands your model operation.</small>
+          </div>
+        </div>
+        <div class="col-md-auto flow-arrow">→</div>
+        <div class="col-md">
+          <div class="flow-box">
+            <span class="badge bg-success">STEP 3</span>
+            <h6 class="mt-2">SQL is Generated</h6>
+            <small>The ORM creates the required SQL query.</small>
+          </div>
+        </div>
+        <div class="col-md-auto flow-arrow">→</div>
+        <div class="col-md">
+          <div class="flow-box">
+            <span class="badge bg-dark">STEP 4</span>
+            <h6 class="mt-2">Database</h6>
+            <small>The database executes the SQL and returns data.</small>
+          </div>
+        </div>
+      </div>
+
+      <h5>Example</h5>
+      <p>Suppose your application needs all users.</p>
+
+      <div class="code-box mb-3">
+const users = await User.findAll();
+      </div>
+
+      <p>The ORM may translate this into SQL similar to:</p>
+
+      <div class="code-box">
+SELECT * FROM users;
+      </div>
+
+      <div class="alert alert-info mt-4 mb-0">
+        <strong>Important:</strong> The exact SQL generated depends on the ORM, database, model definition,
+        filters, relationships, and other options.
+      </div>
+    </div>
+  </section>
+
+  <!-- Real Life Example -->
+  <section id="example" class="section-card card">
+    <div class="section-header header-green">
+      <h2 class="h4 mb-0">3. Real-Life Example</h2>
+    </div>
+    <div class="card-body p-4">
+      <h5>Online Shopping Application 🛒</h5>
+      <p>
+        Imagine an online shopping website. The application has a <strong>User</strong> table in the database.
+      </p>
+
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>id</th>
+              <th>name</th>
+              <th>email</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Rahul</td><td>rahul@example.com</td></tr>
+            <tr><td>2</td><td>Anita</td><td>anita@example.com</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Instead of directly writing SQL, the developer can use a <strong>User model</strong>.</p>
+
+      <div class="code-box">
+const user = await User.findOne({
+  where: { email: "rahul@example.com" }
+});
+      </div>
+
+      <div class="my-4 p-3 border rounded bg-light">
+        <strong>What happens behind the scenes?</strong>
+        <ol class="mb-0 mt-2">
+          <li>Your code asks the <code>User</code> model to find a user.</li>
+          <li>The ORM converts the request into SQL.</li>
+          <li>The database executes the SQL.</li>
+          <li>The ORM converts the database result back into an object.</li>
+          <li>Your application uses that object.</li>
+        </ol>
+      </div>
+
+      <div class="alert alert-success">
+        <strong>Easy way to remember:</strong>
+        <br>
+        <span class="check">Object in code ↔ ORM ↔ Row in database</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Advantages -->
+  <section id="advantages" class="section-card card">
+    <div class="section-header header-orange">
+      <h2 class="h4 mb-0">4. Advantages of ORM</h2>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="p-3 border rounded h-100">
+            <h5>1. Less SQL Code</h5>
+            <p class="mb-0">Common database operations can be performed using models and methods instead of manually writing SQL each time.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 border rounded h-100">
+            <h5>2. Faster Development</h5>
+            <p class="mb-0">Developers can use familiar programming-language objects and ORM methods to build database features quickly.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 border rounded h-100">
+            <h5>3. Easier to Maintain</h5>
+            <p class="mb-0">Database-related logic can be organized around models, making large applications easier to manage.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 border rounded h-100">
+            <h5>4. Relationships</h5>
+            <p class="mb-0">Many ORMs provide convenient ways to work with relationships such as one-to-one, one-to-many, and many-to-many.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 border rounded h-100">
+            <h5>5. Database Abstraction</h5>
+            <p class="mb-0">Many ORMs provide a common programming interface across supported relational databases, although database-specific differences still matter.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 border rounded h-100">
+            <h5>6. Helpful Features</h5>
+            <p class="mb-0">ORMS often provide features such as migrations, validation, transactions, query builders, and relationship handling.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning mt-4 mb-0">
+        <strong>Important interview point:</strong> ORM does not mean “SQL disappears.”
+        SQL is still used by the database. The ORM mainly helps you work with the database at a higher level.
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Revision -->
+  <section class="section-card card">
+    <div class="section-header bg-dark">
+      <h2 class="h4 mb-0">Quick Revision</h2>
+    </div>
+    <div class="card-body p-4">
+      <div class="row">
+        <div class="col-md-6">
+          <ul>
+            <li><strong>ORM</strong> = Object-Relational Mapping</li>
+            <li>It connects application objects with database tables.</li>
+            <li>It translates ORM operations into database queries.</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <ul>
+            <li>It reduces repetitive SQL code.</li>
+            <li>It can make development and maintenance easier.</li>
+            <li>Popular examples include Django ORM, Hibernate, Sequelize, and SQLAlchemy.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="py-4 text-center">
+  <div class="container">
+    <small>ORM Documentation • Simple and Interview-Friendly Notes</small>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

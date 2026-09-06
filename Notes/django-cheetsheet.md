@@ -1,0 +1,62 @@
+Django cheet sheet:
+
+for all below task: create a virutal env 
+
+#Task-1 : CREATE PROJECT , APP & RUN SERVER.
+1. project setup, check Django installed, run app form venv.
+
+#Task-2: CREATE ROUTES,DYNAMIC ROUTES,MULTIPLE DYNAMIC ROUTES.
+1. creating basic get server routes. send response with httpsResponse
+2. creating basic dynamic routes with path, re_path, kwargs
+
+#Task-3: TEMPLATES.
+3. creating template both project level and app level
+
+
+templates task:
+
+for template task use include  for adding path.
+
+template task1: - class:12
+create template in 2 apps and project level.
+register app and templates
+create view with render and connect with urls at app level
+register app urls in project urls file.
+create own template tag in base html file and pass data from app template html file to base html
+make sure both view render data in between template tags in browser.
+
+template task2:- class:13
+create template in app level
+register app and templates
+pass content from view and display in template folders .html page.
+pass content like nested object, object ,list etc.. use render method with view
+display html page with data passed from view.
+
+template task3:- class:14
+create a template in app and register both app and template.
+pass content from view
+use template filter like text filter, list filter, yes/no & plural , pluralize, urlencode.
+displayed data passed from view with filters.
+
+
+template task4:- class:15
+templates tags
+create a template in app and register both app and template
+1. make sure to pass html string code like something........ and display content with both html  tag and with out html tag  use safe, but html result  should return bold content because we have passed html content with bold content
+2. pass content make sure content have both array data and object data from view and display in templates .html page with as variables and templates tags
+*  display object with index
+* `{% if %}...{% else %}`
+* `{% for %}...{% empty %}`
+* `{% with %}` - create  a variable
+* `{% verbatim %}` (ignore template parsing)
+* safe.
+
+template task5:- class:16
+create a template in app and register both app and template
+crate a static folder and add css,image,js
+register static
+pass dummy content from apps template html page with customly created template tags
+create a template in outerproject and include  navbar.html page
+ in navbar navigation both view name and anchor tag href name should be same.
+
+

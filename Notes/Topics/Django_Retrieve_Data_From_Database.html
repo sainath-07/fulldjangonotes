@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django - Retrieve Data from Database</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body{background:#f5f7fb;color:#263238;line-height:1.7}.navbar{position:sticky;top:0;z-index:1030}.hero{background:linear-gradient(135deg,#172554,#3730a3);color:#fff;padding:70px 0}.section-title{font-weight:800}.doc-card{border:0;border-radius:16px;overflow:hidden}.card-header{font-weight:700;color:#fff;padding:14px 20px}.header-blue{background:#2563eb}.header-purple{background:#7c3aed}.header-green{background:#15803d}.header-orange{background:#ea580c}.header-dark{background:#1f2937}.code{background:#111827;color:#e5e7eb;border-radius:12px;padding:18px;overflow:auto;font-size:.92rem}.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}.flow .box{background:#eef2ff;border:2px solid #6366f1;border-radius:12px;padding:14px 18px;font-weight:600}.arrow{font-size:24px;font-weight:bold;color:#6366f1}.tip{border-left:5px solid #f59e0b;background:#fffbeb;padding:15px;border-radius:8px}.table code{color:#6d28d9}.anchor{scroll-margin-top:80px}footer{background:#111827;color:#cbd5e1;padding:30px 0}
+</style></head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow"><div class="container"><a class="navbar-brand fw-bold" href="#top">Django ORM Docs</a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button><div id="nav" class="collapse navbar-collapse"><ul class="navbar-nav ms-auto"><li class="nav-item"><a class="nav-link" href="#steps">Steps</a></li><li class="nav-item"><a class="nav-link" href="#model">Model</a></li><li class="nav-item"><a class="nav-link" href="#migration">Migrations</a></li><li class="nav-item"><a class="nav-link" href="#view">View</a></li><li class="nav-item"><a class="nav-link" href="#template">Template</a></li><li class="nav-item"><a class="nav-link" href="#urls">URLs</a></li><li class="nav-item"><a class="nav-link" href="#flow">Flow</a></li></ul></div></div></nav>
+<header id="top" class="hero"><div class="container"><span class="badge bg-light text-primary mb-3">Django ORM • Beginner Friendly</span><h1 class="display-5 fw-bold">Retrieve Data from a Database Table</h1><p class="lead mb-0">Learn how to fetch records from a Django database and display them in an HTML template.</p></div></header>
+<main class="container py-5">
+<section id="steps" class="anchor mb-5"><div class="card shadow doc-card"><div class="card-header header-blue"><h2 class="h4 mb-0">1. Complete Process</h2></div><div class="card-body"><p>When you want to display database data on a webpage, follow these five main steps:</p><ol class="list-group list-group-numbered mb-4"><li class="list-group-item">Define your model in <code>models.py</code>.</li><li class="list-group-item">Create and apply migrations.</li><li class="list-group-item">Fetch data from the database using Django ORM.</li><li class="list-group-item">Send the data to the template using the view context.</li><li class="list-group-item">Display the data in the HTML template using Django Template Language.</li></ol><div class="alert alert-primary"><strong>Simple idea:</strong> Model → Database → View → Context → Template → Browser</div></div></div></section>
+<section id="model" class="anchor mb-5"><div class="card shadow doc-card"><div class="card-header header-purple"><h2 class="h4 mb-0">2. Define the Model</h2></div><div class="card-body"><p>The model describes the structure of the database table. Here we create a <code>Student</code> model with name, age, and email.</p><pre class="code"><code>from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField(unique=True)
+
+    def __str__(self):
+        return self.name</code></pre><div class="alert alert-warning mt-3"><strong>Important correction:</strong> The special method is <code>__str__()</code>, with two underscores before and after <code>str</code>. It should not be <code>__str___</code>.</div></div></div></section>
+<section id="migration" class="anchor mb-5"><div class="card shadow doc-card"><div class="card-header header-green"><h2 class="h4 mb-0">3. Run Migrations</h2></div><div class="card-body"><p>After defining or changing a model, Django needs to create or update the database table.</p><h5>For one specific app</h5><pre class="code"><code>python manage.py makemigrations appname</code></pre><h5 class="mt-4">Apply the migration to the database</h5><pre class="code"><code>python manage.py migrate</code></pre><div class="alert alert-success mt-3"><strong>Remember:</strong> <code>makemigrations</code> creates migration files. <code>migrate</code> applies those changes to the database.</div></div></div></section>
+<section id="view" class="anchor mb-5"><div class="card shadow doc-card"><div class="card-header header-orange"><h2 class="h4 mb-0">4. Fetch Data in views.py</h2></div><div class="card-body"><p>Import the model and use Django ORM to retrieve all Student records.</p><pre class="code"><code>from django.shortcuts import render
+from .models import Student
+
+# Create your views here.
+def blogHome(request):
+    students = Student.objects.all()
+    return render(
+        request,
+        'blog/blog.html',
+        {'student_list': students}
+    )</code></pre><div class="tip mt-3"><strong>Why use context?</strong> The context dictionary sends Python data from the view to the HTML template. Here, <code>student_list</code> is the template variable and <code>students</code> is the QuerySet.</div></div></div></section>
+<section id="template" class="anchor mb-5"><div class="card shadow doc-card"><div class="card-header header-blue"><h2 class="h4 mb-0">5. Display Data in HTML</h2></div><div class="card-body"><p>Place the template inside <code>blog/templates/blog/blog.html</code>. Use a loop to display each Student object.</p><pre class="code"><code>&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8" /&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+  &lt;title&gt;Blog title&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Welcome to blog page&lt;/h1&gt;
+
+  {% if student_list %}
+  &lt;table border="1"&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Age&lt;/th&gt;
+        &lt;th&gt;Email&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      {% for student in student_list %}
+      &lt;tr&gt;
+        &lt;td&gt;{{ student.name }}&lt;/td&gt;
+        &lt;td&gt;{{ student.age }}&lt;/td&gt;
+        &lt;td&gt;{{ student.email }}&lt;/td&gt;
+      &lt;/tr&gt;
+      {% endfor %}
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+  {% endif %}
+&lt;/body&gt;
+&lt;/html&gt;</code></pre><div class="alert alert-info mt-3"><strong>How the loop works:</strong> <code>{% for student in student_list %}</code> takes one Student object at a time. Then <code>{{ student.name }}</code>, <code>{{ student.age }}</code>, and <code>{{ student.email }}</code> read its fields.</div></div></div></section>
+<section id="urls" class="anchor mb-5"><div class="card shadow doc-card"><div class="card-header header-purple"><h2 class="h4 mb-0">6. Connect the URLs</h2></div><div class="card-body"><h5>blog/urls.py</h5><pre class="code"><code>from . import views
+from django.urls import path
+
+urlpatterns = [
+    path('', views.blogHome, name='blogHome')
+]</code></pre><h5 class="mt-4">Project urls.py</h5><pre class="code"><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls'))
+]</code></pre><div class="alert alert-secondary"><strong>URL flow:</strong> The project URL includes <code>blog.urls</code>. The empty path then calls <code>blogHome</code>.</div></div></div></section>
+<section id="flow" class="anchor mb-5"><div class="card shadow doc-card"><div class="card-header header-dark"><h2 class="h4 mb-0">7. Complete Data Flow Diagram</h2></div><div class="card-body"><div class="flow"><div class="box">models.py<br><small>Student model</small></div><div class="arrow">→</div><div class="box">Migrations<br><small>Database table</small></div><div class="arrow">→</div><div class="box">views.py<br><small>Student.objects.all()</small></div><div class="arrow">→</div><div class="box">Context<br><small>student_list</small></div><div class="arrow">→</div><div class="box">blog.html<br><small>for loop</small></div><div class="arrow">→</div><div class="box">Browser<br><small>Student table</small></div></div><hr><p class="mb-0"><strong>In simple words:</strong> Django reads the model structure, connects it to the database, fetches records in the view, sends them through context, and the template turns those records into HTML.</p></div></div></section>
+<section class="mb-5"><div class="card shadow doc-card"><div class="card-header header-green"><h2 class="h4 mb-0">8. Example Database Records</h2></div><div class="card-body"><table class="table table-bordered align-middle"><thead class="table-light"><tr><th>id</th><th>name</th><th>age</th><th>email</th></tr></thead><tbody><tr><td>1</td><td>Rahul</td><td>20</td><td>rahul@example.com</td></tr><tr><td>2</td><td>Priya</td><td>22</td><td>priya@example.com</td></tr><tr><td>3</td><td>Arun</td><td>21</td><td>arun@example.com</td></tr></tbody></table><p>When the view runs <code>Student.objects.all()</code>, Django retrieves these Student records. The template loops over them and displays each row.</p></div></div></section>
+<section class="mb-5"><div class="card shadow doc-card"><div class="card-header header-orange"><h2 class="h4 mb-0">9. Interview Tips</h2></div><div class="card-body"><ul><li><strong>Where is the database structure defined?</strong> In <code>models.py</code>.</li><li><strong>What does makemigrations do?</strong> It creates migration files based on model changes.</li><li><strong>What does migrate do?</strong> It applies migrations to the database.</li><li><strong>How do you retrieve all records?</strong> Use <code>Student.objects.all()</code>.</li><li><strong>How does data reach the template?</strong> Through the context dictionary passed to <code>render()</code>.</li><li><strong>How does the template access a model field?</strong> With syntax such as <code>{{ student.name }}</code>.</li><li><strong>Why use <code>{% if student_list %}</code>?</strong> It checks whether the context variable contains data before displaying the table.</li></ul></div></div></section>
+<section class="mb-5"><div class="card shadow doc-card"><div class="card-header header-blue"><h2 class="h4 mb-0">10. Quick Revision</h2></div><div class="card-body"><div class="row g-3"><div class="col-md-6"><div class="p-3 border rounded bg-light"><strong>Model</strong><br>Defines the fields of the database table.</div></div><div class="col-md-6"><div class="p-3 border rounded bg-light"><strong>Migration</strong><br>Converts model changes into database changes.</div></div><div class="col-md-6"><div class="p-3 border rounded bg-light"><strong>ORM Query</strong><br><code>Student.objects.all()</code> fetches all Student records.</div></div><div class="col-md-6"><div class="p-3 border rounded bg-light"><strong>Context</strong><br><code>{'student_list': students}</code> sends data to the template.</div></div><div class="col-md-6"><div class="p-3 border rounded bg-light"><strong>Template Loop</strong><br><code>{% for student in student_list %}</code> repeats HTML for every record.</div></div><div class="col-md-6"><div class="p-3 border rounded bg-light"><strong>Output</strong><br>The browser displays the database records as an HTML table.</div></div></div></div></div></section>
+</main>
+<footer><div class="container"><strong>Django ORM Documentation</strong><br><small>Retrieve database records → pass them through context → display them in a template.</small></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Django Models, Migrations & SQLite</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; scroll-padding-top: 82px; }
+    body { background:#f5f7fb; color:#263238; line-height:1.7; }
+    .navbar { box-shadow:0 2px 12px rgba(0,0,0,.10); }
+    .hero {
+      background:linear-gradient(135deg,#0d6efd,#6f42c1);
+      color:#fff; padding:70px 20px 55px; border-radius:0 0 26px 26px;
+    }
+    .section-card {
+      border:0; border-radius:16px; overflow:hidden;
+      box-shadow:0 8px 26px rgba(31,45,61,.09); margin-bottom:30px;
+    }
+    .section-header { color:#fff; padding:16px 22px; }
+    .blue { background:#0d6efd; }
+    .purple { background:#6f42c1; }
+    .green { background:#198754; }
+    .orange { background:#fd7e14; }
+    .dark { background:#212529; }
+    .flow-box {
+      border:2px solid #dee2e6; border-radius:12px; padding:18px 12px;
+      background:#fff; text-align:center; height:100%;
+    }
+    .arrow { font-size:28px; color:#6c757d; display:flex; align-items:center; justify-content:center; }
+    .code-box {
+      background:#212529; color:#e9ecef; border-radius:10px; padding:18px;
+      font-family:Consolas,Monaco,monospace; overflow:auto; white-space:pre;
+    }
+    .file-tree {
+      background:#f8f9fa; border:1px solid #dee2e6; border-radius:10px;
+      padding:18px; font-family:Consolas,monospace;
+    }
+    .tip { border-left:5px solid #ffc107; background:#fff8df; }
+    .note { border-left:5px solid #0d6efd; background:#eef5ff; }
+    .step-number {
+      width:38px;height:38px;border-radius:50%;display:inline-flex;
+      align-items:center;justify-content:center;color:white;background:#0d6efd;
+      font-weight:700;margin-right:10px;
+    }
+    footer { background:#212529;color:#adb5bd; }
+  </style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#top">Django Database Guide</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#models">Models</a></li>
+        <li class="nav-item"><a class="nav-link" href="#create-model">Create a Model</a></li>
+        <li class="nav-item"><a class="nav-link" href="#migrations">Migrations</a></li>
+        <li class="nav-item"><a class="nav-link" href="#sqlite">SQLite</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header id="top" class="hero">
+  <div class="container text-center">
+    <span class="badge bg-light text-primary px-3 py-2 mb-3">DJANGO DATABASE FUNDAMENTALS</span>
+    <h1 class="display-5 fw-bold">Models, Migrations & SQLite</h1>
+    <p class="lead mb-0">Simple notes to understand how Django stores application data.</p>
+  </div>
+</header>
+
+<main class="container py-5">
+
+<section id="models" class="section-card card">
+  <div class="section-header blue">
+    <h2 class="h4 mb-0">1. Introduction to Models</h2>
+  </div>
+  <div class="card-body p-4">
+    <p>
+      In Django, a <strong>model</strong> is a Python class that describes the data we want to store in a database.
+      A model usually represents a database table.
+    </p>
+
+    <div class="alert alert-primary">
+      <strong>Simple meaning:</strong> A Django model is a Python representation of a database table.
+    </div>
+
+    <div class="row g-3 my-4">
+      <div class="col-md-4">
+        <div class="flow-box">
+          <div class="fs-2">🐍</div>
+          <h5>Python Class</h5>
+          <p class="mb-0">You define a Django model using a Python class.</p>
+        </div>
+      </div>
+      <div class="col-md-4 arrow">→</div>
+      <div class="col-md-4">
+        <div class="flow-box">
+          <div class="fs-2">🗄️</div>
+          <h5>Database Table</h5>
+          <p class="mb-0">Django maps the model to a database table.</p>
+        </div>
+      </div>
+    </div>
+
+    <h5>Example Model</h5>
+    <div class="code-box">from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()</div>
+
+    <h5 class="mt-4">How to understand it?</h5>
+    <ul>
+      <li><code>Student</code> is the model name.</li>
+      <li><code>name</code>, <code>age</code>, and <code>email</code> are fields.</li>
+      <li>Each field describes what type of data can be stored.</li>
+      <li>Django uses this model information when creating and working with the database table.</li>
+    </ul>
+
+    <div class="alert note mt-4 mb-0">
+      <strong>Remember:</strong> Model = structure of the data. It tells Django what information your application needs to store.
+    </div>
+
+    <div class="alert tip mt-4 mb-0">
+      <strong>Interview tip:</strong> “In Django, a model is a Python class that represents the structure of data stored in a database.”
+    </div>
+  </div>
+</section>
+
+<section id="create-model" class="section-card card">
+  <div class="section-header purple">
+    <h2 class="h4 mb-0">2. Create a Model</h2>
+  </div>
+  <div class="card-body p-4">
+
+    <p>Suppose we are building a simple student management application. We want to store student information.</p>
+
+    <h5><span class="step-number">1</span>Open <code>models.py</code></h5>
+    <p>Inside your Django app, open the <code>models.py</code> file.</p>
+
+    <div class="file-tree mb-4">myproject/
+├── manage.py
+└── students/
+    ├── admin.py
+    ├── apps.py
+    ├── models.py   ← create model here
+    └── views.py</div>
+
+    <h5><span class="step-number">2</span>Define the Model</h5>
+    <div class="code-box">from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.name</div>
+
+    <h5 class="mt-4"><span class="step-number">3</span>Understand the Fields</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr><th>Field</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>CharField</code></td><td>Stores text.</td></tr>
+          <tr><td><code>IntegerField</code></td><td>Stores whole numbers.</td></tr>
+          <tr><td><code>EmailField</code></td><td>Stores email-style text and provides email validation support.</td></tr>
+          <tr><td><code>max_length=100</code></td><td>Sets the maximum length for the text field.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert alert-warning mb-0">
+      <strong>Important:</strong> Creating the model class does not by itself create or change the database table.
+      Django migrations are used to apply model changes to the database.
+    </div>
+  </div>
+</section>
+
+<section id="migrations" class="section-card card">
+  <div class="section-header green">
+    <h2 class="h4 mb-0">3. Migration and Migration File</h2>
+  </div>
+  <div class="card-body p-4">
+    <p>
+      A <strong>migration</strong> is Django's way of recording changes to your models and applying those changes
+      to the database.
+    </p>
+
+    <div class="alert alert-success">
+      <strong>Simple meaning:</strong> Model changes → Migration file → Database changes.
+    </div>
+
+    <h5>Migration Working Flow</h5>
+    <div class="row g-2 align-items-stretch my-4">
+      <div class="col-md">
+        <div class="flow-box"><strong>1. Change Model</strong><br><small>Add or change a field.</small></div>
+      </div>
+      <div class="col-md-auto arrow">→</div>
+      <div class="col-md">
+        <div class="flow-box"><strong>2. makemigrations</strong><br><small>Django creates a migration file.</small></div>
+      </div>
+      <div class="col-md-auto arrow">→</div>
+      <div class="col-md">
+        <div class="flow-box"><strong>3. migrate</strong><br><small>Django applies the change.</small></div>
+      </div>
+      <div class="col-md-auto arrow">→</div>
+      <div class="col-md">
+        <div class="flow-box"><strong>4. Database</strong><br><small>Database structure is updated.</small></div>
+      </div>
+    </div>
+
+    <h5>Step 1: Create the Migration File</h5>
+    <div class="code-box">python manage.py makemigrations</div>
+    <p class="mt-3">
+      Django checks your models and creates a migration file describing the database changes.
+    </p>
+
+    <h5>Step 2: Apply the Migration</h5>
+    <div class="code-box">python manage.py migrate</div>
+    <p class="mt-3">
+      Django reads the migration files and applies the required changes to the configured database.
+    </p>
+
+    <h5>What is a Migration File?</h5>
+    <p>
+      A migration file is a Python file stored inside the app's <code>migrations</code> folder.
+      It contains instructions that describe database schema changes.
+    </p>
+
+    <div class="file-tree mb-4">students/
+└── migrations/
+    ├── __init__.py
+    └── 0001_initial.py</div>
+
+    <div class="code-box"># Example idea of what a migration represents
+
+migrations.CreateModel(
+    name="Student",
+    fields=[
+        ...
+    ],
+)</div>
+
+    <div class="alert tip mt-4 mb-0">
+      <strong>Interview tip:</strong> <code>makemigrations</code> creates migration files.
+      <code>migrate</code> applies those migrations to the database.
+    </div>
+  </div>
+</section>
+
+<section id="sqlite" class="section-card card">
+  <div class="section-header orange">
+    <h2 class="h4 mb-0">4. Understand SQLite Database</h2>
+  </div>
+  <div class="card-body p-4">
+    <p>
+      <strong>SQLite</strong> is a small, file-based relational database. It is commonly used for development,
+      learning, testing, and small applications.
+    </p>
+
+    <div class="alert alert-primary">
+      <strong>Simple meaning:</strong> SQLite stores the database in a file instead of requiring a separate database server.
+    </div>
+
+    <h5>Typical Django Setup</h5>
+    <p>A new Django project commonly uses SQLite by default. The database is usually stored in a file named <code>db.sqlite3</code>.</p>
+
+    <div class="row g-3 my-4">
+      <div class="col-md-3">
+        <div class="flow-box"><div class="fs-2">🐍</div><strong>Django Model</strong></div>
+      </div>
+      <div class="col-md-1 arrow">→</div>
+      <div class="col-md-3">
+        <div class="flow-box"><div class="fs-2">🔄</div><strong>Django ORM</strong></div>
+      </div>
+      <div class="col-md-1 arrow">→</div>
+      <div class="col-md-4">
+        <div class="flow-box"><div class="fs-2">📄</div><strong>db.sqlite3</strong><br><small>SQLite database file</small></div>
+      </div>
+    </div>
+
+    <h5>Database Configuration</h5>
+    <p>In Django, the database configuration is found in <code>settings.py</code>.</p>
+
+    <div class="code-box">DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}</div>
+
+    <h5 class="mt-4">What happens after migration?</h5>
+    <ol>
+      <li>You create a model.</li>
+      <li>You run <code>python manage.py makemigrations</code>.</li>
+      <li>Django creates migration instructions.</li>
+      <li>You run <code>python manage.py migrate</code>.</li>
+      <li>Django updates the SQLite database.</li>
+      <li>Your application can now store and read data through Django's ORM.</li>
+    </ol>
+
+    <div class="alert alert-info mt-4">
+      <strong>Important:</strong> SQLite is a relational database, but it is different from server-based databases
+      such as PostgreSQL and MySQL. For larger or more demanding production systems, a server-based database may be a better fit.
+    </div>
+
+    <div class="alert tip mt-4 mb-0">
+      <strong>Interview tip:</strong> SQLite is lightweight and file-based. It is convenient because a separate database server is not required.
+    </div>
+  </div>
+</section>
+
+<section class="section-card card">
+  <div class="section-header dark">
+    <h2 class="h4 mb-0">Quick Revision</h2>
+  </div>
+  <div class="card-body p-4">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <h5>Remember these 4 points</h5>
+        <ul>
+          <li><strong>Model:</strong> Python class representing data.</li>
+          <li><strong>Field:</strong> Defines a piece of data in the model.</li>
+          <li><strong>Migration:</strong> Records and applies model/database structure changes.</li>
+          <li><strong>SQLite:</strong> Lightweight file-based relational database.</li>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h5>Most important commands</h5>
+        <div class="code-box">python manage.py makemigrations
+python manage.py migrate</div>
+      </div>
+    </div>
+    <div class="alert alert-success mt-4 mb-0">
+      <strong>One-line flow:</strong>
+      Model → <code>makemigrations</code> → Migration File → <code>migrate</code> → SQLite Database
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="py-4 text-center">
+  <div class="container">
+    <small>Django Models, Migrations & SQLite • Beginner-Friendly Documentation</small>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
