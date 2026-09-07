@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Django Class 27–28 | Models & Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: #f5f7fb;
+        color: #243447;
+        line-height: 1.65;
+      }
+      section {
+        scroll-margin-top: 78px;
+      }
+      .sticky {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+      }
+      .hero {
+        background: linear-gradient(135deg, #173b72, #2563a8);
+        color: #fff;
+        padding: 52px 0;
+      }
+      .card {
+        border: 0;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .card-header {
+        color: #fff;
+        font-weight: 700;
+      }
+      .blue {
+        background: #2563a8;
+      }
+      .green {
+        background: #198754;
+      }
+      .purple {
+        background: #6f42c1;
+      }
+      .orange {
+        background: #fd7e14;
+      }
+      .dark {
+        background: #344054;
+      }
+      .code {
+        background: #172033;
+        color: #e8eef7;
+        border-radius: 10px;
+        padding: 16px;
+        overflow: auto;
+        font-size: 0.9rem;
+      }
+      .diagram {
+        background: #eef5ff;
+        border: 1px solid #cfe0ff;
+        border-radius: 14px;
+        padding: 20px;
+      }
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+      }
+      .box {
+        background: #fff;
+        border: 2px solid #79a9e8;
+        border-radius: 10px;
+        padding: 10px 14px;
+        text-align: center;
+        font-weight: 600;
+      }
+      .arrow {
+        font-size: 22px;
+        color: #2563a8;
+      }
+      .tip {
+        border-left: 5px solid #0d6efd;
+        background: #eaf3ff;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      .mistake {
+        border-left: 5px solid #dc3545;
+        background: #fff1f2;
+        padding: 15px;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky shadow">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="#top">Django 27–28</a>
+        <button
+          class="navbar-toggler"
+          data-bs-toggle="collapse"
+          data-bs-target="#nav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#class27">Class 27</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#models">Models</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#migration">Migrations</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#admin">Admin</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#class28">Class 28</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#customize">Customization</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#interview">Interview</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <header id="top" class="hero">
+      <div class="container">
+        <div class="text-white-50 text-uppercase small fw-bold">
+          Django Learning Notes
+        </div>
+        <h1 class="display-5 fw-bold">Class 27–28: Models & Django Admin</h1>
+        <p class="lead mb-0">
+          Create multiple models, register them, add records, and customize the
+          admin list page.
+        </p>
+      </div>
+    </header>
+
+    <main class="container py-5">
+      <section id="class27" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header blue p-3">
+            Class 27 — What You Have Learned
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="alert alert-primary h-100">
+                  <b>1. Creating Multiple Models</b><br />Create more than one
+                  model in <code>models.py</code>.
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="alert alert-success h-100">
+                  <b>2. Registering Models</b><br />Register models so they can
+                  be managed in Django Admin.
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="alert alert-warning h-100">
+                  <b>3. Adding Records</b><br />Add and manage model data from
+                  the admin panel.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="models" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header green p-3">Creating Multiple Models</div>
+          <div class="card-body p-4">
+            <p>
+              A Django app can contain many models. Each model usually
+              represents one type of data stored in the database.
+            </p>
+            <div class="diagram mb-4">
+              <h6 class="text-center fw-bold">Model → Database Table</h6>
+              <div class="flow">
+                <div class="box">
+                  Student<br /><small>Name · Age · Email</small>
+                </div>
+                <span class="arrow">→</span>
+                <div class="box">Student Table</div>
+                <div class="box">
+                  Profile<br /><small>Bio · Location · Birth Date</small>
+                </div>
+                <span class="arrow">→</span>
+                <div class="box">Profile Table</div>
+              </div>
+            </div>
+            <h5>models.py</h5>
+            <pre class="code"><code>from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Profile(models.Model):
+    bio = models.TextField(max_length=1000)
+    location = models.CharField(max_length=200)
+    birth_date = models.DateField(null=True)
+
+    def __str__(self):
+        return self.bio</code></pre>
+            <div class="alert alert-danger">
+              <b>Important correction:</b> <code>models.CharField()</code> needs
+              <code>max_length</code>. So use
+              <code>location = models.CharField(max_length=200)</code> instead
+              of the incomplete <code>models.CharField()</code>.
+            </div>
+            <div class="tip">
+              <b>Why use __str__()?</b><br />Django Admin needs a readable label
+              for an object. <code>return self.name</code> makes a Student
+              appear by name instead of something like
+              <code>Student object (1)</code>. If returning a number, use
+              <code>return str(self.age)</code>.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="migration" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header purple p-3">
+            Preparing the Database with Migrations
+          </div>
+          <div class="card-body p-4">
+            <p>
+              After creating or changing models, Django needs to update the
+              database structure.
+            </p>
+            <div class="diagram mb-4">
+              <div class="flow">
+                <div class="box">models.py</div>
+                <span class="arrow">→</span>
+                <div class="box">makemigrations</div>
+                <span class="arrow">→</span>
+                <div class="box">Migration files</div>
+                <span class="arrow">→</span>
+                <div class="box">migrate</div>
+                <span class="arrow">→</span>
+                <div class="box">Database</div>
+              </div>
+            </div>
+            <pre class="code"><code>python manage.py makemigrations
+python manage.py migrate</code></pre>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="alert alert-info">
+                  <b>makemigrations</b><br />Creates migration instructions from
+                  model changes.
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="alert alert-success">
+                  <b>migrate</b><br />Applies those instructions to the
+                  database.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="admin" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header orange p-3">
+            Registering Models in admin.py of app folder
+          </div>
+          <div class="card-body p-4">
+            <p>
+              A model should be registered with Django Admin before you manage
+              its records through the admin site.
+            </p>
+            <pre class="code"><code>from django.contrib import admin
+from .models import Student
+from .models import Profile
+
+# Default registration
+admin.site.register(Profile)
+
+# Customized registration
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'age', 'email')
+    search_fields = ('name', 'age')
+    list_filter = ('age', 'name')
+    ordering = ('name',)</code></pre>
+            <div class="alert alert-warning">
+              <b>Do not register Student twice.</b> If you use
+              <code>@admin.register(Student)</code>, do not also use
+              <code>admin.site.register(Student)</code>.
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="card bg-light h-100">
+                  <div class="card-body">
+                    <b>Simple registration</b><br /><code
+                      >admin.site.register(Profile)</code
+                    ><br />Good when default admin behavior is enough.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card bg-light h-100">
+                  <div class="card-body">
+                    <b>Custom registration</b><br /><code
+                      >@admin.register(Student)</code
+                    ><br />Good when you need admin customization.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="users" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header dark p-3">
+            Adding Users and Records from Django Admin
+          </div>
+          <div class="card-body p-4">
+            <p>Create an admin account first:</p>
+            <pre
+              class="code"
+            ><code>python manage.py createsuperuser</code></pre>
+            <p class="mt-3">Start the server:</p>
+            <pre class="code"><code>python manage.py runserver</code></pre>
+            <div class="alert alert-primary">
+              Open <code>/admin/</code>, sign in, and choose Student or Profile
+              to add records.
+            </div>
+            <div class="diagram">
+              <div class="flow">
+                <div class="box">createsuperuser</div>
+                <span class="arrow">→</span>
+                <div class="box">Login /admin/</div>
+                <span class="arrow">→</span>
+                <div class="box">Choose Model</div>
+                <span class="arrow">→</span>
+                <div class="box">Add Record</div>
+              </div>
+            </div>
+            <p class="mt-3 mb-0">
+              <b>Note:</b> A Django <code>User</code> account and a
+              <code>Student</code> record are different things. The built-in
+              authentication app provides User management in Django Admin when
+              enabled.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="class28" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header blue p-3">
+            Class 28 — Django Admin Customization
+          </div>
+          <div class="card-body p-4">
+            <p>
+              The goal is to make the admin list easier to read, search, filter,
+              and sort.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="alert alert-success h-100">
+                  <b>list_display</b><br />Select columns to show.
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="alert alert-info h-100">
+                  <b>search_fields</b><br />Search records quickly.
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="alert alert-warning h-100">
+                  <b>list_filter + ordering</b><br />Filter and sort records.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="customize" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header green p-3">Customize Admin List Display</div>
+          <div class="card-body p-4">
+            <p>
+              <code>list_display</code> controls the columns shown on the admin
+              list page.
+            </p>
+            <pre
+              class="code"
+            ><code>list_display = ('name', 'age', 'email')</code></pre>
+            <div class="diagram mt-4">
+              <h6 class="fw-bold">Before vs After</h6>
+              <div class="row g-3">
+                <div class="col-md-5">
+                  <div class="alert alert-danger mb-0">
+                    <b>Before</b><br /><code>Student object (1)</code
+                    ><br /><code>Student object (2)</code>
+                  </div>
+                </div>
+                <div class="col-md-2 text-center align-self-center fs-2">→</div>
+                <div class="col-md-5">
+                  <div class="alert alert-success mb-0">
+                    <b>After</b><br /><b>Name | Age | Email</b><br />Asha | 21 |
+                    asha@example.com<br />Ravi | 24 | ravi@example.com
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="search" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header purple p-3">Admin Search & Filters</div>
+          <div class="card-body p-4">
+            <h5>Search</h5>
+            <p>
+              <code>search_fields</code> adds fields to the admin search box.
+            </p>
+            <pre class="code"><code>search_fields = ('name', 'age')</code></pre>
+            <div class="alert alert-info">
+              <b>Practical tip:</b> Text fields such as <code>name</code> and
+              <code>email</code> are common search choices. If your project
+              needs age search, you can keep <code>age</code>.
+            </div>
+            <h5>Filters</h5>
+            <p>
+              <code>list_filter</code> adds controls that help narrow the list.
+            </p>
+            <pre class="code"><code>list_filter = ('age', 'name')</code></pre>
+            <div class="tip">
+              <b>Easy memory trick:</b> Search is for finding something you
+              know. Filters are for narrowing a list by values.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="ordering" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header orange p-3">Admin Ordering</div>
+          <div class="card-body p-4">
+            <p><code>ordering</code> controls the default sort order.</p>
+            <pre class="code"><code>ordering = ('name',)</code></pre>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="alert alert-success">
+                  <b>Ascending</b><br /><code>('name',)</code> → A to Z
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="alert alert-secondary">
+                  <b>Descending</b><br /><code>('-name',)</code> → Z to A
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="complete" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header dark p-3">Complete admin.py Example</div>
+          <div class="card-body p-4">
+            <pre class="code"><code>from django.contrib import admin
+from .models import Student, Profile
+
+admin.site.register(Profile)
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'age', 'email')
+    search_fields = ('name', 'age')
+    list_filter = ('age', 'name')
+    ordering = ('name',)</code></pre>
+            <div class="alert alert-primary mb-0">
+              Profile uses the default admin page. Student uses a customized
+              admin list page.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="mistakes" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header purple p-3">Common Mistakes</div>
+          <div class="card-body p-4">
+            <div class="mistake mb-3">
+              <b>Missing max_length:</b> <code>CharField()</code> needs
+              <code>max_length</code>.
+            </div>
+            <div class="mistake mb-3">
+              <b>Registering twice:</b> Do not register Student with both
+              registration styles.
+            </div>
+            <div class="mistake mb-3">
+              <b>Skipping migrations:</b> Run <code>makemigrations</code> and
+              <code>migrate</code> after model changes.
+            </div>
+            <div class="mistake">
+              <b>Wrong __str__ return:</b> <code>__str__()</code> must return a
+              string.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="interview" class="mb-5">
+        <div class="card shadow">
+          <div class="card-header blue p-3">Interview Tips & Questions</div>
+          <div class="card-body p-4">
+            <div class="tip mb-4">
+              <b>Interview tip:</b> Clearly explain the difference between
+              model, migration, database table, admin registration, and
+              ModelAdmin customization.
+            </div>
+            <div class="accordion" id="qa">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#q1"
+                  >
+                    What does makemigrations do?
+                  </button>
+                </h2>
+                <div id="q1" class="accordion-collapse collapse show">
+                  <div class="accordion-body">
+                    It creates migration files describing changes made to Django
+                    models.
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#q2"
+                  >
+                    What does migrate do?
+                  </button>
+                </h2>
+                <div id="q2" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    It applies migration operations to the database.
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#q3"
+                  >
+                    What is list_display?
+                  </button>
+                </h2>
+                <div id="q3" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    It defines the fields or methods shown as columns in the
+                    admin list page.
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#q4"
+                  >
+                    search_fields vs list_filter?
+                  </button>
+                </h2>
+                <div id="q4" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <code>search_fields</code> provides search.
+                    <code>list_filter</code> provides filtering controls.
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#q5"
+                  >
+                    How do you sort admin records?
+                  </button>
+                </h2>
+                <div id="q5" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    Use <code>ordering</code>. Prefix a field with
+                    <code>-</code> for descending order.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="bg-dark text-light py-4">
+      <div class="container text-center">
+        <b>Django Class 27–28 Notes</b><br /><small
+          >Models → Migrations → Admin Registration → Admin Customization</small
+        >
+      </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
