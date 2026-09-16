@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django Class 42 - Middleware</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth}body{background:#f5f7fb;line-height:1.7}section{scroll-margin-top:80px}
+.sticky-nav{position:sticky;top:0;z-index:1030;background:rgba(255,255,255,.97);border-bottom:1px solid #ddd}
+.doc-card{border:0;box-shadow:0 .4rem 1rem rgba(0,0,0,.08);margin-bottom:1.5rem;overflow:hidden}
+.card-header{font-weight:700}.code{background:#111827;color:#e5e7eb;border-radius:8px;padding:16px;overflow:auto;font-family:Consolas,monospace;font-size:.9rem}
+.diagram{background:#f8f9fa;border:1px dashed #adb5bd;border-radius:8px;padding:16px;font-family:Consolas,monospace;white-space:pre-wrap}
+.tip{border-left:4px solid #0d6efd}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg sticky-nav"><div class="container">
+<a class="navbar-brand fw-bold" href="#top">Django Class 42 - Middleware</a>
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="nav"><ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#what">What</a></li>
+<li class="nav-item"><a class="nav-link" href="#how">How</a></li>
+<li class="nav-item"><a class="nav-link" href="#where">Where</a></li>
+<li class="nav-item"><a class="nav-link" href="#custom">Custom Code</a></li>
+<li class="nav-item"><a class="nav-link" href="#settings">Settings</a></li>
+<li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+</ul></div></div></nav>
+
+<main class="container py-4" id="top">
+
+<section id="what"><div class="card doc-card">
+<div class="card-header bg-primary text-white">1. What is Middleware?</div><div class="card-body">
+<h2 class="h4">Middleware is a layer between the request and the response.</h2>
+<p>Django middleware is code that runs during Django's request and response process. It can inspect a request before the view runs and inspect or change the response after the view has finished.</p>
+<div class="alert alert-info"><strong>Easy definition:</strong> Middleware is like a checkpoint between the browser and your Django view. It lets you apply common logic without putting the same code inside every view.</div>
+<div class="diagram">Browser
+   |
+   | HTTP Request
+   v
+Middleware
+   |
+   v
+View
+   |
+   | HttpResponse
+   v
+Middleware
+   |
+   v
+Browser</div>
+</div></div></section>
+
+<section id="how"><div class="card doc-card">
+<div class="card-header bg-success text-white">2. How Middleware Works</div><div class="card-body">
+<p>A request normally travels through the middleware stack before reaching the view. The response then travels back through the middleware layers.</p>
+<div class="diagram">Client
+  |
+  v
+Middleware 1
+  |
+  v
+Middleware 2
+  |
+  v
+Middleware 3
+  |
+  v
+  View
+  |
+  v
+Response
+  |
+  ^
+Middleware 3
+  |
+  ^
+Middleware 2
+  |
+  ^
+Middleware 1
+  |
+  ^
+Client</div>
+<ol>
+<li>Client sends a request.</li><li>Django passes it through the middleware stack.</li>
+<li>Middleware can inspect, modify or reject the request.</li><li>The request reaches the view if processing continues.</li>
+<li>The view creates a response.</li><li>The response travels back through middleware.</li><li>The client receives the final response.</li>
+</ol>
+<div class="alert alert-primary"><strong>Remember:</strong> Middleware can work on both sides of the view: during request processing and during response processing.</div>
+</div></div></section>
+
+<section id="where"><div class="card doc-card">
+<div class="card-header bg-warning text-dark">3. Where Do We Use Middleware?</div><div class="card-body">
+<p>Middleware is useful for common logic that applies to many requests.</p>
+<div class="row g-3">
+<div class="col-md-6"><div class="card h-100"><div class="card-body"><h5>Authentication check</h5><p>Check whether a user is authenticated before allowing a request to continue.</p></div></div></div>
+<div class="col-md-6"><div class="card h-100"><div class="card-body"><h5>Request and response logging</h5><p>Record URLs, timestamps, status codes and other useful information.</p></div></div></div>
+<div class="col-md-6"><div class="card h-100"><div class="card-body"><h5>IP blocking</h5><p>Reject requests from blocked IP addresses when appropriate.</p></div></div></div>
+<div class="col-md-6"><div class="card h-100"><div class="card-body"><h5>Language or session management</h5><p>Read request, cookie or session information and prepare common data.</p></div></div></div>
+<div class="col-md-6"><div class="card h-100"><div class="card-body"><h5>Performance timing</h5><p>Measure how long requests take and identify slow requests.</p></div></div></div>
+<div class="col-md-6"><div class="card h-100"><div class="card-body"><h5>Security processing</h5><p>Apply common request or response security checks centrally.</p></div></div></div>
+</div>
+<div class="alert alert-success mt-4"><strong>Rule of thumb:</strong> If the same request/response logic is repeated across many views, consider middleware.</div>
+</div></div></section>
+
+<section><div class="card doc-card">
+<div class="card-header bg-danger text-white">4. What Middleware Allows Us To Do</div><div class="card-body">
+<h5>Authentication</h5><p>Check user state before the request reaches the view.</p>
+<h5>Logging</h5><p>Log the request before the view and the response after the view.</p>
+<h5>IP blocking</h5><p>Read the remote IP and return a response if it is blocked.</p>
+<h5>Language / session management</h5><p>Read cookies, sessions or request information and make related data available.</p>
+<h5>Performance timing</h5><p>Record a start time, allow processing to continue, then calculate the elapsed time.</p>
+<div class="diagram">Request
+  |
+  v
+Common middleware checks
+  |
+  +---- reject ----> Response
+  |
+  v
+View
+  |
+  v
+Response processing
+  |
+  v
+Client</div>
+</div></div></section>
+
+<section id="custom"><div class="card doc-card">
+<div class="card-header bg-primary text-white">5. Custom Middleware Example</div><div class="card-body">
+<h5>Request and response logging</h5>
+<pre class="code">import datetime
+from django.http import HttpResponse
+from django.utils.deprecation import MiddlewareMixin
+
+class SimpleLogMiddleware(MiddlewareMixin):
+
+    def process_request(self, request):
+        print(f'[{datetime.datetime.now()}] Request Url:{request.path}')
+
+    def process_response(self, request, response):
+        print(f'[{datetime.datetime.now()}] Response status code:{response.status_code}')
+        return response</pre>
+<div class="alert alert-success"><strong>What happens?</strong> <code>process_request()</code> handles request-side work. <code>process_response()</code> handles response-side work. Returning the response passes it onward.</div>
+
+<h5>Block an IP</h5>
+<pre class="code">class BlockIPMiddleware(MiddlewareMixin):
+    BLOCKED_IPS = ['127.0.0.1']
+
+    def process_request(self, request):
+        ip = request.META.get('REMOTE_ADDR')
+
+        if ip in self.BLOCKED_IPS:
+            return HttpResponse('Your IP is blocked.')</pre>
+<div class="diagram">Incoming request
+       |
+       v
+Read REMOTE_ADDR
+       |
+       v
+Is IP blocked?
+   /          \
+ YES          NO
+  |            |
+  v            v
+Response     Continue
+             to view</div>
+<div class="alert alert-warning"><strong>Important:</strong> Returning an <code>HttpResponse</code> during request processing can stop the request from continuing to the view. If the IP is not blocked, the middleware lets normal processing continue.</div>
+<div class="alert alert-danger"><strong>Production note:</strong> A hard-coded IP list is useful for learning, but production security may use configuration, a database, reverse proxy, WAF or rate limiting depending on the requirement.</div>
+</div></div></section>
+
+<section id="settings"><div class="card doc-card">
+<div class="card-header bg-dark text-white">6. Add Middleware to settings.py</div><div class="card-body">
+<p>Django loads middleware from the <code>MIDDLEWARE</code> list in <code>settings.py</code>.</p>
+<pre class="code">innerproject/settings.py
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'blog.middleware.SimpleLogMiddleware',
+    'blog.middleware.BlockIPMiddleware',
+]</pre>
+<h5>How to read this path</h5>
+<pre class="code">'blog.middleware.SimpleLogMiddleware'</pre>
+<div class="diagram">'blog.middleware.SimpleLogMiddleware'
+       |
+       +--> blog                 = Django app
+       |
+       +--> middleware           = Python module
+       |
+       +--> SimpleLogMiddleware  = class</div>
+<p>The normal pattern is <code>app_name.module_name.ClassName</code>.</p>
+<div class="alert alert-primary"><strong>Order matters:</strong> Middleware runs as a stack, so changing the order can change application behavior. Some middleware depends on work performed by earlier middleware.</div>
+</div></div></section>
+
+<section><div class="card doc-card">
+<div class="card-header bg-info text-dark">7. Request vs Response Processing</div><div class="card-body">
+<table class="table table-bordered align-middle">
+<thead class="table-light"><tr><th>Part</th><th>When</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><code>process_request()</code></td><td>Request processing</td><td>Log URL, inspect request, perform checks</td></tr>
+<tr><td><code>process_response()</code></td><td>Response processing</td><td>Log status, inspect or modify response</td></tr>
+<tr><td>Callable middleware</td><td>Wraps request → response</td><td>Modern custom middleware structure</td></tr>
+</tbody></table>
+<div class="alert alert-info"><strong>Learning note:</strong> Your example uses <code>MiddlewareMixin</code> because the request/response hooks are easy to see. Modern Django also supports callable middleware.</div>
+</div></div></section>
+
+<section><div class="card doc-card">
+<div class="card-header bg-secondary text-white">8. Middleware vs View</div><div class="card-body">
+<table class="table table-bordered align-middle">
+<thead class="table-light"><tr><th>Middleware</th><th>View</th></tr></thead>
+<tbody>
+<tr><td>Common request/response processing</td><td>Application-specific logic</td></tr>
+<tr><td>Can apply to many URLs</td><td>Usually handles a particular request</td></tr>
+<tr><td>Logging, security, common checks</td><td>Fetch data and apply business rules</td></tr>
+</tbody></table>
+<div class="alert alert-warning"><strong>Simple decision:</strong> If you copy the same request-related code into many views, ask whether middleware is a better place.</div>
+</div></div></section>
+
+<section><div class="card doc-card">
+<div class="card-header bg-success text-white">9. Performance Timing Example</div><div class="card-body">
+<pre class="code">import time
+from django.utils.deprecation import MiddlewareMixin
+
+class TimingMiddleware(MiddlewareMixin):
+
+    def process_request(self, request):
+        request.start_time = time.perf_counter()
+
+    def process_response(self, request, response):
+        elapsed = time.perf_counter() - request.start_time
+        print(f"{request.path} took {elapsed:.4f} seconds")
+        return response</pre>
+<div class="diagram">Request
+  |
+  v
+Record start time
+  |
+  v
+View executes
+  |
+  v
+Response created
+  |
+  v
+Calculate elapsed time
+  |
+  v
+Log timing</div>
+<div class="alert alert-success"><strong>Benefit:</strong> Timing logic can be centralized instead of being copied into every view.</div>
+</div></div></section>
+
+<section id="interview"><div class="card doc-card">
+<div class="card-header bg-warning text-dark">10. Interview Questions & Tips</div><div class="card-body">
+<h5>Q1. What is middleware?</h5><p>Middleware is a processing layer in Django's request/response pipeline. It can inspect, modify or reject requests and can inspect or modify responses.</p>
+<h5>Q2. Why use middleware?</h5><p>To handle common cross-cutting logic centrally, such as logging, authentication-related checks, security, sessions and performance monitoring.</p>
+<h5>Q3. Can middleware stop a request?</h5><p>Yes. Request processing can return a response before the request reaches the view.</p>
+<h5>Q4. Why does middleware order matter?</h5><p>Middleware can depend on information or behavior established by another middleware, so order can affect the result.</p>
+<h5>Q5. Why return the response?</h5><p>Response middleware normally needs to pass the response onward unless it intentionally replaces it.</p>
+<div class="card tip bg-light mt-4"><div class="card-body">
+<h5>🎯 Interview-ready answer</h5>
+<p class="mb-0">“Middleware is a layer in Django's request/response pipeline. It is used for cross-cutting concerns such as logging, authentication checks, security, session handling and performance monitoring, so we do not repeat the same logic in every view.”</p>
+</div></div>
+</div></div></section>
+
+<section><div class="card doc-card">
+<div class="card-header bg-dark text-white">11. Quick Revision</div><div class="card-body">
+<div class="diagram">                 DJANGO
+                    |
+                    v
+              HTTP REQUEST
+                    |
+                    v
+             MIDDLEWARE STACK
+                    |
+       +------------+------------+
+       |            |            |
+    Logging    Auth/Security   Sessions
+       |            |            |
+       +------------+------------+
+                    |
+                    v
+                   VIEW
+                    |
+                    v
+               HTTP RESPONSE
+                    |
+                    v
+             MIDDLEWARE STACK
+                    |
+                    v
+                  CLIENT</div>
+<div class="alert alert-primary mt-3 mb-0"><strong>Memory trick:</strong> Middleware = common logic around Django's <strong>request → view → response</strong> flow.</div>
+</div></div></section>
+
+<footer class="text-center text-muted py-4">Django Class 42 — Middleware • Learning & Interview Notes</footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

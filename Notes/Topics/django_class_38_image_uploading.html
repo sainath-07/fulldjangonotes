@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django Class 38 — Image Uploading</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth}
+body{background:#f5f7fb;color:#212529;line-height:1.7}
+section{scroll-margin-top:85px}
+.sticky-nav{position:sticky;top:0;z-index:1030;background:rgba(255,255,255,.97);border-bottom:1px solid #dee2e6;box-shadow:0 .15rem .5rem rgba(0,0,0,.06)}
+.doc-card{border:0;box-shadow:0 .4rem 1rem rgba(0,0,0,.08);margin-bottom:1.5rem;overflow:hidden}
+.card-header{font-weight:700}
+.code{background:#111827;color:#e5e7eb;border-radius:.6rem;padding:1rem;overflow:auto;font-family:Consolas,Monaco,monospace;font-size:.87rem;line-height:1.55}
+.diagram{background:#f8f9fa;border:1px dashed #adb5bd;border-radius:.6rem;padding:1rem;font-family:Consolas,Monaco,monospace;white-space:pre-wrap}
+.tip{border-left:4px solid #0d6efd}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-nav">
+<div class="container">
+<a class="navbar-brand fw-bold" href="#top">Django Class 38 — Image Uploading</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#what">What</a></li>
+<li class="nav-item"><a class="nav-link" href="#media">MEDIA</a></li>
+<li class="nav-item"><a class="nav-link" href="#model">Model</a></li>
+<li class="nav-item"><a class="nav-link" href="#form">Form</a></li>
+<li class="nav-item"><a class="nav-link" href="#view">Views</a></li>
+<li class="nav-item"><a class="nav-link" href="#urls">URLs</a></li>
+<li class="nav-item"><a class="nav-link" href="#template">Templates</a></li>
+<li class="nav-item"><a class="nav-link" href="#flow">Flow</a></li>
+<li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+</ul>
+</div>
+</div>
+</nav>
+
+<main id="top" class="container py-4">
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">Class 38 — Django Image Uploading</div>
+<div class="card-body">
+<h2 class="h4">What will we learn?</h2>
+<p>In this class, we will learn how to upload an image from an HTML form, save it using Django, and display the uploaded image on another page.</p>
+
+<div class="alert alert-info">
+<strong>Big picture:</strong> A user selects an image → the browser sends the image → Django receives it through <code>request.FILES</code> → the ModelForm validates and saves it → Django stores the file under the media directory → the template displays it using <code>profile.image.url</code>.
+</div>
+
+<div class="diagram">USER
+  |
+  | Select image
+  v
+HTML FORM
+  |
+  | POST + multipart/form-data
+  v
+DJANGO VIEW
+  |
+  | request.FILES
+  v
+MODEL FORM
+  |
+  | form.save()
+  v
+IMAGE FIELD
+  |
+  v
+media/profiles/
+  |
+  v
+TEMPLATE
+  |
+  | {{ profile.image.url }}
+  v
+DISPLAY IMAGE</div>
+</div>
+</div>
+</section>
+
+<section id="what">
+<div class="card doc-card">
+<div class="card-header bg-success text-white">1. What Is Image Uploading in Django?</div>
+<div class="card-body">
+<p>Image uploading means allowing a user to select an image from their computer or phone and send that file to the Django server.</p>
+
+<p>Django can work with uploaded files through its file and image fields. In this example, the <code>Profile</code> model has an <code>ImageField</code>.</p>
+
+<pre class="code">class Profile(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to="profiles/")</pre>
+
+<div class="alert alert-warning">
+<strong>Important:</strong> <code>ImageField</code> is designed for image files. Django's image handling also requires the Pillow package.
+</div>
+
+<h5>Where is the uploaded image stored?</h5>
+<p>The example uses:</p>
+<pre class="code">MEDIA_ROOT = os.path.join(BASE_DIR, 'media')</pre>
+
+<p>Because the model says:</p>
+<pre class="code">upload_to="profiles/"</pre>
+
+<p>an uploaded image will normally be stored inside:</p>
+<pre class="code">media/profiles/</pre>
+
+<div class="alert alert-success mb-0">
+<strong>Memory trick:</strong> <code>MEDIA_ROOT</code> = physical storage location. <code>MEDIA_URL</code> = URL prefix used to access uploaded media.
+</div>
+</div>
+</div>
+</section>
+
+<section id="media">
+<div class="card doc-card">
+<div class="card-header bg-info text-dark">2. MEDIA_URL and MEDIA_ROOT</div>
+<div class="card-body">
+<pre class="code">MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')</pre>
+
+<table class="table table-bordered align-middle">
+<thead class="table-light">
+<tr><th>Setting</th><th>Simple meaning</th><th>Example</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MEDIA_ROOT</code></td>
+<td>Where uploaded files are physically stored on the server.</td>
+<td><code>project/media/</code></td>
+</tr>
+<tr>
+<td><code>MEDIA_URL</code></td>
+<td>The URL prefix used to refer to uploaded media.</td>
+<td><code>/media/</code></td>
+</tr>
+</tbody>
+</table>
+
+<div class="diagram">MEDIA_ROOT
+    |
+    v
+project/
+└── media/
+    └── profiles/
+        ├── photo1.jpg
+        ├── photo2.png
+        └── photo3.webp
+
+
+MEDIA_URL
+    |
+    v
+/media/
+    |
+    +--> /media/profiles/photo1.jpg
+</div>
+
+<div class="alert alert-primary">
+<strong>Easy way to remember:</strong><br>
+<strong>ROOT = Where?</strong> → Where is the file stored?<br>
+<strong>URL = How?</strong> → What URL prefix is used to access the file?
+</div>
+
+<div class="alert alert-warning mb-0">
+<strong>Security note:</strong> User-uploaded files should be validated and served carefully. In production, media storage is often handled by dedicated storage such as object storage/CDNs rather than Django's development server.
+</div>
+</div>
+</div>
+</section>
+
+<section id="urls">
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">3. Project urls.py — Serve Media During Development</div>
+<div class="card-body">
+<pre class="code">from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('accounts.urls'))
+]
+
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
+    )</pre>
+
+<h5 class="mt-4">Why do we add this?</h5>
+<p>During development, Django can serve files from <code>MEDIA_ROOT</code> using the configured <code>MEDIA_URL</code>.</p>
+
+<div class="diagram">Browser requests:
+ /media/profiles/photo.jpg
+          |
+          v
+MEDIA_URL = /media/
+          |
+          v
+MEDIA_ROOT = project/media/
+          |
+          v
+media/profiles/photo.jpg
+          |
+          v
+Browser receives image
+</div>
+
+<div class="alert alert-danger">
+<strong>Important:</strong> This <code>static()</code> setup is intended for development. Production deployments should use an appropriate web server or media storage service for uploaded files.
+</div>
+</div>
+</div>
+</section>
+
+<section id="model">
+<div class="card doc-card">
+<div class="card-header bg-secondary text-white">4. accounts/models.py — ImageField</div>
+<div class="card-body">
+<pre class="code">from django.db import models
+
+class Profile(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to="profiles/")
+
+    def __str__(self):
+        return self.name</pre>
+
+<h5 class="mt-4"><code>name</code></h5>
+<p>Stores the profile name.</p>
+
+<h5><code>image</code></h5>
+<pre class="code">image = models.ImageField(upload_to="profiles/")</pre>
+<p>This field stores information about the uploaded image and points to its stored file.</p>
+
+<h5>What does <code>upload_to</code> mean?</h5>
+<p>It tells Django which subdirectory inside <code>MEDIA_ROOT</code> should be used for uploaded files.</p>
+
+<div class="diagram">MEDIA_ROOT
+    |
+    +-- profiles/
+          |
+          +-- uploaded_image.jpg
+</div>
+
+<div class="alert alert-info mb-0">
+<strong>Important:</strong> The model does not store the complete image bytes directly in the normal database row. The field stores information such as the file path/name, while the actual file is stored in the configured media storage.
+</div>
+</div>
+</div>
+</section>
+
+<section id="form">
+<div class="card doc-card">
+<div class="card-header bg-success text-white">5. accounts/forms.py — ModelForm</div>
+<div class="card-body">
+<pre class="code">from django import forms
+from .models import Profile
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['name', 'image']</pre>
+
+<p><code>ModelForm</code> creates a form based on the <code>Profile</code> model.</p>
+
+<table class="table table-bordered">
+<thead class="table-light"><tr><th>Model field</th><th>Form field</th></tr></thead>
+<tbody>
+<tr><td><code>name</code></td><td>Name input</td></tr>
+<tr><td><code>image</code></td><td>File/image input</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-success mb-0">
+<strong>Benefit:</strong> The ModelForm saves us from manually creating every form field and manually connecting every submitted value to the model.
+</div>
+</div>
+</div>
+</section>
+
+<section id="view">
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">6. accounts_app/views.py — Upload View</div>
+<div class="card-body">
+<pre class="code">from django.shortcuts import render, redirect
+from .models import Profile
+from .forms import ProfileForm
+from django.contrib import messages
+
+def upload_profile(request):
+    if request.method == "POST":
+        form = ProfileForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                'Profile picture uploaded'
+            )
+            return redirect('view_profile')
+        else:
+            messages.error(
+                request,
+                'Error uploading picture, please try again'
+            )
+    else:
+        form = ProfileForm()
+
+    return render(
+        request,
+        'upload_profile.html',
+        {'form': form}
+    )</pre>
+
+<h5 class="mt-4">Step 1 — Check the request method</h5>
+<pre class="code">if request.method == "POST":</pre>
+<p>A POST request means the user submitted the form.</p>
+
+<h5>Step 2 — Pass normal form data and files</h5>
+<pre class="code">form = ProfileForm(request.POST, request.FILES)</pre>
+
+<p>This line is extremely important for file uploading.</p>
+
+<table class="table table-bordered">
+<thead class="table-light"><tr><th>Argument</th><th>Contains</th></tr></thead>
+<tbody>
+<tr><td><code>request.POST</code></td><td>Normal submitted form values such as the name.</td></tr>
+<tr><td><code>request.FILES</code></td><td>Uploaded files such as images.</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-danger">
+<strong>Common mistake:</strong> If you forget <code>request.FILES</code>, the uploaded image will not be passed to the ModelForm correctly.
+</div>
+
+<h5>Step 3 — Validate</h5>
+<pre class="code">if form.is_valid():</pre>
+<p>Django validates the submitted data before saving it.</p>
+
+<h5>Step 4 — Save</h5>
+<pre class="code">form.save()</pre>
+<p>This creates the <code>Profile</code> record and saves the uploaded file through the model's image field/storage.</p>
+
+<h5>Step 5 — Show a success message</h5>
+<pre class="code">messages.success(request, 'Profile picture uploaded')</pre>
+
+<h5>Step 6 — Redirect</h5>
+<pre class="code">return redirect('view_profile')</pre>
+<p>After a successful upload, the user is redirected to the profile page.</p>
+
+<div class="alert alert-primary mb-0">
+<strong>Good pattern:</strong> POST → validate → save → message → redirect. This also follows the common Post/Redirect/Get pattern.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-info text-dark">7. Upload View — GET vs POST</div>
+<div class="card-body">
+<div class="diagram">User opens /upload/
+       |
+       v
+GET request
+       |
+       v
+form = ProfileForm()
+       |
+       v
+Show empty upload form
+
+
+User clicks Upload
+       |
+       v
+POST request
+       |
+       v
+ProfileForm(request.POST, request.FILES)
+       |
+       v
+form.is_valid()
+     /       \
+   YES       NO
+   |          |
+   v          v
+save()     show form
+   |
+   v
+redirect
+</div>
+
+<div class="alert alert-success">
+<strong>Memory trick:</strong> <strong>GET = show the form. POST = process the form.</strong>
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-warning text-dark">8. accounts_app/views.py — View Uploaded Profiles</div>
+<div class="card-body">
+<pre class="code">def view_profile(request):
+    profiles = Profile.objects.all()
+
+    return render(
+        request,
+        'view_profile.html',
+        {'profiles': profiles}
+    )</pre>
+
+<p>This view gets all saved profile records from the database and sends them to the template.</p>
+
+<div class="diagram">Profile table
+     |
+     v
+Profile.objects.all()
+     |
+     v
+profiles
+     |
+     v
+view_profile.html
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">9. accounts/urls.py</div>
+<div class="card-body">
+<pre class="code">from . import views
+from django.urls import path
+
+urlpatterns = [
+    path(
+        'upload/',
+        views.upload_profile,
+        name="upload_profile"
+    ),
+    path(
+        'profile/',
+        views.view_profile,
+        name="view_profile"
+    ),
+]</pre>
+
+<table class="table table-bordered">
+<thead class="table-light"><tr><th>URL</th><th>View</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>/upload/</code></td><td><code>upload_profile</code></td><td>Show and process upload form.</td></tr>
+<tr><td><code>/profile/</code></td><td><code>view_profile</code></td><td>Display saved profiles and images.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section id="template">
+<div class="card doc-card">
+<div class="card-header bg-success text-white">10. upload_profile.html — The Upload Form</div>
+<div class="card-body">
+<pre class="code">{% extends 'base.html' %}
+
+{% block content %}
+&lt;h2&gt;Upload Profile Picture&lt;/h2&gt;
+
+&lt;form method="post"
+      enctype="multipart/form-data"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Upload
+    &lt;/button&gt;
+
+&lt;/form&gt;
+{% endblock %}</pre>
+
+<h5 class="mt-4">The most important part: <code>enctype</code></h5>
+<pre class="code">enctype="multipart/form-data"</pre>
+
+<p>When an HTML form uploads a file, the form must use <code>multipart/form-data</code>.</p>
+
+<div class="alert alert-danger">
+<strong>Interview favorite:</strong> A file-upload form needs <code>method="post"</code> and <code>enctype="multipart/form-data"</code>.
+</div>
+
+<h5>Why POST?</h5>
+<p>Uploading a file changes server-side data, so POST is the appropriate HTTP method.</p>
+
+<h5>Why multipart/form-data?</h5>
+<p>It allows the request body to contain file data along with normal form fields.</p>
+
+<h5>Why CSRF token?</h5>
+<pre class="code">{% csrf_token %}</pre>
+<p>Django uses CSRF protection for POST forms. The token helps protect against cross-site request forgery.</p>
+
+<div class="alert alert-info mb-0">
+<strong>Easy memory:</strong> <code>POST + multipart/form-data + request.FILES</code> are the three things you should immediately think about when you see Django file upload.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-info text-dark">11. view_profile.html — Display the Uploaded Image</div>
+<div class="card-body">
+<pre class="code">{% extends 'base.html' %}
+
+{% block content %}
+&lt;h2&gt;view profile picture&lt;/h2&gt;
+
+&lt;ul&gt;
+  {% for profile in profiles %}
+  &lt;li&gt;
+    {{ profile.name }}
+    &lt;br /&gt;
+
+    &lt;img
+      src="{{ profile.image.url }}"
+      width="200"
+      alt=""
+    /&gt;
+  &lt;/li&gt;
+  {% endfor %}
+&lt;/ul&gt;
+{% endblock %}</pre>
+
+<h5 class="mt-4">What does this do?</h5>
+<pre class="code">{{ profile.image.url }}</pre>
+
+<p>Django provides the URL for the stored image through the model's file field.</p>
+
+<div class="diagram">profile.image
+     |
+     v
+Stored file reference
+     |
+     v
+profile.image.url
+     |
+     v
+/media/profiles/photo.jpg
+     |
+     v
+&lt;img src="..."&gt;
+</div>
+
+<div class="alert alert-success mb-0">
+<strong>Remember:</strong> <code>profile.image</code> refers to the file field object; <code>profile.image.url</code> gives the URL that can be used by the browser.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-secondary text-white">12. base.html — Navigation and Messages</div>
+<div class="card-body">
+<pre class="code">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport"
+          content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Document&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;a href="{% url 'upload_profile' %}"&gt;
+        upload profile picture
+    &lt;/a&gt;
+
+    &lt;a href="{% url 'view_profile' %}"&gt;
+        view profile picture
+    &lt;/a&gt;
+
+    {% if messages %}
+    &lt;ul&gt;
+        {% for message in messages %}
+            &lt;li&gt;{{ message }}&lt;/li&gt;
+        {% endfor %}
+    &lt;/ul&gt;
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+<p>The navigation gives users links to upload and view profiles. The messages section displays success or error messages created in the view.</p>
+
+<div class="alert alert-info mb-0">
+<strong>Template inheritance:</strong> Child templates use <code>{% extends 'base.html' %}</code> and put page-specific content inside the <code>content</code> block.
+</div>
+</div>
+</div>
+</section>
+
+<section id="flow">
+<div class="card doc-card">
+<div class="card-header bg-dark text-white">13. Complete Image Upload Flow</div>
+<div class="card-body">
+<div class="diagram">1. USER
+   |
+   | Selects image + enters name
+   v
+2. upload_profile.html
+   |
+   | POST
+   | enctype="multipart/form-data"
+   v
+3. Django upload_profile view
+   |
+   | request.POST
+   | request.FILES
+   v
+4. ProfileForm
+   |
+   | is_valid()
+   v
+5. form.save()
+   |
+   +----------------------+
+   |                      |
+   v                      v
+DATABASE              FILE STORAGE
+Profile record        media/profiles/photo.jpg
+   |                      |
+   +----------+-----------+
+              |
+              v
+6. redirect('view_profile')
+              |
+              v
+7. view_profile view
+              |
+              v
+8. view_profile.html
+              |
+              | profile.image.url
+              v
+9. BROWSER DISPLAYS IMAGE</div>
+
+<div class="alert alert-success mt-4">
+<strong>One-line flow:</strong><br>
+Form → POST → <code>request.FILES</code> → ModelForm → <code>save()</code> → Media storage → <code>image.url</code> → Browser
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-danger text-white">14. Common Mistakes</div>
+<div class="card-body">
+<ol>
+<li>Forgetting <code>enctype="multipart/form-data"</code> in the HTML form.</li>
+<li>Forgetting <code>request.FILES</code> in the ModelForm constructor.</li>
+<li>Forgetting to configure <code>MEDIA_ROOT</code>.</li>
+<li>Forgetting to configure <code>MEDIA_URL</code>.</li>
+<li>Forgetting the development <code>static()</code> media URL configuration.</li>
+<li>Trying to display <code>{{ profile.image }}</code> when you actually need the browser URL <code>{{ profile.image.url }}</code>.</li>
+<li>Using a GET request for an upload operation.</li>
+<li>Forgetting the CSRF token on a POST form.</li>
+<li>Trusting uploaded files without proper validation in a production application.</li>
+<li>Assuming Django's development media serving configuration is suitable for production.</li>
+</ol>
+
+<div class="alert alert-warning mb-0">
+<strong>Most common interview trap:</strong> If the interviewer asks why an uploaded image is not arriving in the view, check <code>multipart/form-data</code> and <code>request.FILES</code> first.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-warning text-dark">15. Image Upload: The 5 Things to Remember</div>
+<div class="card-body">
+<div class="row g-3">
+<div class="col-md-6"><div class="card h-100"><div class="card-body">
+<h5>1. Model</h5>
+<code>models.ImageField(upload_to="profiles/")</code>
+</div></div></div>
+<div class="col-md-6"><div class="card h-100"><div class="card-body">
+<h5>2. Settings</h5>
+<code>MEDIA_ROOT</code> + <code>MEDIA_URL</code>
+</div></div></div>
+<div class="col-md-6"><div class="card h-100"><div class="card-body">
+<h5>3. HTML</h5>
+<code>enctype="multipart/form-data"</code>
+</div></div></div>
+<div class="col-md-6"><div class="card h-100"><div class="card-body">
+<h5>4. View</h5>
+<code>request.FILES</code>
+</div></div></div>
+<div class="col-md-6"><div class="card h-100"><div class="card-body">
+<h5>5. Display</h5>
+<code>{{ profile.image.url }}</code>
+</div></div></div>
+</div>
+
+<div class="alert alert-primary mt-4 mb-0">
+<strong>Super-short memory:</strong> <code>ImageField → MEDIA_ROOT/URL → multipart/form-data → request.FILES → image.url</code>
+</div>
+</div>
+</div>
+</section>
+
+<section id="interview">
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">16. Interview Questions & Answers</div>
+<div class="card-body">
+
+<h5>Q1. How do you upload an image in Django?</h5>
+<p>Use an <code>ImageField</code> in the model, create a form, submit the form using POST with <code>multipart/form-data</code>, pass <code>request.POST</code> and <code>request.FILES</code> to the form, validate it, and save it.</p>
+
+<h5>Q2. Why is <code>multipart/form-data</code> required?</h5>
+<p>It allows the HTTP request body to carry file data together with normal form fields.</p>
+
+<h5>Q3. What is <code>request.FILES</code>?</h5>
+<p>It is Django's collection of uploaded files from the current request.</p>
+
+<h5>Q4. What is the difference between <code>MEDIA_ROOT</code> and <code>MEDIA_URL</code>?</h5>
+<p><code>MEDIA_ROOT</code> is the filesystem location where uploaded files are stored. <code>MEDIA_URL</code> is the URL prefix used to access those files.</p>
+
+<h5>Q5. What does <code>upload_to="profiles/"</code> mean?</h5>
+<p>It tells Django to store uploaded files in the <code>profiles/</code> subdirectory of the configured media storage.</p>
+
+<h5>Q6. How do you display an uploaded image in a template?</h5>
+<pre class="code">&lt;img src="{{ profile.image.url }}" alt=""&gt;</pre>
+
+<h5>Q7. Why use <code>ImageField</code> instead of a normal <code>CharField</code>?</h5>
+<p><code>ImageField</code> is designed for uploaded image files and provides image/file handling through Django's file storage system.</p>
+
+<h5>Q8. Why do we use <code>request.POST</code> and <code>request.FILES</code> together?</h5>
+<p><code>request.POST</code> contains normal form values, while <code>request.FILES</code> contains uploaded files. An image-upload form can contain both.</p>
+
+<h5>Q9. Is Django's <code>static()</code> media configuration enough for production?</h5>
+<p>No. It is intended for development. Production applications normally use a proper web server and/or dedicated media storage.</p>
+
+<h5>Q10. What package is commonly required for Django <code>ImageField</code>?</h5>
+<p>Django's <code>ImageField</code> requires Pillow for image processing.</p>
+
+<div class="card tip bg-light mt-4">
+<div class="card-body">
+<h5>🎯 Interview-ready answer</h5>
+<p class="mb-0">“For image uploading in Django, I use an ImageField with an upload_to directory. The HTML form uses POST and multipart/form-data. In the view, I pass both request.POST and request.FILES to the ModelForm. After validation, form.save() stores the model information and uploaded file using Django's storage system. I configure MEDIA_ROOT and MEDIA_URL, and use image.url in the template to display the uploaded image.”</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-success text-white">17. Quick Revision Cheat Sheet</div>
+<div class="card-body">
+<table class="table table-bordered align-middle">
+<thead class="table-light"><tr><th>Concept</th><th>Remember</th></tr></thead>
+<tbody>
+<tr><td>Model</td><td><code>ImageField(upload_to="profiles/")</code></td></tr>
+<tr><td>Storage location</td><td><code>MEDIA_ROOT</code></td></tr>
+<tr><td>Media URL prefix</td><td><code>MEDIA_URL</code></td></tr>
+<tr><td>HTML upload</td><td><code>enctype="multipart/form-data"</code></td></tr>
+<tr><td>Uploaded files</td><td><code>request.FILES</code></td></tr>
+<tr><td>Save</td><td><code>form.save()</code></td></tr>
+<tr><td>Image URL</td><td><code>profile.image.url</code></td></tr>
+<tr><td>Development media serving</td><td><code>static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)</code></td></tr>
+</tbody>
+</table>
+
+<div class="diagram">MODEL
+  ↓
+ImageField
+  ↓
+upload_to
+  ↓
+MEDIA_ROOT
+  ↓
+Stored file
+
+HTML
+  ↓
+multipart/form-data
+  ↓
+request.FILES
+  ↓
+ModelForm
+  ↓
+form.save()
+
+Stored file
+  ↓
+image.url
+  ↓
+&lt;img src="..."&gt;</div>
+</div>
+</div>
+</section>
+
+<footer class="text-center text-muted py-4">
+Django Class 38 — Image Uploading • Learning & Interview Notes
+</footer>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

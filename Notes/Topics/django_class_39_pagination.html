@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django Class 39 — Pagination</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth}
+body{background:#f5f7fb;color:#212529;line-height:1.7}
+section{scroll-margin-top:82px}
+.sticky-nav{position:sticky;top:0;z-index:1030;background:rgba(255,255,255,.97);border-bottom:1px solid #dee2e6;box-shadow:0 .15rem .5rem rgba(0,0,0,.05)}
+.doc-card{border:0;box-shadow:0 .4rem 1rem rgba(0,0,0,.08);margin-bottom:1.5rem;overflow:hidden}
+.card-header{font-weight:700}
+.code{background:#111827;color:#e5e7eb;border-radius:.6rem;padding:1rem;overflow:auto;font-family:Consolas,Monaco,monospace;font-size:.88rem;line-height:1.55}
+.diagram{background:#f8f9fa;border:1px dashed #adb5bd;border-radius:.6rem;padding:1rem;font-family:Consolas,Monaco,monospace;white-space:pre-wrap}
+.tip{border-left:4px solid #0d6efd}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-nav">
+<div class="container">
+<a class="navbar-brand fw-bold" href="#top">Django Class 39 — Pagination</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#what">What</a></li>
+<li class="nav-item"><a class="nav-link" href="#why">Why</a></li>
+<li class="nav-item"><a class="nav-link" href="#flow">How It Works</a></li>
+<li class="nav-item"><a class="nav-link" href="#views">Views</a></li>
+<li class="nav-item"><a class="nav-link" href="#paginator">Paginator</a></li>
+<li class="nav-item"><a class="nav-link" href="#template">Template</a></li>
+<li class="nav-item"><a class="nav-link" href="#urls">URLs</a></li>
+<li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+</ul>
+</div>
+</div>
+</nav>
+
+<main id="top" class="container py-4">
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">Class 39 — Django Pagination</div>
+<div class="card-body">
+<h2 class="h4">What will we learn?</h2>
+<p>In this class, we will learn how to split a large list of blog posts into smaller pages.</p>
+<div class="alert alert-info">
+<strong>Example:</strong> If the database has 100 posts, showing all 100 posts on one page is usually not a good user experience. We can show 3, 10, 20, or another suitable number of posts per page.
+</div>
+
+<div class="diagram">Database
+   |
+   | 100 Posts
+   v
++----------------------+
+|      Paginator       |
+|  3 posts per page    |
++----------------------+
+   |
+   +--> Page 1 → Posts 1-3
+   +--> Page 2 → Posts 4-6
+   +--> Page 3 → Posts 7-9
+   +--> ...
+   +--> Page 34 → Posts 100
+</div>
+</div>
+</div>
+</section>
+
+<section id="what">
+<div class="card doc-card">
+<div class="card-header bg-success text-white">1. What Is Pagination?</div>
+<div class="card-body">
+<p><strong>Pagination</strong> means dividing a large set of results into smaller groups called pages.</p>
+
+<p>For example, suppose we have 10 posts and want to show only 3 posts at a time:</p>
+
+<table class="table table-bordered align-middle">
+<thead class="table-light">
+<tr><th>Page</th><th>Posts</th></tr>
+</thead>
+<tbody>
+<tr><td>Page 1</td><td>1, 2, 3</td></tr>
+<tr><td>Page 2</td><td>4, 5, 6</td></tr>
+<tr><td>Page 3</td><td>7, 8, 9</td></tr>
+<tr><td>Page 4</td><td>10</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-success mb-0">
+<strong>Simple memory:</strong> Pagination = <strong>“Break a big list into small pages.”</strong>
+</div>
+</div>
+</div>
+</section>
+
+<section id="why">
+<div class="card doc-card">
+<div class="card-header bg-warning text-dark">2. Why Do We Need Pagination?</div>
+<div class="card-body">
+<div class="row g-3">
+<div class="col-md-4">
+<div class="card h-100"><div class="card-body">
+<h5>Better UI</h5>
+<p class="mb-0">Users do not have to scroll through hundreds or thousands of records.</p>
+</div></div>
+</div>
+<div class="col-md-4">
+<div class="card h-100"><div class="card-body">
+<h5>Less Data Per Page</h5>
+<p class="mb-0">The page displays a smaller result set instead of one huge list.</p>
+</div></div>
+</div>
+<div class="col-md-4">
+<div class="card h-100"><div class="card-body">
+<h5>Scalability</h5>
+<p class="mb-0">Pagination is an important technique when applications work with large datasets.</p>
+</div></div>
+</div>
+</div>
+
+<div class="alert alert-primary mt-4 mb-0">
+<strong>Real-world examples:</strong> Search results, product catalogs, blog posts, admin tables, comments, notifications and many other lists commonly use pagination.
+</div>
+</div>
+</div>
+</section>
+
+<section id="flow">
+<div class="card doc-card">
+<div class="card-header bg-info text-dark">3. How Django Pagination Works</div>
+<div class="card-body">
+<div class="diagram">STEP 1
+Get posts from database
+        |
+        v
+Post.objects.all().order_by('id')
+        |
+        v
+STEP 2
+Create Paginator
+        |
+        v
+Paginator(posts, 3)
+        |
+        v
+STEP 3
+Read page number
+        |
+        v
+request.GET.get('page')
+        |
+        v
+STEP 4
+Ask Paginator for that page
+        |
+        v
+paginator.get_page(page_number)
+        |
+        v
+STEP 5
+Send page_obj to template
+        |
+        v
+STEP 6
+Template displays only that page
+</div>
+
+<div class="alert alert-success mt-4">
+<strong>Memory trick:</strong> <strong>QuerySet → Paginator → Page number → Page object → Template.</strong>
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-secondary text-white">4. Important Pagination Terms</div>
+<div class="card-body">
+<table class="table table-bordered align-middle">
+<thead class="table-light">
+<tr><th>Term</th><th>Simple meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>Paginator</code></td><td>Object that divides a collection into pages.</td></tr>
+<tr><td><code>page_number</code></td><td>The page requested by the user.</td></tr>
+<tr><td><code>page_obj</code></td><td>The Page object containing the current page's results.</td></tr>
+<tr><td><code>per_page</code></td><td>How many objects should be displayed on one page.</td></tr>
+<tr><td><code>num_pages</code></td><td>Total number of pages.</td></tr>
+<tr><td><code>has_previous</code></td><td>Whether a previous page exists.</td></tr>
+<tr><td><code>has_next</code></td><td>Whether a next page exists.</td></tr>
+<tr><td><code>previous_page_number</code></td><td>Number of the previous page.</td></tr>
+<tr><td><code>next_page_number</code></td><td>Number of the next page.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section id="views">
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">5. blog/views.py — Complete Code</div>
+<div class="card-body">
+<pre class="code">from django.shortcuts import render
+from django.core.paginator import Paginator
+from .models import Post
+
+# Create your views here.
+def post_list(request):
+    posts = Post.objects.all().order_by('id')
+
+    paginator = Paginator(posts, 3)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(
+        request,
+        'blog/post_list.html',
+        {'page_obj': page_obj}
+    )</pre>
+
+<h5 class="mt-4">Step 1 — Get the posts</h5>
+<pre class="code">posts = Post.objects.all().order_by('id')</pre>
+<p>This creates a QuerySet containing the posts. <code>order_by('id')</code> gives the results a predictable order based on the ID.</p>
+
+<div class="alert alert-info">
+<strong>Why order the QuerySet?</strong> Pagination works best when the result ordering is stable. Without an explicit ordering, the database is not required to return rows in a particular order.
+</div>
+
+<h5>Step 2 — Create the Paginator</h5>
+<pre class="code">paginator = Paginator(posts, 3)</pre>
+<p>The second argument means <strong>3 objects per page</strong>.</p>
+
+<div class="diagram">Paginator(
+    all_posts,
+    3
+)
+
+        ↓
+
+Page 1 → 3 posts
+Page 2 → 3 posts
+Page 3 → 3 posts
+...
+</div>
+
+<h5>Step 3 — Read the requested page</h5>
+<pre class="code">page_number = request.GET.get('page')</pre>
+<p>If the browser visits <code>/?page=2</code>, then:</p>
+<pre class="code">page_number = "2"</pre>
+
+<div class="alert alert-warning">
+<strong>Note:</strong> Values read from <code>request.GET</code> are strings. Django's paginator handles the page-number conversion when <code>get_page()</code> is used.
+</div>
+
+<h5>Step 4 — Get the requested Page object</h5>
+<pre class="code">page_obj = paginator.get_page(page_number)</pre>
+<p>This gives us the Page object for the requested page.</p>
+
+<h5>Step 5 — Send it to the template</h5>
+<pre class="code">return render(
+    request,
+    'blog/post_list.html',
+    {'page_obj': page_obj}
+)</pre>
+
+<div class="alert alert-success mb-0">
+<strong>Important:</strong> We send <code>page_obj</code>, not the complete list, to the template.
+</div>
+</div>
+</div>
+</section>
+
+<section id="paginator">
+<div class="card doc-card">
+<div class="card-header bg-success text-white">6. Understanding Paginator in Detail</div>
+<div class="card-body">
+<pre class="code">from django.core.paginator import Paginator
+
+paginator = Paginator(posts, 3)</pre>
+
+<p>Think of <code>Paginator</code> as a helper that divides the QuerySet into pages.</p>
+
+<div class="diagram">Suppose there are 8 posts:
+
+Posts:
+[1] [2] [3] [4] [5] [6] [7] [8]
+
+Paginator(posts, 3)
+
+Page 1 → [1] [2] [3]
+Page 2 → [4] [5] [6]
+Page 3 → [7] [8]
+</div>
+
+<h5 class="mt-4">Total pages</h5>
+<pre class="code">paginator.num_pages</pre>
+<p>For 8 posts with 3 posts per page, there are 3 pages.</p>
+
+<h5>Current page</h5>
+<pre class="code">page_obj.number</pre>
+
+<h5>Check whether previous page exists</h5>
+<pre class="code">page_obj.has_previous</pre>
+
+<h5>Check whether next page exists</h5>
+<pre class="code">page_obj.has_next</pre>
+
+<h5>Get previous page number</h5>
+<pre class="code">page_obj.previous_page_number</pre>
+
+<h5>Get next page number</h5>
+<pre class="code">page_obj.next_page_number</pre>
+
+<div class="alert alert-primary mb-0">
+<strong>Easy memory:</strong> <code>page_obj</code> represents <strong>the current page</strong>. It contains both the current page's objects and useful information for building pagination controls.
+</div>
+</div>
+</div>
+</section>
+
+<section id="template">
+<div class="card doc-card">
+<div class="card-header bg-info text-dark">7. blog/templates/blog/post_list.html</div>
+<div class="card-body">
+<pre class="code">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="viewport"
+          content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;Blog Posts&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;h1&gt;Blog Posts&lt;/h1&gt;
+
+    {% for post in page_obj %}
+        &lt;div&gt;
+            &lt;h2&gt;{{ post.title }}&lt;/h2&gt;
+            &lt;p&gt;{{ post.content }}&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;hr&gt;
+    {% empty %}
+        &lt;p&gt;No posts available.&lt;/p&gt;
+    {% endfor %}
+
+    &lt;div&gt;
+
+        {% if page_obj.has_previous %}
+            &lt;a href="?page=1"&gt;« First&lt;/a&gt;
+
+            &lt;a href="?page={{ page_obj.previous_page_number }}"&gt;
+                Previous
+            &lt;/a&gt;
+        {% endif %}
+
+        &lt;span&gt;
+            Page {{ page_obj.number }}
+            of {{ page_obj.paginator.num_pages }}
+        &lt;/span&gt;
+
+        {% if page_obj.has_next %}
+            &lt;a href="?page={{ page_obj.next_page_number }}"&gt;
+                Next
+            &lt;/a&gt;
+
+            &lt;a href="?page={{ page_obj.paginator.num_pages }}"&gt;
+                Last »
+            &lt;/a&gt;
+        {% endif %}
+
+    &lt;/div&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+<h5 class="mt-4">Loop through the current page</h5>
+<pre class="code">{% for post in page_obj %}</pre>
+<p>Because <code>page_obj</code> represents the current page, the loop displays only the posts belonging to that page.</p>
+
+<h5>Check for a previous page</h5>
+<pre class="code">{% if page_obj.has_previous %}</pre>
+<p>The Previous and First links are shown only when a previous page exists.</p>
+
+<h5>Previous link</h5>
+<pre class="code">&lt;a href="?page={{ page_obj.previous_page_number }}"&gt;
+    Previous
+&lt;/a&gt;</pre>
+
+<h5>Current page information</h5>
+<pre class="code">Page {{ page_obj.number }}
+of {{ page_obj.paginator.num_pages }}</pre>
+
+<h5>Next link</h5>
+<pre class="code">&lt;a href="?page={{ page_obj.next_page_number }}"&gt;
+    Next
+&lt;/a&gt;</pre>
+
+<div class="alert alert-success mb-0">
+<strong>Important:</strong> <code>page_obj.paginator</code> gives access to the Paginator that created the current Page object.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-warning text-dark">8. Understanding the Pagination Controls</div>
+<div class="card-body">
+<div class="diagram">Page 1 of 4
+
+[« First] [Previous]    Page 1 of 4    [Next] [Last »]
+                           |
+                           v
+                         User
+
+Page 2 of 4
+
+[« First] [Previous]    Page 2 of 4    [Next] [Last »]
+
+Page 4 of 4
+
+[« First] [Previous]    Page 4 of 4
+</div>
+
+<table class="table table-bordered align-middle mt-4">
+<thead class="table-light"><tr><th>Control</th><th>Condition</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td>First</td><td><code>has_previous</code></td><td>Go to page 1</td></tr>
+<tr><td>Previous</td><td><code>has_previous</code></td><td>Go to previous page</td></tr>
+<tr><td>Next</td><td><code>has_next</code></td><td>Go to next page</td></tr>
+<tr><td>Last</td><td><code>has_next</code></td><td>Go to final page</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-info mb-0"><strong>Why do we use conditions?</strong> We should not display a Previous link on page 1 or a Next link on the final page.</div>
+</div>
+</div>
+</section>
+
+<section id="urls">
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">9. blog/urls.py</div>
+<div class="card-body">
+<pre class="code">from . import views
+from django.urls import path
+
+urlpatterns = [
+    path('', views.post_list, name='post_list'),
+]</pre>
+
+<p>The root URL points to the <code>post_list</code> view.</p>
+
+<div class="diagram">Browser
+   |
+   | /
+   v
+blog/urls.py
+   |
+   v
+views.post_list
+   |
+   v
+Paginator
+   |
+   v
+post_list.html
+</div>
+
+<div class="alert alert-primary">
+<strong>Notice:</strong> We do not need a separate URL for every page. The same URL handles different page numbers using the GET parameter.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-dark text-white">10. Project URL Configuration</div>
+<div class="card-body">
+<pre class="code">from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls'))
+]</pre>
+
+<p>The project-level URL configuration includes the blog application's URLs.</p>
+
+<div class="diagram">Project URLs
+     |
+     +-- /admin/ --> Django Admin
+     |
+     +-- /       --> include('blog.urls')
+                         |
+                         v
+                    post_list view
+</div>
+
+<div class="alert alert-info mb-0">
+<strong>Remember:</strong> The project URL file decides which application receives the request. The blog URL file decides which blog view handles it.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-secondary text-white">11. blog/models.py</div>
+<div class="card-body">
+<pre class="code">from django.db import models
+
+class Post(models.Model):
+    title = models.CharField(max_length=1000)
+    content = models.TextField()
+
+    def __str__(self):
+        return self.title
+</pre>
+
+<p>The model represents the blog posts that we want to paginate.</p>
+
+<table class="table table-bordered">
+<thead class="table-light"><tr><th>Field</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>title</code></td><td>Stores the post title.</td></tr>
+<tr><td><code>content</code></td><td>Stores the post content.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-danger text-white">12. Register the Model in Admin</div>
+<div class="card-body">
+<pre class="code">from django.contrib import admin
+from .models import Post
+
+admin.site.register(Post)</pre>
+
+<p>This allows posts to be created and managed through Django Admin.</p>
+
+<div class="diagram">Django Admin
+      |
+      v
+Create / Edit Posts
+      |
+      v
+Post table
+      |
+      v
+Post.objects.all()
+      |
+      v
+Paginator
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-success text-white">13. Pagination URL Examples</div>
+<div class="card-body">
+<table class="table table-bordered align-middle">
+<thead class="table-light"><tr><th>URL</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>/</code></td><td>Default page request.</td></tr>
+<tr><td><code>/?page=1</code></td><td>Request page 1.</td></tr>
+<tr><td><code>/?page=2</code></td><td>Request page 2.</td></tr>
+<tr><td><code>/?page=3</code></td><td>Request page 3.</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-warning">
+<strong>Key point:</strong> <code>page</code> is not a Django URL path parameter here. It is a <strong>GET query parameter</strong>.
+</div>
+
+<div class="diagram">/?page=2
+  |
+  +-- ? starts query parameters
+  |
+  +-- page = parameter name
+  |
+  +-- 2 = parameter value
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-info text-dark">14. Why Use <code>get_page()</code>?</div>
+<div class="card-body">
+<pre class="code">page_obj = paginator.get_page(page_number)</pre>
+
+<p><code>get_page()</code> is convenient because it handles invalid page input more safely than directly calling <code>page()</code>.</p>
+
+<div class="diagram">User requests:
+
+?page=2
+     |
+     v
+Valid page
+     |
+     v
+Return Page 2
+
+
+User requests:
+
+?page=abc
+     |
+     v
+Invalid page number
+     |
+     v
+get_page() handles it
+     |
+     v
+Returns a suitable page
+
+
+User requests:
+
+?page=9999
+     |
+     v
+Page does not exist
+     |
+     v
+get_page() handles it
+     |
+     v
+Returns the last available page
+</div>
+
+<div class="alert alert-primary mb-0">
+<strong>Interview point:</strong> <code>get_page()</code> is often convenient for user-controlled page numbers because it handles common invalid/out-of-range values gracefully.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-warning text-dark">15. Pagination vs Showing All Records</div>
+<div class="card-body">
+<table class="table table-bordered align-middle">
+<thead class="table-light"><tr><th>Without Pagination</th><th>With Pagination</th></tr></thead>
+<tbody>
+<tr><td>Large result displayed at once</td><td>Small result displayed per page</td></tr>
+<tr><td>Can create a long page</td><td>Cleaner UI</td></tr>
+<tr><td>More records rendered at once</td><td>Fewer records rendered per page</td></tr>
+<tr><td>Harder to navigate large lists</td><td>Easy page navigation</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-danger">
+<strong>Important performance idea:</strong> Pagination improves the amount of data displayed per page, but it does not mean every pagination design automatically makes every database query fast. For very large datasets, query design, indexes and pagination strategy also matter.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-dark text-white">16. Common Mistakes</div>
+<div class="card-body">
+<ol>
+<li>Forgetting to import <code>Paginator</code>.</li>
+<li>Forgetting to read the <code>page</code> GET parameter.</li>
+<li>Looping through the original <code>posts</code> instead of <code>page_obj</code>.</li>
+<li>Forgetting <code>has_next</code> or <code>has_previous</code> checks.</li>
+<li>Not using stable ordering for paginated results.</li>
+<li>Confusing <code>paginator.num_pages</code> with <code>page_obj.number</code>.</li>
+<li>Creating separate URL routes for every page when a GET parameter is enough.</li>
+<li>Assuming pagination alone solves all large-dataset performance problems.</li>
+</ol>
+
+<div class="alert alert-success mb-0">
+<strong>Developer rule:</strong> Always think about three things: <strong>stable ordering, database/query performance, and user navigation.</strong>
+</div>
+</div>
+</div>
+</section>
+
+<section id="interview">
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">17. Interview Questions & Answers</div>
+<div class="card-body">
+
+<h5>Q1. What is pagination?</h5>
+<p>Pagination is the process of dividing a large collection of results into smaller pages so users can view the data in manageable groups.</p>
+
+<h5>Q2. How do you implement pagination in Django?</h5>
+<p>Import <code>Paginator</code>, create a Paginator with the QuerySet and number of objects per page, read the requested page from GET parameters, and use <code>get_page()</code> to obtain the Page object.</p>
+
+<h5>Q3. What does this do?</h5>
+<pre class="code">paginator = Paginator(posts, 3)</pre>
+<p>It creates a paginator that displays 3 objects per page.</p>
+
+<h5>Q4. How do you get the page number from the URL?</h5>
+<pre class="code">page_number = request.GET.get('page')</pre>
+
+<h5>Q5. What is <code>page_obj</code>?</h5>
+<p>It is a Django <code>Page</code> object representing the requested page. It can be iterated to display the current page's objects and also provides pagination information.</p>
+
+<h5>Q6. How do you check if a next page exists?</h5>
+<pre class="code">page_obj.has_next</pre>
+
+<h5>Q7. How do you get the next page number?</h5>
+<pre class="code">page_obj.next_page_number</pre>
+
+<h5>Q8. How do you get the total number of pages?</h5>
+<pre class="code">page_obj.paginator.num_pages</pre>
+
+<h5>Q9. Why use <code>order_by('id')</code>?</h5>
+<p>It provides explicit and stable ordering for the QuerySet, which is important when dividing results into pages.</p>
+
+<h5>Q10. Why use GET for pagination?</h5>
+<p>Pagination is normally a read-only operation, so a query parameter such as <code>?page=2</code> is a natural way to represent the current page.</p>
+
+<div class="card tip bg-light mt-4">
+<div class="card-body">
+<h5>🎯 Interview-ready answer</h5>
+<p class="mb-0">“In Django, I use the Paginator class to divide a QuerySet into pages. I read the page number from <code>request.GET</code>, call <code>get_page()</code>, and pass the resulting <code>page_obj</code> to the template. The template uses <code>has_previous</code>, <code>has_next</code>, and page-number properties to build navigation.”</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-success text-white">18. Quick Revision Memory Map</div>
+<div class="card-body">
+<div class="diagram">DATABASE
+   |
+   v
+Post.objects.all().order_by('id')
+   |
+   v
+Paginator(posts, 3)
+   |
+   v
+request.GET.get('page')
+   |
+   v
+paginator.get_page(page_number)
+   |
+   v
+page_obj
+   |
+   +--> page_obj.number
+   +--> page_obj.paginator.num_pages
+   +--> page_obj.has_previous
+   +--> page_obj.has_next
+   +--> previous_page_number
+   +--> next_page_number
+   |
+   v
+TEMPLATE
+   |
+   +--> {% for post in page_obj %}
+   |
+   +--> Previous
+   +--> Next
+   +--> First
+   +--> Last
+</div>
+
+<div class="alert alert-primary mt-4">
+<strong>One-line memory:</strong><br>
+<code>Post QuerySet → Paginator → page number → page_obj → template navigation</code>
+</div>
+
+<div class="alert alert-warning mb-0">
+<strong>Class 39 takeaway:</strong> If you remember <code>Paginator</code>, <code>request.GET.get('page')</code>, <code>get_page()</code>, and <code>page_obj</code>, you already understand the core of Django pagination.
+</div>
+</div>
+</div>
+</section>
+
+<footer class="text-center text-muted py-4">
+Django Class 39 — Pagination • Learning & Interview Notes
+</footer>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

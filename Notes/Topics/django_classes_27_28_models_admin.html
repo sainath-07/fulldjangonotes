@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Django Classes 27 & 28 - Models & Django Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    body { background:#f5f7fb; color:#243044; line-height:1.7; }
+    .sticky-nav { position:sticky; top:0; z-index:1030; }
+    .hero { background:linear-gradient(135deg,#172554,#2563eb); color:white; border-radius:0 0 22px 22px; }
+    .doc-card { border:0; border-radius:16px; overflow:hidden; box-shadow:0 .45rem 1.2rem rgba(31,41,55,.09); margin-bottom:28px; }
+    .card-header-custom { color:white; font-weight:700; padding:14px 20px; }
+    .header-blue { background:#2563eb; }
+    .header-green { background:#198754; }
+    .header-purple { background:#6f42c1; }
+    .header-orange { background:#fd7e14; }
+    .header-dark { background:#343a40; }
+    pre { background:#111827; color:#e5e7eb; border-radius:12px; padding:18px; overflow:auto; }
+    code { color:#d63384; }
+    pre code { color:inherit; }
+    .step { border-left:4px solid #2563eb; padding-left:16px; margin-bottom:18px; }
+    .diagram-box { border:2px dashed #93c5fd; border-radius:14px; padding:20px; background:#eff6ff; }
+    .flow { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; }
+    .flow-item { background:white; border:1px solid #bfdbfe; border-radius:10px; padding:12px 16px; font-weight:600; text-align:center; }
+    .arrow { font-size:24px; color:#2563eb; }
+    .tip { border-left:5px solid #ffc107; background:#fff8df; }
+    .danger-note { border-left:5px solid #dc3545; background:#fff1f2; }
+    .success-note { border-left:5px solid #198754; background:#ecfdf5; }
+    .mini-title { font-weight:700; color:#1e3a8a; }
+    .table thead th { background:#eef2ff; }
+    .badge-soft { background:#e0e7ff; color:#3730a3; }
+    .toc a { text-decoration:none; }
+    .footer { color:#6b7280; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-nav shadow">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#top">Django Classes 27 & 28</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#docNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="docNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#models">Models</a></li>
+        <li class="nav-item"><a class="nav-link" href="#migrations">Migrations</a></li>
+        <li class="nav-item"><a class="nav-link" href="#admin">Admin Panel</a></li>
+        <li class="nav-item"><a class="nav-link" href="#customize">Customize</a></li>
+        <li class="nav-item"><a class="nav-link" href="#filters">Filters</a></li>
+        <li class="nav-item"><a class="nav-link" href="#interview">Interview Tips</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header id="top" class="hero py-5">
+  <div class="container">
+    <span class="badge bg-light text-primary mb-3">Django • Classes 27 & 28</span>
+    <h1 class="display-5 fw-bold">Creating Multiple Models & Customizing Django Admin</h1>
+    <p class="lead mb-0">Learn how to create more than one model, register models in Django Admin, create users, and customize the admin list view.</p>
+  </div>
+</header>
+
+<main class="container py-5">
+
+  <section id="overview" class="doc-card card">
+    <div class="card-header-custom header-blue">1. What We Will Learn</div>
+    <div class="card-body">
+      <p>In these classes, we continue working with Django models and the Django Admin panel.</p>
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-4"><div class="p-3 border rounded bg-light"><strong>01.</strong> Create multiple models</div></div>
+        <div class="col-md-6 col-lg-4"><div class="p-3 border rounded bg-light"><strong>02.</strong> Register models in admin</div></div>
+        <div class="col-md-6 col-lg-4"><div class="p-3 border rounded bg-light"><strong>03.</strong> Add users from admin</div></div>
+        <div class="col-md-6 col-lg-4"><div class="p-3 border rounded bg-light"><strong>04.</strong> Customize list display</div></div>
+        <div class="col-md-6 col-lg-4"><div class="p-3 border rounded bg-light"><strong>05.</strong> Add search and ordering</div></div>
+        <div class="col-md-6 col-lg-4"><div class="p-3 border rounded bg-light"><strong>06.</strong> Add filters using tuples</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="models" class="doc-card card">
+    <div class="card-header-custom header-green">2. Creating Multiple Models</div>
+    <div class="card-body">
+      <h5 class="mini-title">What is a model?</h5>
+      <p>A Django model is a Python class that describes the data we want to store in the database.</p>
+      <div class="alert alert-info"><strong>Simple idea:</strong> One model normally represents one type of data, such as Student, Profile, Product, or Order.</div>
+
+      <h5 class="mini-title mt-4">Example: Student and Profile</h5>
+      <pre><code>from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Profile(models.Model):
+    bio = models.TextField(max_length=1000)
+    location = models.CharField()
+    birth_date = models.DateField(null=True)
+
+    def __str__(self):
+        return self.bio</code></pre>
+
+      <div class="diagram-box mt-4">
+        <div class="flow">
+          <div class="flow-item">Student Model<br><small>name • age • email</small></div>
+          <div class="arrow">→</div>
+          <div class="flow-item">Database Table<br><small>Student records</small></div>
+          <div class="arrow">←</div>
+          <div class="flow-item">Profile Model<br><small>bio • location • birth_date</small></div>
+          <div class="arrow">→</div>
+          <div class="flow-item">Database Table<br><small>Profile records</small></div>
+        </div>
+      </div>
+
+      <h5 class="mini-title mt-4">Why use <code>__str__()</code>?</h5>
+      <p>The <code>__str__()</code> method controls the readable name of an object. Django Admin uses it when showing model objects.</p>
+      <pre><code>def __str__(self):
+    return self.name</code></pre>
+      <div class="alert alert-warning"><strong>Important:</strong> <code>__str__()</code> must return a string. If the value is a number, convert it with <code>str()</code>.</div>
+    </div>
+  </section>
+
+  <section id="migrations" class="doc-card card">
+    <div class="card-header-custom header-purple">3. Run Migrations After Creating Models</div>
+    <div class="card-body">
+      <p>After creating or changing models, Django needs to update the database structure. We do this with migrations.</p>
+
+      <div class="step"><strong>Step 1 — Create migration files</strong>
+        <pre><code>python manage.py makemigrations</code></pre>
+        <p>Django checks your model changes and creates migration instructions.</p>
+      </div>
+
+      <div class="step"><strong>Step 2 — Apply migrations</strong>
+        <pre><code>python manage.py migrate</code></pre>
+        <p>Django applies those instructions to the database.</p>
+      </div>
+
+      <div class="alert alert-danger"><strong>Correction:</strong> The command is <code>python manage.py migrate</code>, not <code>python manage.py run migrate</code>.</div>
+
+      <div class="diagram-box">
+        <div class="flow">
+          <div class="flow-item">models.py</div>
+          <div class="arrow">→</div>
+          <div class="flow-item">makemigrations</div>
+          <div class="arrow">→</div>
+          <div class="flow-item">Migration files</div>
+          <div class="arrow">→</div>
+          <div class="flow-item">migrate</div>
+          <div class="arrow">→</div>
+          <div class="flow-item">Database</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="admin" class="doc-card card">
+    <div class="card-header-custom header-orange">4. Registering Models in Django Admin</div>
+    <div class="card-body">
+      <p>Registering a model makes it available inside the Django Admin panel.</p>
+
+      <h5 class="mini-title">Method 1 — Simple registration</h5>
+      <pre><code>from django.contrib import admin
+from .models import Student, Profile
+
+admin.site.register(Student)
+admin.site.register(Profile)</code></pre>
+
+      <div class="success-note p-3 rounded mb-4">
+        <strong>Result:</strong> Both Student and Profile appear in the Django Admin panel.
+      </div>
+
+      <h5 class="mini-title">Create an admin user</h5>
+      <pre><code>python manage.py createsuperuser</code></pre>
+      <p>Django will ask for details such as username, email, and password. Use these credentials to log in to the admin panel.</p>
+
+      <h5 class="mini-title mt-4">Start the development server</h5>
+      <pre><code>python manage.py runserver</code></pre>
+
+      <div class="diagram-box">
+        <div class="flow">
+          <div class="flow-item">createsuperuser</div>
+          <div class="arrow">→</div>
+          <div class="flow-item">Admin Login</div>
+          <div class="arrow">→</div>
+          <div class="flow-item">Django Admin</div>
+          <div class="arrow">→</div>
+          <div class="flow-item">Student / Profile</div>
+        </div>
+      </div>
+
+      <h5 class="mini-title mt-4">Adding a user from Django Admin</h5>
+      <ol>
+        <li>Start the server.</li>
+        <li>Open the Django Admin page.</li>
+        <li>Log in with your superuser account.</li>
+        <li>Open the Users section.</li>
+        <li>Click <strong>Add User</strong>.</li>
+        <li>Enter the username and password.</li>
+        <li>Save the user and configure additional permissions if required.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="customize" class="doc-card card">
+    <div class="card-header-custom header-blue">5. Customizing the Django Admin List View</div>
+    <div class="card-body">
+      <p>The default admin list view may not show the fields you want. We can customize it using <code>ModelAdmin</code>.</p>
+
+      <h5 class="mini-title">Example</h5>
+      <pre><code>from django.contrib import admin
+from .models import Student, Profile
+
+admin.site.register(Profile)
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'age', 'email')
+    search_fields = ('name', 'age')
+    list_filter = ('age', 'name')
+    ordering = ('name',)</code></pre>
+
+      <h5 class="mini-title mt-4">What does each option do?</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead>
+            <tr><th>Option</th><th>Purpose</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>list_display</code></td><td>Controls columns shown in the list.</td><td><code>('name', 'age', 'email')</code></td></tr>
+            <tr><td><code>search_fields</code></td><td>Adds a search box for selected fields.</td><td><code>('name', 'age')</code></td></tr>
+            <tr><td><code>list_filter</code></td><td>Adds filters on the right side.</td><td><code>('age', 'name')</code></td></tr>
+            <tr><td><code>ordering</code></td><td>Sets the default sorting order.</td><td><code>('name',)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-info mt-3"><strong>Easy way to remember:</strong> Display = columns, Search = search box, Filter = filter options, Ordering = default sorting.</div>
+    </div>
+  </section>
+
+  <section id="registering-new" class="doc-card card">
+    <div class="card-header-custom header-dark">6. Registering a Model in the New Way</div>
+    <div class="card-body">
+      <p>Instead of calling <code>admin.site.register(Student)</code>, we can use the <code>@admin.register()</code> decorator.</p>
+
+      <pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'age', 'email')</code></pre>
+
+      <p>The decorator connects the <code>StudentAdmin</code> configuration with the <code>Student</code> model.</p>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="p-3 border rounded h-100">
+            <h6 class="fw-bold">Traditional style</h6>
+            <pre><code>class StudentAdmin(admin.ModelAdmin):
+    ...
+
+admin.site.register(Student, StudentAdmin)</code></pre>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 border rounded h-100">
+            <h6 class="fw-bold">Decorator style</h6>
+            <pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    ...</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-success mt-4"><strong>Interview point:</strong> Both approaches register the model. The decorator style keeps the registration close to the admin configuration and is easy to read.</div>
+    </div>
+  </section>
+
+  <section id="filters" class="doc-card card">
+    <div class="card-header-custom header-green">7. Adding Filters Using a Tuple</div>
+    <div class="card-body">
+      <p>To add multiple filters, provide the model field names inside a tuple.</p>
+
+      <pre><code>list_filter = ('age', 'name')</code></pre>
+
+      <p>This tells Django Admin to create filter options for the <code>age</code> and <code>name</code> fields.</p>
+
+      <h5 class="mini-title">Why do we use a comma in a one-item tuple?</h5>
+      <pre><code>ordering = ('name',)</code></pre>
+      <p>In Python, <code>('name')</code> is just a string inside parentheses. The comma makes it a tuple:</p>
+      <pre><code>type(('name'))   # str
+type(('name',))  # tuple</code></pre>
+
+      <div class="tip p-3 rounded mt-3">
+        <strong>Remember:</strong> Parentheses do not create a tuple by themselves. The comma creates the one-item tuple.
+      </div>
+    </div>
+  </section>
+
+  <section id="complete" class="doc-card card">
+    <div class="card-header-custom header-purple">8. Complete Example</div>
+    <div class="card-body">
+      <h5 class="mini-title">blog_app/models.py</h5>
+      <pre><code>from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Profile(models.Model):
+    bio = models.TextField(max_length=1000)
+    location = models.CharField()
+    birth_date = models.DateField(null=True)
+
+    def __str__(self):
+        return self.bio</code></pre>
+
+      <h5 class="mini-title mt-4">blog_app/admin.py</h5>
+      <pre><code>from django.contrib import admin
+from .models import Student, Profile
+
+admin.site.register(Profile)
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'age', 'email')
+    search_fields = ('name', 'age')
+    list_filter = ('age', 'name')
+    ordering = ('name',)</code></pre>
+
+      <h5 class="mini-title mt-4">Commands to run</h5>
+      <pre><code>python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver</code></pre>
+
+      <div class="alert alert-warning">
+        <strong>Note:</strong> If <code>Profile.location = models.CharField()</code> gives a validation error in your Django version, provide a <code>max_length</code>, for example <code>models.CharField(max_length=100)</code>.
+      </div>
+    </div>
+  </section>
+
+  <section id="interview" class="doc-card card">
+    <div class="card-header-custom header-orange">9. Interview Tips & Questions</div>
+    <div class="card-body">
+      <div class="accordion" id="interviewAccordion">
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">
+              What is the purpose of __str__() in a Django model?
+            </button>
+          </h2>
+          <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#interviewAccordion">
+            <div class="accordion-body">
+              It returns a readable string representation of a model object. Django Admin uses it when displaying objects.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">
+              What is the difference between makemigrations and migrate?
+            </button>
+          </h2>
+          <div id="q2" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+            <div class="accordion-body">
+              <code>makemigrations</code> creates migration instructions from model changes. <code>migrate</code> applies those migrations to the database.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">
+              What does list_display do?
+            </button>
+          </h2>
+          <div id="q3" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+            <div class="accordion-body">
+              It controls which model fields or admin methods appear as columns in the Django Admin list page.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4">
+              What is list_filter used for?
+            </button>
+          </h2>
+          <div id="q4" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+            <div class="accordion-body">
+              It adds filtering options to the Django Admin list page, allowing an admin user to quickly narrow down records.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5">
+              How can a model be registered using a decorator?
+            </button>
+          </h2>
+          <div id="q5" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+            <div class="accordion-body">
+              Use <code>@admin.register(ModelName)</code> immediately above the corresponding <code>ModelAdmin</code> class.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="alert alert-primary mt-4">
+        <strong>Interview tip:</strong> Do not only memorize the option names. Explain what problem each option solves: <code>list_display</code> improves visibility, <code>search_fields</code> improves searching, <code>list_filter</code> improves filtering, and <code>ordering</code> controls the default sort.
+      </div>
+    </div>
+  </section>
+
+  <section id="summary" class="doc-card card">
+    <div class="card-header-custom header-dark">10. Quick Revision</div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead><tr><th>Topic</th><th>Remember</th></tr></thead>
+          <tbody>
+            <tr><td>Multiple models</td><td>Create multiple model classes in <code>models.py</code>.</td></tr>
+            <tr><td>Migrations</td><td><code>makemigrations</code> → create migration; <code>migrate</code> → apply migration.</td></tr>
+            <tr><td>Admin registration</td><td>Use <code>admin.site.register()</code> or <code>@admin.register()</code>.</td></tr>
+            <tr><td>Superuser</td><td>Use <code>createsuperuser</code> to create an admin login.</td></tr>
+            <tr><td>List display</td><td>Controls columns in the admin list page.</td></tr>
+            <tr><td>Search fields</td><td>Adds searchable fields.</td></tr>
+            <tr><td>List filter</td><td>Adds filters to the admin list page.</td></tr>
+            <tr><td>Ordering</td><td>Controls the default sorting.</td></tr>
+            <tr><td>One-item tuple</td><td>Use a comma: <code>('name',)</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <p class="text-center footer mt-4">Django Classes 27 & 28 • Models, Migrations & Django Admin</p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

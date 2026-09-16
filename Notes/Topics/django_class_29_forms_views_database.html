@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Django Class 29 - Form Submission & Database</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    html { scroll-behavior:smooth; scroll-padding-top:80px; }
+    body { background:#f5f7fb; color:#263247; line-height:1.7; }
+    .sticky-nav { position:sticky; top:0; z-index:1030; }
+    .hero { background:linear-gradient(135deg,#172554,#2563eb); color:#fff; border-radius:0 0 22px 22px; }
+    .doc-card { border:0; border-radius:16px; overflow:hidden; box-shadow:0 .45rem 1.2rem rgba(31,41,55,.09); margin-bottom:28px; }
+    .card-header-custom { color:#fff; font-weight:700; padding:14px 20px; }
+    .blue { background:#2563eb; } .green { background:#198754; } .purple { background:#6f42c1; }
+    .orange { background:#fd7e14; } .dark { background:#343a40; }
+    pre { background:#111827; color:#e5e7eb; border-radius:12px; padding:18px; overflow:auto; }
+    code { color:#d63384; } pre code { color:inherit; }
+    .mini-title { font-weight:700; color:#1e3a8a; }
+    .step { border-left:4px solid #2563eb; padding-left:16px; margin-bottom:22px; }
+    .diagram-box { background:#eff6ff; border:2px dashed #93c5fd; border-radius:14px; padding:22px; }
+    .flow { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; }
+    .flow-item { background:#fff; border:1px solid #bfdbfe; border-radius:10px; padding:12px 16px; text-align:center; font-weight:600; }
+    .arrow { color:#2563eb; font-size:24px; font-weight:bold; }
+    .tip { background:#fff8df; border-left:5px solid #ffc107; }
+    .success-note { background:#ecfdf5; border-left:5px solid #198754; }
+    .danger-note { background:#fff1f2; border-left:5px solid #dc3545; }
+    .table thead th { background:#eef2ff; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-nav shadow">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#top">Django Class 29</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#docNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="docNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#goal">Goal</a></li>
+        <li class="nav-item"><a class="nav-link" href="#template">Template</a></li>
+        <li class="nav-item"><a class="nav-link" href="#urls">URLs</a></li>
+        <li class="nav-item"><a class="nav-link" href="#views">Views</a></li>
+        <li class="nav-item"><a class="nav-link" href="#database">Database</a></li>
+        <li class="nav-item"><a class="nav-link" href="#flow">Flow</a></li>
+        <li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header id="top" class="hero py-5">
+  <div class="container">
+    <span class="badge bg-light text-primary mb-3">Django • Class 29</span>
+    <h1 class="display-5 fw-bold">Rendering a Page & Saving Form Data</h1>
+    <p class="lead mb-0">Learn how a Django page is rendered from a view and how submitted form data is saved into a SQLite database using a model.</p>
+  </div>
+</header>
+
+<main class="container py-5">
+
+<section id="goal" class="doc-card card">
+  <div class="card-header-custom blue">1. What We Are Building</div>
+  <div class="card-body">
+    <p>In this class, we create a simple contact form. A user enters a name and message, submits the form, and Django saves that information in the database.</p>
+
+    <div class="alert alert-primary">
+      <strong>Main idea:</strong> HTML collects the data → Django view receives the data → Model saves the data → SQLite database stores the data.
+    </div>
+
+    <div class="diagram-box">
+      <div class="flow">
+        <div class="flow-item">User<br><small>fills form</small></div>
+        <div class="arrow">→</div>
+        <div class="flow-item">contact.html<br><small>POST request</small></div>
+        <div class="arrow">→</div>
+        <div class="flow-item">submit_contact()<br><small>view</small></div>
+        <div class="arrow">→</div>
+        <div class="flow-item">Contact.objects.create()</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">SQLite3<br><small>database</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="concepts" class="doc-card card">
+  <div class="card-header-custom green">2. Two Important Tasks</div>
+  <div class="card-body">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="border rounded p-4 h-100">
+          <h5 class="mini-title">Task 1: Render a page</h5>
+          <p>Django uses a view to return an HTML template to the browser.</p>
+          <pre><code>def contact_form(request):
+    return render(request, 'contact.html')</code></pre>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="border rounded p-4 h-100">
+          <h5 class="mini-title">Task 2: Save submitted data</h5>
+          <p>The view reads values from the POST request and creates a database record using the model.</p>
+          <pre><code>Contact.objects.create(
+    name=name,
+    message=message
+)</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info mt-4">
+      <strong>Simple meaning:</strong> <code>render()</code> is used to show a page. <code>objects.create()</code> is used here to create and save a model record.
+    </div>
+  </div>
+</section>
+
+<section id="template" class="doc-card card">
+  <div class="card-header-custom purple">3. Creating the Contact Form</div>
+  <div class="card-body">
+    <h5 class="mini-title">blog_app/templates/contact.html</h5>
+    <pre><code>&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="viewport"
+          content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;Document&lt;/title&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;h2&gt;contact form&lt;/h2&gt;
+
+    &lt;form action="{% url 'submit_contact' %}" method="POST"&gt;
+      {% csrf_token %}
+
+      &lt;label for="name"&gt;name&lt;/label&gt;
+      &lt;input type="text"
+             name="name"
+             id="name"
+             placeholder="Enter name..." /&gt;
+
+      &lt;br /&gt;&lt;br /&gt;
+
+      &lt;label for="message"&gt;message&lt;/label&gt;
+      &lt;textarea name="message" id="message"&gt;&lt;/textarea&gt;
+
+      &lt;br /&gt;&lt;br /&gt;
+
+      &lt;button type="submit" value="submit"&gt;
+        submit
+      &lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+    <h5 class="mini-title mt-4">Understand the important parts</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead><tr><th>Code</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>action="{% url 'submit_contact' %}"</code></td><td>Uses the URL named <code>submit_contact</code> as the form destination.</td></tr>
+          <tr><td><code>method="POST"</code></td><td>Sends form data to the server using a POST request.</td></tr>
+          <tr><td><code>{% csrf_token %}</code></td><td>Adds Django's CSRF protection token to the form.</td></tr>
+          <tr><td><code>name="name"</code></td><td>Gives the submitted input its key name.</td></tr>
+          <tr><td><code>name="message"</code></td><td>Gives the submitted textarea its key name.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tip p-3 rounded mt-3">
+      <strong>Very important:</strong> The HTML <code>name</code> attribute is what lets the Django view access the submitted value with <code>request.POST.get()</code>.
+    </div>
+  </div>
+</section>
+
+<section id="urls" class="doc-card card">
+  <div class="card-header-custom orange">4. Connecting URLs to Views</div>
+  <div class="card-body">
+    <h5 class="mini-title">blog_app/urls.py</h5>
+    <pre><code>from . import views
+from django.urls import path
+
+urlpatterns = [
+    path('', views.contact_form, name='contact_form'),
+    path('submit/', views.submit_contact, name='submit_contact')
+]</code></pre>
+
+    <h5 class="mini-title mt-4">What happens here?</h5>
+    <div class="step">
+      <strong>URL 1: <code>''</code></strong>
+      <p>When the app receives its base path, Django calls <code>contact_form()</code>. That view renders the contact page.</p>
+    </div>
+    <div class="step">
+      <strong>URL 2: <code>'submit/'</code></strong>
+      <p>When the form is submitted, the request goes to <code>submit_contact()</code>.</p>
+    </div>
+
+    <div class="alert alert-success">
+      <strong>Why use <code>name</code>?</strong> The template can refer to the URL by name instead of hard-coding the URL path:
+      <code>{% url 'submit_contact' %}</code>.
+    </div>
+  </div>
+</section>
+
+<section id="projecturls" class="doc-card card">
+  <div class="card-header-custom dark">5. Including App URLs in the Main Project</div>
+  <div class="card-body">
+    <h5 class="mini-title">innerproject/urls.py</h5>
+    <pre><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('contact/', include('blog.urls'))
+]</code></pre>
+
+    <p>Here, the project connects the <code>blog</code> app's URLs under the <code>/contact/</code> path.</p>
+
+    <div class="diagram-box">
+      <div class="flow">
+        <div class="flow-item">/contact/</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">innerproject/urls.py</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">include('blog.urls')</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">blog_app/urls.py</div>
+      </div>
+    </div>
+
+    <div class="alert alert-warning mt-4">
+      <strong>Check your app name:</strong> Your example imports from <code>blog</code> in the project URL file, while the other files are shown under <code>blog_app</code>. Make sure the name in <code>include()</code> matches your actual Django app package.
+    </div>
+  </div>
+</section>
+
+<section id="views" class="doc-card card">
+  <div class="card-header-custom blue">6. Rendering the Page from views.py</div>
+  <div class="card-body">
+    <h5 class="mini-title">blog_app/views.py</h5>
+    <pre><code>from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from .models import Contact
+
+def contact_form(request):
+    return render(request, 'contact.html')</code></pre>
+
+    <h5 class="mini-title mt-4">Step-by-step</h5>
+    <div class="step">
+      <strong>1. Browser sends a request</strong>
+      <p>The user opens the contact URL.</p>
+    </div>
+    <div class="step">
+      <strong>2. URL finds the view</strong>
+      <p>Django matches the URL with <code>contact_form</code>.</p>
+    </div>
+    <div class="step">
+      <strong>3. View calls render()</strong>
+      <p><code>render()</code> loads <code>contact.html</code> and returns the rendered HTML response.</p>
+    </div>
+    <div class="step">
+      <strong>4. Browser displays the page</strong>
+      <p>The user sees the contact form.</p>
+    </div>
+
+    <div class="diagram-box">
+      <div class="flow">
+        <div class="flow-item">Browser</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">URL</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">contact_form()</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">render()</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">contact.html</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="save" class="doc-card card">
+  <div class="card-header-custom green">7. Receiving and Saving Submitted Data</div>
+  <div class="card-body">
+    <h5 class="mini-title">The submit_contact() view</h5>
+    <pre><code>def submit_contact(request):
+    if request.method == 'POST':
+        print(request.POST)
+
+        name = request.POST.get('name')
+        message = request.POST.get('message')
+
+        if name and message:
+            Contact.objects.create(
+                name=name,
+                message=message
+            )
+
+            return HttpResponse(
+                f'Thank you {name} for message'
+            )
+        else:
+            return HttpResponse(
+                'Please all fields information'
+            )
+
+    else:
+        return redirect('contact_form')</code></pre>
+
+    <h5 class="mini-title mt-4">Understand each line</h5>
+
+    <div class="step">
+      <strong><code>if request.method == 'POST':</code></strong>
+      <p>Checks whether the request was sent using POST. Form submission uses POST because we are sending data to the server.</p>
+    </div>
+
+    <div class="step">
+      <strong><code>request.POST</code></strong>
+      <p>Contains the submitted form data.</p>
+      <pre><code>print(request.POST)</code></pre>
+      <p>You may see data similar to:</p>
+      <pre><code>&lt;QueryDict: {
+    'csrfmiddlewaretoken': ['...'],
+    'name': ['Sainath'],
+    'message': ['Hello Django']
+}&gt;</code></pre>
+    </div>
+
+    <div class="step">
+      <strong><code>request.POST.get('name')</code></strong>
+      <p>Reads the value from the form field whose HTML <code>name</code> is <code>name</code>.</p>
+    </div>
+
+    <div class="step">
+      <strong><code>request.POST.get('message')</code></strong>
+      <p>Reads the value from the textarea whose HTML <code>name</code> is <code>message</code>.</p>
+    </div>
+
+    <div class="step">
+      <strong><code>if name and message:</code></strong>
+      <p>Checks that both values are present before saving.</p>
+    </div>
+
+    <div class="step">
+      <strong><code>Contact.objects.create(...)</code></strong>
+      <p>Creates a new <code>Contact</code> object and saves it to the database.</p>
+    </div>
+
+    <div class="step">
+      <strong><code>redirect('contact_form')</code></strong>
+      <p>If the request is not POST, the user is sent back to the contact form.</p>
+    </div>
+  </div>
+</section>
+
+<section id="database" class="doc-card card">
+  <div class="card-header-custom purple">8. Saving Data into SQLite Database</div>
+  <div class="card-body">
+    <p>Django can use SQLite as the database for a development project. When the model is migrated, Django creates the required database table.</p>
+
+    <h5 class="mini-title">Example Contact model</h5>
+    <p>The view expects a model named <code>Contact</code> with fields named <code>name</code> and <code>message</code>.</p>
+    <pre><code>from django.db import models
+
+class Contact(models.Model):
+    name = models.CharField(max_length=100)
+    message = models.TextField()
+
+    def __str__(self):
+        return self.name</code></pre>
+
+    <h5 class="mini-title mt-4">Database process</h5>
+    <div class="diagram-box">
+      <div class="flow">
+        <div class="flow-item">Contact model</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">makemigrations</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">migrate</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">SQLite table</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">Contact.objects.create()</div>
+      </div>
+    </div>
+
+    <h5 class="mini-title mt-4">Required commands</h5>
+    <pre><code>python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver</code></pre>
+
+    <div class="success-note p-3 rounded">
+      <strong>Key point:</strong> The form does not directly write to SQLite. The Django view uses the model, and Django's ORM performs the database operation.
+    </div>
+  </div>
+</section>
+
+<section id="flow" class="doc-card card">
+  <div class="card-header-custom orange">9. Complete Request Flow</div>
+  <div class="card-body">
+    <h5 class="mini-title">When the user opens the page</h5>
+    <div class="diagram-box mb-4">
+      <div class="flow">
+        <div class="flow-item">User opens<br>/contact/</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">URL</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">contact_form()</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">render()</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">contact.html</div>
+      </div>
+    </div>
+
+    <h5 class="mini-title">When the user submits the form</h5>
+    <div class="diagram-box">
+      <div class="flow">
+        <div class="flow-item">Form</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">POST /submit/</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">submit_contact()</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">request.POST.get()</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">Contact.objects.create()</div>
+        <div class="arrow">→</div>
+        <div class="flow-item">SQLite</div>
+      </div>
+    </div>
+
+    <div class="alert alert-primary mt-4">
+      <strong>One-line memory trick:</strong><br>
+      <code>URL → View → Template</code> for displaying a page, and
+      <code>Form → POST → View → Model → Database</code> for saving submitted data.
+    </div>
+  </div>
+</section>
+
+<section id="important" class="doc-card card">
+  <div class="card-header-custom dark">10. Common Mistakes to Avoid</div>
+  <div class="card-body">
+    <div class="danger-note p-3 rounded mb-3">
+      <strong>1. Missing <code>name</code> attribute</strong>
+      <p class="mb-0">If an input does not have the expected <code>name</code>, <code>request.POST.get()</code> may not find the value.</p>
+    </div>
+
+    <div class="danger-note p-3 rounded mb-3">
+      <strong>2. Forgetting <code>{% csrf_token %}</code></strong>
+      <p class="mb-0">Django's POST form protection expects the CSRF token in a normal internal form.</p>
+    </div>
+
+    <div class="danger-note p-3 rounded mb-3">
+      <strong>3. Forgetting to migrate</strong>
+      <p class="mb-0">If the database table does not exist yet, run <code>makemigrations</code> and <code>migrate</code>.</p>
+    </div>
+
+    <div class="danger-note p-3 rounded">
+      <strong>4. URL name mismatch</strong>
+      <p class="mb-0">The template uses <code>{% url 'submit_contact' %}</code>, so the URL pattern must have <code>name='submit_contact'</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section id="interview" class="doc-card card">
+  <div class="card-header-custom blue">11. Interview Questions & Tips</div>
+  <div class="card-body">
+    <div class="accordion" id="interviewAccordion">
+
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">
+            What does render() do in Django?
+          </button>
+        </h2>
+        <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#interviewAccordion">
+          <div class="accordion-body">
+            <code>render()</code> combines a template with its context, if provided, and returns an HTTP response containing the rendered HTML.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">
+            Why is POST used for this form?
+          </button>
+        </h2>
+        <div id="q2" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+          <div class="accordion-body">
+            POST is commonly used when sending data to the server for processing or creating/updating data. Here, the submitted contact details are saved.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">
+            What is request.POST?
+          </button>
+        </h2>
+        <div id="q3" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+          <div class="accordion-body">
+            It contains data sent in the body of a POST request. In this example, it contains the submitted form fields.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4">
+            What does Contact.objects.create() do?
+          </button>
+        </h2>
+        <div id="q4" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+          <div class="accordion-body">
+            It creates a new Contact model object and saves it to the database through Django's ORM.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5">
+            Why use request.POST.get() instead of directly accessing request.POST['name']?
+          </button>
+        </h2>
+        <div id="q5" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+          <div class="accordion-body">
+            <code>get()</code> returns <code>None</code> when the key is missing, while direct dictionary-style access can raise a <code>KeyError</code>. The exact choice depends on how you want to handle missing data.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q6">
+            What is the role of the Django ORM here?
+          </button>
+        </h2>
+        <div id="q6" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+          <div class="accordion-body">
+            The ORM lets Python code work with database records using Django models instead of writing raw SQL for this operation.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tip p-3 rounded mt-4">
+      <strong>Interview tip:</strong> Be able to explain the complete journey of one submitted value:
+      <code>input name → request.POST → view variable → model → database row</code>.
+    </div>
+  </div>
+</section>
+
+<section id="revision" class="doc-card card">
+  <div class="card-header-custom green">12. Quick Revision</div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered align-middle">
+        <thead><tr><th>Topic</th><th>Remember</th></tr></thead>
+        <tbody>
+          <tr><td>Render page</td><td><code>return render(request, 'contact.html')</code></td></tr>
+          <tr><td>Form method</td><td>Use <code>POST</code> when submitting data for server-side processing.</td></tr>
+          <tr><td>CSRF</td><td>Use <code>{% csrf_token %}</code> in Django POST forms.</td></tr>
+          <tr><td>Read form data</td><td><code>request.POST.get('field_name')</code></td></tr>
+          <tr><td>Save model data</td><td><code>Contact.objects.create(...)</code></td></tr>
+          <tr><td>Database</td><td>Django ORM performs the database operation.</td></tr>
+          <tr><td>SQLite</td><td>Common simple database choice for Django development projects.</td></tr>
+          <tr><td>Redirect</td><td><code>redirect('contact_form')</code> sends the user to a named URL.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<p class="text-center text-secondary mt-4">Django Class 29 • Rendering Pages, Processing Forms & Saving Data</p>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

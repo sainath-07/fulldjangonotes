@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django Class 41 — Class Based View CRUD</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth}
+body{background:#f5f7fb;color:#212529;line-height:1.7}
+section{scroll-margin-top:82px}
+.sticky-nav{position:sticky;top:0;z-index:1030;background:rgba(255,255,255,.97);border-bottom:1px solid #dee2e6;box-shadow:0 .15rem .5rem rgba(0,0,0,.05)}
+.doc-card{border:0;box-shadow:0 .4rem 1rem rgba(0,0,0,.08);margin-bottom:1.5rem;overflow:hidden}
+.card-header{font-weight:700}
+.code{background:#111827;color:#e5e7eb;border-radius:.6rem;padding:1rem;overflow:auto;font-family:Consolas,Monaco,monospace;font-size:.88rem;line-height:1.55}
+.diagram{background:#f8f9fa;border:1px dashed #adb5bd;border-radius:.6rem;padding:1rem;font-family:Consolas,Monaco,monospace;white-space:pre-wrap}
+.tip{border-left:4px solid #0d6efd}
+.small-note{font-size:.92rem}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-nav">
+<div class="container">
+<a class="navbar-brand fw-bold" href="#top">Django Class 41 — CBV CRUD</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#what">What</a></li>
+<li class="nav-item"><a class="nav-link" href="#compare">FBV vs CBV</a></li>
+<li class="nav-item"><a class="nav-link" href="#decide">Which to Use?</a></li>
+<li class="nav-item"><a class="nav-link" href="#crud">CRUD</a></li>
+<li class="nav-item"><a class="nav-link" href="#urls">URLs</a></li>
+<li class="nav-item"><a class="nav-link" href="#views">Views</a></li>
+<li class="nav-item"><a class="nav-link" href="#templates">Templates</a></li>
+<li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+</ul>
+</div>
+</div>
+</nav>
+
+<main id="top" class="container py-4">
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">Class 41 — Class Based Views & CRUD Operations</div>
+<div class="card-body">
+<h2 class="h4">Goal of this class</h2>
+<p>Build Create, Read, Update and Delete operations using Django's generic class based views.</p>
+<div class="alert alert-info"><strong>Big idea:</strong> Django provides ready-made generic views such as <code>ListView</code>, <code>DetailView</code>, <code>CreateView</code>, <code>UpdateView</code> and <code>DeleteView</code>. They remove a lot of repeated CRUD code.</div>
+<div class="diagram">Model: Post
+     |
+     +-------------------+
+     |                   |
+     v                   v
+   URLs              Templates
+     |
+     v
+Class Based Views
+     |
+     +--> ListView
+     +--> DetailView
+     +--> CreateView
+     +--> UpdateView
+     +--> DeleteView</div>
+</div>
+</div>
+</section>
+
+<section id="what">
+<div class="card doc-card">
+<div class="card-header bg-success text-white">1. What Are Class Based Views?</div>
+<div class="card-body">
+<p>A class based view, or CBV, is a Django view written as a Python class instead of a function.</p>
+<p>Django's generic class based views give us reusable classes for common web tasks.</p>
+
+<pre class="code">from django.views.generic import ListView
+
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'</pre>
+
+<div class="alert alert-success">
+<strong>Simple meaning:</strong> Instead of writing all the request-handling logic ourselves, we configure a Django-provided class with the model, template and other options we need.
+</div>
+
+<h5>Common generic views</h5>
+<table class="table table-bordered align-middle">
+<thead class="table-light"><tr><th>View</th><th>Main job</th></tr></thead>
+<tbody>
+<tr><td><code>ListView</code></td><td>Display a list of objects</td></tr>
+<tr><td><code>DetailView</code></td><td>Display one object</td></tr>
+<tr><td><code>CreateView</code></td><td>Create a new object</td></tr>
+<tr><td><code>UpdateView</code></td><td>Edit an existing object</td></tr>
+<tr><td><code>DeleteView</code></td><td>Delete an existing object</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section id="compare">
+<div class="card doc-card">
+<div class="card-header bg-info text-dark">2. Class Based View vs Function Based View</div>
+<div class="card-body">
+
+<h5>Function Based View</h5>
+<pre class="code">from django.shortcuts import render
+
+def post_list(request):
+    posts = Post.objects.all()
+    return render(
+        request,
+        'blog/post_list.html',
+        {'posts': posts}
+    )</pre>
+
+<h5 class="mt-4">Class Based View</h5>
+<pre class="code">from django.views.generic import ListView
+
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'</pre>
+
+<table class="table table-bordered align-middle mt-4">
+<thead class="table-light"><tr><th>Function Based View</th><th>Class Based View</th></tr></thead>
+<tbody>
+<tr><td>Uses a function</td><td>Uses a class</td></tr>
+<tr><td>Very explicit control</td><td>Uses reusable Django behavior</td></tr>
+<tr><td>Easy to start and understand</td><td>Excellent for standard patterns</td></tr>
+<tr><td>Can become repetitive for CRUD</td><td>Can greatly reduce repeated CRUD code</td></tr>
+<tr><td>Good for unusual/custom flows</td><td>Good for common CRUD and reusable behavior</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-warning">
+<strong>Important:</strong> CBVs are not automatically “better” than FBVs. The right choice depends on the problem, readability and how much customization is needed.
+</div>
+</div>
+</div>
+</section>
+
+<section id="decide">
+<div class="card doc-card">
+<div class="card-header bg-warning text-dark">3. Which One Should I Use?</div>
+<div class="card-body">
+
+<div class="diagram">                Need a Django view
+                         |
+             +-----------+-----------+
+             |                       |
+       Standard pattern?        Very custom flow?
+             |                       |
+            YES                       YES
+             |                       |
+             v                       v
+       Consider CBV               Consider FBV
+             |
+             v
+Can generic view solve most of it?
+       /              \
+     YES               NO
+      |                 |
+      v                 v
+Use generic CBV     Custom CBV or FBV</div>
+
+<h5 class="mt-4">Use a Class Based View when:</h5>
+<ul>
+<li>The task matches a standard Django pattern.</li>
+<li>You are building CRUD pages.</li>
+<li>You want to reuse or extend class behavior.</li>
+<li>You want to use generic views such as <code>ListView</code> or <code>CreateView</code>.</li>
+</ul>
+
+<h5>Use a Function Based View when:</h5>
+<ul>
+<li>The request flow is small and very custom.</li>
+<li>Explicit step-by-step code is easier to understand.</li>
+<li>The generic CBV would require too much customization.</li>
+</ul>
+
+<div class="alert alert-primary">
+<strong>Best interview answer:</strong> “I choose based on the use case, not because one style is always better. For standard CRUD and reusable patterns I prefer generic CBVs. For small or highly custom request flows, an FBV can be clearer.”
+</div>
+
+<h5>What is used most in current technology?</h5>
+<p>There is no single universal answer. Modern Django projects use <strong>both FBVs and CBVs</strong>. Generic CBVs are common for standard CRUD because they reduce boilerplate, while FBVs remain common where explicit control and simple custom logic are more readable.</p>
+<div class="alert alert-success mb-0"><strong>Practical rule:</strong> Learn both. Be especially comfortable with generic CBVs because they are an important part of Django's built-in toolkit.</div>
+</div>
+</div>
+</section>
+
+<section id="crud">
+<div class="card doc-card">
+<div class="card-header bg-danger text-white">4. CRUD Operations with Generic CBVs</div>
+<div class="card-body">
+<p>CRUD means:</p>
+<div class="row g-3">
+<div class="col-md-3"><div class="card h-100 text-center"><div class="card-body"><h5>Create</h5><p class="mb-0">Add a new Post</p></div></div></div>
+<div class="col-md-3"><div class="card h-100 text-center"><div class="card-body"><h5>Read</h5><p class="mb-0">List / view Posts</p></div></div></div>
+<div class="col-md-3"><div class="card h-100 text-center"><div class="card-body"><h5>Update</h5><p class="mb-0">Edit a Post</p></div></div></div>
+<div class="col-md-3"><div class="card h-100 text-center"><div class="card-body"><h5>Delete</h5><p class="mb-0">Remove a Post</p></div></div></div>
+</div>
+
+<div class="diagram mt-4">                    Post Model
+                         |
+        +----------------+----------------+
+        |                |                |
+        v                v                v
+     READ             CREATE           UPDATE
+ ListView            CreateView       UpdateView
+ DetailView                              |
+        |                                v
+        +---------------------------- DELETE
+                                      DeleteView</div>
+</div>
+</div>
+</section>
+
+<section id="urls">
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">5. blog_app/urls.py</div>
+<div class="card-body">
+<pre class="code">from .views import PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView
+from django.urls import path
+
+urlpatterns = [
+    path('', PostListView.as_view(), name="post_list"),
+    path('post/&lt;int:pk&gt;/', PostDetailView.as_view(), name="post_detail"),
+    path('post/new/', PostCreateView.as_view(), name="post_new"),
+    path('post/&lt;int:pk&gt;/edit/', PostUpdateView.as_view(), name="post_edit"),
+    path('post/&lt;int:pk&gt;/delete/', PostDeleteView.as_view(), name="post_delete"),
+]</pre>
+
+<h5>Why <code>.as_view()</code>?</h5>
+<p>A class itself is not directly used as the URL view. Django's <code>as_view()</code> creates the callable view function that Django's URL system can call.</p>
+
+<pre class="code">PostListView.as_view()</pre>
+
+<div class="diagram">URL
+ |
+ +--> /              --> PostListView.as_view()
+ |
+ +--> /post/5/       --> PostDetailView.as_view()
+ |
+ +--> /post/new/    --> PostCreateView.as_view()
+ |
+ +--> /post/5/edit/ --> PostUpdateView.as_view()
+ |
+ +--> /post/5/delete/ --> PostDeleteView.as_view()</div>
+
+<div class="alert alert-info"><strong>Interview tip:</strong> Remember: <code>ClassName.as_view()</code> converts the class based view into the callable that Django's URL dispatcher expects.</div>
+</div>
+</div>
+</section>
+
+<section id="views">
+<div class="card doc-card">
+<div class="card-header bg-success text-white">6. blog_app/views.py — Complete CRUD Views</div>
+<div class="card-body">
+
+<h5>6.1 Imports</h5>
+<pre class="code">from django.shortcuts import render
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from .models import Post</pre>
+
+<div class="alert alert-warning"><strong>Small cleanup:</strong> In this example, <code>render</code> is imported but not used. It can be removed when the file only contains these generic CBVs.</div>
+
+<h5>6.2 ListView — Read many objects</h5>
+<pre class="code">class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'</pre>
+<p><code>ListView</code> gets the Post objects and sends them to the template. The custom context name is <code>posts</code>.</p>
+
+<h5>6.3 DetailView — Read one object</h5>
+<pre class="code">class PostDetailView(DetailView):
+    model = Post
+    template_name = 'blog/post_detail.html'
+    context_object_name = 'post'</pre>
+<p>The URL contains <code>pk</code>. Django uses that primary key to find the requested Post object.</p>
+
+<h5>6.4 CreateView — Create a Post</h5>
+<pre class="code">class PostCreateView(CreateView):
+    model = Post
+    template_name = 'blog/post_form.html'
+    fields = ['title', 'content']</pre>
+<p>Django can create a form from the model fields listed in <code>fields</code>.</p>
+
+<h5>6.5 UpdateView — Edit a Post</h5>
+<pre class="code">class PostUpdateView(UpdateView):
+    model = Post
+    template_name = 'blog/post_form.html'
+    fields = ['title', 'content']</pre>
+<p>The same form template can be used for both creating and updating a Post.</p>
+
+<h5>6.6 DeleteView — Delete a Post</h5>
+<pre class="code">class PostDeleteView(DeleteView):
+    model = Post
+    template_name = 'blog/post_confirm_delete.html'
+    success_url = reverse_lazy('post_list')</pre>
+
+<div class="alert alert-danger">
+<strong>Key difference:</strong> Here <code>success_url</code> explicitly says where to go after deletion: <code>post_list</code>.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-info text-dark">7. Why Do Create and Update Go to post_detail?</div>
+<div class="card-body">
+<p>Your comment says that the create and update views move to the post detail page. This usually happens because the model provides <code>get_absolute_url()</code>.</p>
+
+<pre class="code">def get_absolute_url(self):
+    return reverse('post_detail', args=[str(self.id)])</pre>
+
+<div class="diagram">CreateView
+    |
+    v
+Create Post
+    |
+    v
+Does model have get_absolute_url()?
+    |
+    v
+post_detail for the new object
+
+
+UpdateView
+    |
+    v
+Update Post
+    |
+    v
+get_absolute_url()
+    |
+    v
+post_detail for that object</div>
+
+<p>For generic create/update views, Django can use the model's <code>get_absolute_url()</code> as the success destination when no explicit <code>success_url</code> is supplied.</p>
+
+<div class="alert alert-primary">
+<strong>Important comparison:</strong>
+<code>DeleteView</code> in your example has an explicit <code>success_url</code>, so after deletion it goes to the post list instead.
+</div>
+</div>
+</div>
+</section>
+
+<section id="templates">
+<div class="card doc-card">
+<div class="card-header bg-dark text-white">8. Templates</div>
+<div class="card-body">
+
+<h5>8.1 base.html</h5>
+<pre class="code">&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8" /&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+  &lt;title&gt;base page&lt;/title&gt;
+  &lt;link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" /&gt;
+&lt;/head&gt;
+&lt;body class="container mt-4"&gt;
+
+  &lt;nav class="navbar navbar-expand-lg navbar-light bg-light mb-4"&gt;
+    &lt;a class="navbar-brand" href="{% url 'post_list' %}"&gt;My blog&lt;/a&gt;
+    &lt;a class="btn btn-primary" href="{% url 'post_new' %}"&gt;New post&lt;/a&gt;
+  &lt;/nav&gt;
+
+  &lt;div&gt;
+    {% block content %}
+    {% endblock %}
+  &lt;/div&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+<p><code>base.html</code> provides the common page structure. Other templates extend it and fill the <code>content</code> block.</p>
+
+<h5 class="mt-4">8.2 post_list.html</h5>
+<pre class="code">{% extends 'blog/base.html' %}
+{% block content %}
+
+&lt;h1&gt;all post list&lt;/h1&gt;
+
+&lt;ul class="list-group"&gt;
+  {% for post in posts %}
+  &lt;li class="list-group-item"&gt;
+    &lt;a href="{% url 'post_detail' post.pk %}"&gt;{{post.title}}&lt;/a&gt;
+  &lt;/li&gt;
+  {% empty %}
+  &lt;li class="list-group-item"&gt;No posts available.&lt;/li&gt;
+  {% endfor %}
+&lt;/ul&gt;
+
+{% endblock %}</pre>
+
+<h5 class="mt-4">8.3 post_detail.html</h5>
+<pre class="code">{% extends 'blog/base.html' %}
+{% block content %}
+
+&lt;h2&gt;{{post.title}}&lt;/h2&gt;
+&lt;p&gt;{{post.content}}&lt;/p&gt;
+
+&lt;a class="btn btn-secondary"
+   href="{% url 'post_list' %}"&gt;Back to all posts&lt;/a&gt;
+
+&lt;a class="btn btn-primary"
+   href="{% url 'post_edit' post.pk %}"&gt;Edit Post&lt;/a&gt;
+
+&lt;a class="btn btn-danger"
+   href="{% url 'post_delete' post.pk %}"&gt;Delete Post&lt;/a&gt;
+
+{% endblock %}</pre>
+
+<h5 class="mt-4">8.4 post_form.html</h5>
+<pre class="code">{% extends 'blog/base.html' %}
+{% block content %}
+
+&lt;h2&gt;
+  {% if form.instance.pk %}
+    Edit post
+  {% else %}
+    New post
+  {% endif %}
+&lt;/h2&gt;
+
+&lt;form method="post" class="mt-3"&gt;
+  {% csrf_token %}
+  {{form.as_p}}
+
+  &lt;button type="submit" class="btn btn-danger"&gt;Save&lt;/button&gt;
+  &lt;a class="btn btn-secondary"
+     href="{% url 'post_list' %}"&gt;Cancel&lt;/a&gt;
+&lt;/form&gt;
+
+{% endblock %}</pre>
+
+<div class="alert alert-success">
+<strong>Useful idea:</strong> The same <code>post_form.html</code> can serve both CreateView and UpdateView. <code>form.instance.pk</code> helps determine whether the form represents an existing object.
+</div>
+
+<h5 class="mt-4">8.5 post_confirm_delete.html</h5>
+<pre class="code">{% extends 'blog/base.html' %}
+{% block content %}
+
+&lt;h2&gt;Are you sure you want to delete {{post.title}}?&lt;/h2&gt;
+
+&lt;form method="post"&gt;
+  {% csrf_token %}
+  &lt;button class="btn btn-primary" type="submit"&gt;
+    Yes, delete
+  &lt;/button&gt;
+
+  &lt;a class="btn btn-secondary"
+     href="{% url 'post_detail' post.pk %}"&gt;
+    Cancel
+  &lt;/a&gt;
+&lt;/form&gt;
+
+{% endblock %}</pre>
+
+<div class="alert alert-warning"><strong>Security rule:</strong> Keep <code>{% csrf_token %}</code> inside POST forms that change server-side data.</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-warning text-dark">9. Complete CRUD Flow</div>
+<div class="card-body">
+<div class="diagram">                    BLOG APPLICATION
+
+     Browser
+        |
+        v
+   Django URL
+        |
+        v
++------------------+
+|  Class Based     |
+|      View        |
++------------------+
+   |    |    |    |
+   |    |    |    +--> DeleteView
+   |    |    +-------> UpdateView
+   |    +------------> CreateView
+   +-----------------> List / Detail
+        |
+        v
+      Post Model
+        |
+        v
+    Database
+        |
+        v
+     Template
+        |
+        v
+     Response
+        |
+        v
+     Browser</div>
+
+<table class="table table-bordered align-middle mt-4">
+<thead class="table-light"><tr><th>Action</th><th>URL</th><th>CBV</th><th>Template</th></tr></thead>
+<tbody>
+<tr><td>List</td><td><code>/</code></td><td>ListView</td><td>post_list.html</td></tr>
+<tr><td>Detail</td><td><code>/post/1/</code></td><td>DetailView</td><td>post_detail.html</td></tr>
+<tr><td>Create</td><td><code>/post/new/</code></td><td>CreateView</td><td>post_form.html</td></tr>
+<tr><td>Update</td><td><code>/post/1/edit/</code></td><td>UpdateView</td><td>post_form.html</td></tr>
+<tr><td>Delete</td><td><code>/post/1/delete/</code></td><td>DeleteView</td><td>post_confirm_delete.html</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-secondary text-white">10. Important Generic View Concepts</div>
+<div class="card-body">
+<h5><code>model</code></h5>
+<p>Tells the generic view which Django model it should work with.</p>
+<pre class="code">model = Post</pre>
+
+<h5><code>template_name</code></h5>
+<p>Tells the view which template should render the page.</p>
+<pre class="code">template_name = 'blog/post_list.html'</pre>
+
+<h5><code>context_object_name</code></h5>
+<p>Lets you choose the variable name available inside the template.</p>
+<pre class="code">context_object_name = 'posts'</pre>
+
+<h5><code>fields</code></h5>
+<p>For CreateView and UpdateView, tells Django which model fields should be included in the generated form.</p>
+<pre class="code">fields = ['title', 'content']</pre>
+
+<h5><code>success_url</code></h5>
+<p>Explicitly tells the view where to redirect after a successful operation.</p>
+<pre class="code">success_url = reverse_lazy('post_list')</pre>
+
+<div class="alert alert-info">
+<strong>Why <code>reverse_lazy()</code>?</strong>
+It lets Django resolve the URL name lazily, which is useful in class attributes that are evaluated when the module is loaded.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-danger text-white">11. Common Mistakes</div>
+<div class="card-body">
+<ol>
+<li>Forgetting <code>.as_view()</code> in <code>urls.py</code>.</li>
+<li>Using a template path that does not match the actual template location.</li>
+<li>Forgetting <code>fields</code> in CreateView or UpdateView when relying on Django's generated ModelForm.</li>
+<li>Forgetting <code>{% csrf_token %}</code> in POST forms.</li>
+<li>Expecting DeleteView to automatically return to the list when an explicit <code>success_url</code> has not been configured.</li>
+<li>Confusing <code>pk</code> in the URL with a normal template variable.</li>
+<li>Writing a huge custom CBV when a simple FBV would be easier to understand.</li>
+<li>Assuming CBV always means less code. Complex overrides can make a CBV harder to read.</li>
+</ol>
+<div class="alert alert-danger mb-0"><strong>Developer rule:</strong> Less code is not always better code. Prefer the solution that is easiest for another developer to understand and maintain.</div>
+</div>
+</div>
+</section>
+
+<section id="interview">
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">12. Interview Questions & Tips</div>
+<div class="card-body">
+
+<h5>Q1. What is a Class Based View?</h5>
+<p>A CBV is a Django view implemented as a Python class. Django provides generic CBVs for common tasks such as listing, displaying, creating, updating and deleting objects.</p>
+
+<h5>Q2. What is the difference between FBV and CBV?</h5>
+<p>FBVs use functions and make the request flow explicit. CBVs use classes and can reuse Django's generic behavior through inheritance and configuration.</p>
+
+<h5>Q3. Why use ListView?</h5>
+<p>ListView provides the common behavior needed to retrieve and display a list of model objects without writing all of that logic manually.</p>
+
+<h5>Q4. Why use CreateView and UpdateView?</h5>
+<p>They provide reusable behavior for displaying a model form, validating submitted data and creating or updating the model object.</p>
+
+<h5>Q5. What does <code>as_view()</code> do?</h5>
+<p>It creates the callable view used by Django's URL dispatcher from the class based view.</p>
+
+<h5>Q6. What is <code>get_absolute_url()</code> used for?</h5>
+<p>It provides a canonical URL for a model object. Generic create/update behavior can use it as the success destination when no explicit success URL is supplied.</p>
+
+<h5>Q7. Why is DeleteView different in this example?</h5>
+<p>Because it explicitly sets <code>success_url = reverse_lazy('post_list')</code>, so after deletion Django redirects to the list page.</p>
+
+<div class="card tip bg-light mt-4">
+<div class="card-body">
+<h5>🎯 Interview tip</h5>
+<p class="mb-0">When explaining CBVs, don't just name the classes. Explain the problem they solve: <strong>“Generic CBVs reduce repeated code for standard Django patterns such as CRUD, while still allowing us to customize behavior when needed.”</strong></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-dark text-white">13. One-Page Memory Map</div>
+<div class="card-body">
+<div class="diagram">CRUD
+ |
+ +-- CREATE --> CreateView
+ |
+ +-- READ ----> ListView + DetailView
+ |
+ +-- UPDATE --> UpdateView
+ |
+ +-- DELETE --> DeleteView
+
+
+URL
+ |
+ +-- ClassName.as_view()
+ |
+ v
+Class Based View
+ |
+ +-- model
+ +-- template_name
+ +-- context_object_name
+ +-- fields
+ +-- success_url
+ |
+ v
+Template
+ |
+ +-- {% extends %}
+ +-- {% block content %}
+ +-- {% url %}
+ +-- {% csrf_token %}
+ +-- {{ object / objects / form }}
+
+
+DECISION
+ |
+ +-- Standard CRUD? ------> Generic CBV
+ |
+ +-- Custom/simple flow? -> FBV may be clearer
+ |
+ +-- Complex generic flow? -> CBV with overrides OR FBV</div>
+
+<div class="alert alert-success mt-4 mb-0">
+<strong>Final memory trick:</strong><br>
+<strong>List</strong> = many objects → <code>ListView</code><br>
+<strong>Detail</strong> = one object → <code>DetailView</code><br>
+<strong>Create</strong> = new object → <code>CreateView</code><br>
+<strong>Update</strong> = edit object → <code>UpdateView</code><br>
+<strong>Delete</strong> = remove object → <code>DeleteView</code>
+</div>
+</div>
+</div>
+</section>
+
+<footer class="text-center text-muted py-4">
+Django Class 41 — Class Based Views & CRUD Operations
+</footer>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

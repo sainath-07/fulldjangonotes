@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django Class 40 — Search & Filter</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth}
+body{background:#f5f7fb;color:#212529;line-height:1.7}
+section{scroll-margin-top:82px}
+.sticky-nav{position:sticky;top:0;z-index:1030;background:rgba(255,255,255,.97);border-bottom:1px solid #dee2e6;box-shadow:0 .15rem .5rem rgba(0,0,0,.05)}
+.doc-card{border:0;box-shadow:0 .4rem 1rem rgba(0,0,0,.08);margin-bottom:1.5rem;overflow:hidden}
+.card-header{font-weight:700}
+.code{background:#111827;color:#e5e7eb;border-radius:.6rem;padding:1rem;overflow:auto;font-family:Consolas,Monaco,monospace;font-size:.88rem;line-height:1.55}
+.diagram{background:#f8f9fa;border:1px dashed #adb5bd;border-radius:.6rem;padding:1rem;font-family:Consolas,Monaco,monospace;white-space:pre-wrap}
+.tip{border-left:4px solid #0d6efd}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-nav">
+<div class="container">
+<a class="navbar-brand fw-bold" href="#top">Django Class 40 — Search & Filter</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#what">What</a></li>
+<li class="nav-item"><a class="nav-link" href="#flow">How It Works</a></li>
+<li class="nav-item"><a class="nav-link" href="#q">Q Objects</a></li>
+<li class="nav-item"><a class="nav-link" href="#code">View Code</a></li>
+<li class="nav-item"><a class="nav-link" href="#template">Template</a></li>
+<li class="nav-item"><a class="nav-link" href="#urls">URLs</a></li>
+<li class="nav-item"><a class="nav-link" href="#model">Model</a></li>
+<li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+</ul>
+</div>
+</div>
+</nav>
+
+<main id="top" class="container py-4">
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">Class 40 — Django Search & Filter</div>
+<div class="card-body">
+<h2 class="h4">What will we build?</h2>
+<p>In this class, we will build a simple blog page where the user can:</p>
+<ul>
+<li>Search posts by title or content.</li>
+<li>Filter posts by category.</li>
+<li>Use search and category filtering together.</li>
+<li>Keep the selected search/filter values visible in the form.</li>
+</ul>
+<div class="alert alert-info"><strong>Main idea:</strong> The browser sends search and filter values as <strong>GET parameters</strong>. Django reads those values from <code>request.GET</code> and uses them to filter the database QuerySet.</div>
+<div class="diagram">User
+  |
+  | Search: "django"
+  | Category: "tech"
+  v
+GET /?q=django&category=tech
+  |
+  v
+Django View
+  |
+  v
+PostModel.objects.all()
+  |
+  +--> Search title/content
+  |
+  +--> Filter category
+  |
+  v
+Filtered QuerySet
+  |
+  v
+Template
+  |
+  v
+Filtered posts shown to user</div>
+</div>
+</div>
+</section>
+
+<section id="what">
+<div class="card doc-card">
+<div class="card-header bg-success text-white">1. What is Search and Filter?</div>
+<div class="card-body">
+<h5>Search</h5>
+<p>Search means finding records based on a keyword.</p>
+<p>For example, if the user types <code>django</code>, we can look for posts where the title or content contains the word.</p>
+
+<h5 class="mt-4">Filter</h5>
+<p>Filter means narrowing the results using a condition.</p>
+<p>For example, the user can select <code>tech</code> and see only posts whose category is <code>tech</code>.</p>
+
+<div class="row g-3 mt-2">
+<div class="col-md-6">
+<div class="card h-100"><div class="card-body">
+<h5>Search</h5>
+<p class="mb-0"><code>q=django</code></p>
+<p class="small text-muted">Find matching text.</p>
+</div></div>
+</div>
+<div class="col-md-6">
+<div class="card h-100"><div class="card-body">
+<h5>Filter</h5>
+<p class="mb-0"><code>category=tech</code></p>
+<p class="small text-muted">Keep only matching category.</p>
+</div></div>
+</div>
+</div>
+
+<div class="alert alert-warning mt-4 mb-0"><strong>Remember:</strong> Search and filter are not two completely different database operations. Both can be implemented by adding conditions to a Django QuerySet.</div>
+</div>
+</div>
+</section>
+
+<section id="flow">
+<div class="card doc-card">
+<div class="card-header bg-info text-dark">2. How Search & Filter Works</div>
+<div class="card-body">
+<div class="diagram">STEP 1
+User enters:
+q = django
+category = tech
+        |
+        v
+STEP 2
+Browser sends GET request
+/?q=django&category=tech
+        |
+        v
+STEP 3
+Django reads:
+request.GET.get('q')
+request.GET.get('category')
+        |
+        v
+STEP 4
+Start with:
+PostModel.objects.all()
+        |
+        v
+STEP 5
+Apply search condition
+        |
+        v
+STEP 6
+Apply category condition
+        |
+        v
+STEP 7
+Send final QuerySet to template
+        |
+        v
+STEP 8
+Display matching posts</div>
+
+<div class="alert alert-success mt-4"><strong>Memory trick:</strong> <strong>GET → Read values → Start QuerySet → Add conditions → Render results.</strong></div>
+</div>
+</div>
+</section>
+
+<section id="q">
+<div class="card doc-card">
+<div class="card-header bg-warning text-dark">3. Q Objects — Search Multiple Fields</div>
+<div class="card-body">
+<p>Django's <code>Q</code> object is useful when we need more complex query conditions.</p>
+
+<pre class="code">from django.db.models import Q
+
+posts = posts.filter(
+    Q(title__icontains=query) |
+    Q(content__icontains=query),
+)</pre>
+
+<h5>What does this mean?</h5>
+<p>It means:</p>
+<div class="diagram">title contains search word
+          OR
+content contains search word</div>
+
+<p>In database-query terms, the <code>|</code> operator represents <strong>OR</strong>.</p>
+
+<table class="table table-bordered align-middle">
+<thead class="table-light"><tr><th>Code</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>Q(...)</code></td><td>Build a query condition</td></tr>
+<tr><td><code>|</code></td><td>OR</td></tr>
+<tr><td><code>&amp;</code></td><td>AND</td></tr>
+<tr><td><code>~</code></td><td>NOT</td></tr>
+<tr><td><code>icontains</code></td><td>Contains text, case-insensitive</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-primary"><strong>Interview tip:</strong> When you hear “search this keyword in title OR content,” think of a Django <code>Q</code> object with <code>|</code>.</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-secondary text-white">4. Understanding <code>icontains</code></div>
+<div class="card-body">
+<pre class="code">Q(title__icontains=query)</pre>
+<p>The double underscore separates the field name from the lookup.</p>
+<div class="diagram">title__icontains
+   |       |
+   |       +--> lookup
+   |
+   +----------> model field</div>
+
+<p><code>icontains</code> means the field contains the supplied text without requiring an exact case match.</p>
+
+<table class="table table-bordered">
+<thead class="table-light"><tr><th>Lookup</th><th>Example idea</th></tr></thead>
+<tbody>
+<tr><td><code>exact</code></td><td>Value exactly matches</td></tr>
+<tr><td><code>iexact</code></td><td>Exact match without case sensitivity</td></tr>
+<tr><td><code>contains</code></td><td>Contains text</td></tr>
+<tr><td><code>icontains</code></td><td>Contains text without case sensitivity</td></tr>
+<tr><td><code>startswith</code></td><td>Starts with text</td></tr>
+<tr><td><code>endswith</code></td><td>Ends with text</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-info mb-0"><strong>Example:</strong> Searching for <code>django</code> can match text such as <code>Django Tutorial</code> because <code>icontains</code> is case-insensitive.</div>
+</div>
+</div>
+</section>
+
+<section id="code">
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">5. blog/views.py — Complete Search & Filter Logic</div>
+<div class="card-body">
+<pre class="code">from django.shortcuts import render
+from .models import PostModel
+from django.db.models import Q
+
+# Create your views here.
+def post_list(request):
+    query = request.GET.get('q')          # search keyword
+    category = request.GET.get('category') # category filter
+
+    posts = PostModel.objects.all()
+
+    # Search using Q objects
+    if query:
+        posts = posts.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query),
+        )
+
+    # Filter by category
+    if category:
+        posts = posts.filter(category__iexact=category)
+
+    return render(request, 'blog/post_list.html', {
+        'posts': posts,
+        'query': query,
+        'category': category,
+    })</pre>
+
+<h5>Let's break it into small pieces.</h5>
+
+<h6>Step 1 — Read the search value</h6>
+<pre class="code">query = request.GET.get('q')</pre>
+<p>If the URL contains <code>?q=django</code>, then <code>query</code> becomes <code>"django"</code>.</p>
+
+<h6>Step 2 — Read the category</h6>
+<pre class="code">category = request.GET.get('category')</pre>
+<p>If the URL contains <code>?category=tech</code>, then <code>category</code> becomes <code>"tech"</code>.</p>
+
+<h6>Step 3 — Get all posts</h6>
+<pre class="code">posts = PostModel.objects.all()</pre>
+<p>This creates the starting QuerySet.</p>
+
+<h6>Step 4 — Apply search only when a query exists</h6>
+<pre class="code">if query:
+    posts = posts.filter(
+        Q(title__icontains=query) |
+        Q(content__icontains=query),
+    )</pre>
+
+<h6>Step 5 — Apply category only when a category exists</h6>
+<pre class="code">if category:
+    posts = posts.filter(category__iexact=category)</pre>
+
+<div class="alert alert-success"><strong>Important:</strong> These conditions are independent. If both values are supplied, both filters are applied.</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-dark text-white">6. Search + Filter Together</div>
+<div class="card-body">
+<p>Suppose the user searches for <code>django</code> and chooses <code>tech</code>.</p>
+
+<pre class="code">query = "django"
+category = "tech"</pre>
+
+<p>The code effectively builds a query like:</p>
+
+<div class="diagram">PostModel.objects.all()
+       |
+       v
+title contains "django"
+       OR
+content contains "django"
+       |
+       v
+category equals "tech"
+       |
+       v
+FINAL RESULTS</div>
+
+<p>Conceptually, the condition is:</p>
+<div class="alert alert-primary"><strong>(title contains django OR content contains django) AND category is tech</strong></div>
+
+<div class="alert alert-warning mb-0"><strong>Easy way to remember:</strong> Q objects combine the search fields with OR. Separate <code>filter()</code> calls narrow the QuerySet further.</div>
+</div>
+</div>
+</section>
+
+<section id="template">
+<div class="card doc-card">
+<div class="card-header bg-success text-white">7. blog/templates/post_list.html</div>
+<div class="card-body">
+<pre class="code">&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8" /&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+  &lt;title&gt;Django search &amp; filter&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;h1&gt;Search &amp; Filter Example&lt;/h1&gt;
+
+  &lt;form method="get"&gt;
+
+    &lt;input
+      type="text"
+      name="q"
+      placeholder="Search..."
+      value="{{query}}"
+    /&gt;
+
+    &lt;select name="category"&gt;
+      &lt;option value=""&gt;All categories&lt;/option&gt;
+
+      &lt;option value="tech"
+        {% if category == 'tech' %}selected{% endif %}&gt;
+        tech
+      &lt;/option&gt;
+
+      &lt;option value="tutorial"
+        {% if category == 'tutorial' %}selected{% endif %}&gt;
+        tutorial
+      &lt;/option&gt;
+
+      &lt;option value="news"
+        {% if category == 'news' %}selected{% endif %}&gt;
+        news
+      &lt;/option&gt;
+    &lt;/select&gt;
+
+    &lt;button type="submit"&gt;Search&lt;/button&gt;
+
+  &lt;/form&gt;
+
+  &lt;ul&gt;
+    {% for post in posts %}
+      &lt;li&gt;
+        &lt;h2&gt;{{post.title}}&lt;/h2&gt;
+        &lt;p&gt;{{post.content}}&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Category:&lt;/strong&gt; {{post.category}}&lt;/p&gt;
+      &lt;/li&gt;
+
+    {% empty %}
+      &lt;li&gt;No posts found.&lt;/li&gt;
+    {% endfor %}
+  &lt;/ul&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+<h5>Why use <code>method="get"</code>?</h5>
+<p>Search and filtering usually do not change database data. GET is useful because the search state can be represented in the URL.</p>
+
+<div class="diagram">Form
+ |
+ +-- q = django
+ |
+ +-- category = tech
+ |
+ v
+GET request
+ |
+ v
+/?q=django&category=tech</div>
+
+<h5 class="mt-4">Why <code>value="{{query}}"</code>?</h5>
+<p>It puts the current search value back into the input after the page reloads.</p>
+
+<h5>Why use <code>selected</code>?</h5>
+<p>It keeps the selected category visible after the search.</p>
+
+<pre class="code">{% if category == 'tech' %}selected{% endif %}</pre>
+
+<div class="alert alert-info mb-0"><strong>Small correction:</strong> The original template has <code>&lt;h2&gt;{{post.content}}&lt;/h2&gt;</code>. Since content is normally body text, using <code>&lt;p&gt;</code> is more suitable semantically.</div>
+</div>
+</div>
+</section>
+
+<section id="urls">
+<div class="card doc-card">
+<div class="card-header bg-info text-dark">8. blog/urls.py</div>
+<div class="card-body">
+<pre class="code">from . import views
+from django.urls import path
+
+urlpatterns = [
+    path('', views.post_list, name='post_list')
+]</pre>
+
+<p>There is one URL connected to the <code>post_list</code> view.</p>
+
+<div class="diagram">Browser
+   |
+   | GET /
+   v
+urls.py
+   |
+   v
+views.post_list
+   |
+   v
+Search + Filter
+   |
+   v
+post_list.html</div>
+
+<div class="alert alert-primary mb-0"><strong>Important:</strong> The same URL can handle the normal list page and search/filter requests. The difference is the presence of GET parameters.</div>
+</div>
+</div>
+</section>
+
+<section id="model">
+<div class="card doc-card">
+<div class="card-header bg-warning text-dark">9. blog/models.py</div>
+<div class="card-body">
+<pre class="code">from django.db import models
+
+class PostModel(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    category = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return self.title</pre>
+
+<h5>Fields used by our search/filter</h5>
+<table class="table table-bordered">
+<thead class="table-light"><tr><th>Field</th><th>Purpose</th><th>Used for</th></tr></thead>
+<tbody>
+<tr><td><code>title</code></td><td>Post title</td><td>Search</td></tr>
+<tr><td><code>content</code></td><td>Post body</td><td>Search</td></tr>
+<tr><td><code>category</code></td><td>Post category</td><td>Filter</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-info"><strong>Note:</strong> Because <code>category</code> allows blank/null values, you may want additional rules in a real application if every post must belong to a category.</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-secondary text-white">10. Register the Model in Admin</div>
+<div class="card-body">
+<pre class="code">from django.contrib import admin
+from .models import PostModel
+
+admin.site.register(PostModel)</pre>
+
+<p>Registering the model allows you to create and manage Post records through Django Admin.</p>
+
+<div class="diagram">Django Admin
+     |
+     v
+Create PostModel
+     |
+     +--> title
+     +--> content
+     +--> category
+     |
+     v
+Database
+     |
+     v
+Search / Filter page</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-danger text-white">11. URL Examples to Remember</div>
+<div class="card-body">
+<table class="table table-bordered align-middle">
+<thead class="table-light"><tr><th>URL</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>/</code></td><td>Show all posts</td></tr>
+<tr><td><code>/?q=django</code></td><td>Search for django</td></tr>
+<tr><td><code>/?category=tech</code></td><td>Show only tech posts</td></tr>
+<tr><td><code>/?q=django&amp;category=tech</code></td><td>Search django inside tech posts</td></tr>
+</tbody>
+</table>
+
+<div class="alert alert-success">
+<strong>Memory trick:</strong><br>
+<code>?</code> starts query parameters.<br>
+<code>&amp;</code> separates multiple query parameters.<br>
+<code>q</code> is our search parameter.<br>
+<code>category</code> is our filter parameter.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-primary text-white">12. Why Use GET for Search?</div>
+<div class="card-body">
+<div class="row g-3">
+<div class="col-md-6">
+<div class="card h-100"><div class="card-body">
+<h5>GET is good for searching</h5>
+<ul>
+<li>Search does not normally change database data.</li>
+<li>Search values can appear in the URL.</li>
+<li>A user can bookmark or share a search URL.</li>
+<li>Browser navigation works naturally.</li>
+</ul>
+</div></div>
+</div>
+<div class="col-md-6">
+<div class="card h-100"><div class="card-body">
+<h5>POST is usually for changes</h5>
+<ul>
+<li>Create data.</li>
+<li>Update data.</li>
+<li>Delete data.</li>
+<li>Other operations that change server state.</li>
+</ul>
+</div></div>
+</div>
+</div>
+
+<div class="alert alert-warning mt-4 mb-0"><strong>Do not treat this as an absolute rule:</strong> HTTP method choice depends on the operation and application requirements, but GET is the normal and useful choice for read-only search/filter forms.</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-dark text-white">13. Common Mistakes & Improvements</div>
+<div class="card-body">
+<h5>Mistake 1 — Forgetting to check for an empty value</h5>
+<pre class="code">if query:
+    ...</pre>
+<p>This avoids adding the search condition when there is no search keyword.</p>
+
+<h5>Mistake 2 — Using exact matching for normal text search</h5>
+<p>For keyword search, <code>icontains</code> is often more useful than exact matching.</p>
+
+<h5>Mistake 3 — Forgetting to pass values back to the template</h5>
+<pre class="code">'query': query,
+'category': category,</pre>
+
+<h5>Mistake 4 — Forgetting the filter combination</h5>
+<p>If both search and category are selected, both conditions should be applied.</p>
+
+<h5>Mistake 5 — Loading every record into Python first</h5>
+<p>Prefer QuerySet filtering such as <code>PostModel.objects.filter(...)</code>. Let the database perform the filtering instead of fetching all records and manually filtering them in Python.</p>
+
+<div class="alert alert-danger mb-0"><strong>Performance tip:</strong> As data grows, think about database indexes, query performance, pagination and more advanced search solutions when simple <code>icontains</code> searches are no longer enough.</div>
+</div>
+</div>
+</section>
+
+<section id="interview">
+<div class="card doc-card">
+<div class="card-header bg-warning text-dark">14. Interview Questions & Tips</div>
+<div class="card-body">
+
+<h5>Q1. How do you get a search value from a GET request in Django?</h5>
+<pre class="code">query = request.GET.get('q')</pre>
+
+<h5>Q2. Why use Q objects?</h5>
+<p>Q objects allow us to build complex conditions and combine them using operators such as OR, AND and NOT.</p>
+
+<h5>Q3. How do you search in two fields?</h5>
+<pre class="code">Q(title__icontains=query) |
+Q(content__icontains=query)</pre>
+
+<h5>Q4. What does <code>icontains</code> mean?</h5>
+<p>It checks whether a field contains the given text without requiring a case-sensitive match.</p>
+
+<h5>Q5. How do you filter by category?</h5>
+<pre class="code">posts.filter(category__iexact=category)</pre>
+
+<h5>Q6. Can search and filter be applied together?</h5>
+<p>Yes. You can apply multiple filters to a QuerySet. In this example, the search conditions are grouped with OR and the category condition narrows those results further.</p>
+
+<h5>Q7. Why use GET instead of POST for search?</h5>
+<p>Search is normally a read-only operation, and GET makes the search state visible in the URL.</p>
+
+<h5>Q8. What does <code>&amp;</code> mean in a URL?</h5>
+<p>It separates query parameters, for example <code>?q=django&amp;category=tech</code>.</p>
+
+<div class="card tip bg-light mt-4">
+<div class="card-body">
+<h5>🎯 Interview-ready answer</h5>
+<p class="mb-0">“For Django search and filtering, I normally read query parameters using <code>request.GET.get()</code>, start with a QuerySet, and conditionally add filters. For searching across multiple fields, I use Q objects with OR conditions. For category filtering, I add another QuerySet filter.”</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card doc-card">
+<div class="card-header bg-success text-white">15. Quick Revision — Remember This Flow</div>
+<div class="card-body">
+<div class="diagram">             USER
+               |
+               v
+        Search / Filter Form
+               |
+               v
+             GET
+               |
+               v
+       request.GET.get()
+          /           \
+         /             \
+        q           category
+        |               |
+        v               v
+   Q(title...)      category__iexact
+        |
+        v
+   Q(content...)
+        |
+        +---- OR ----+
+               |
+               v
+        Django QuerySet
+               |
+               v
+        Filtered Posts
+               |
+               v
+          Template
+               |
+               v
+             USER</div>
+
+<div class="alert alert-primary mt-4">
+<strong>5 things to remember:</strong>
+<ol class="mb-0">
+<li><code>request.GET.get()</code> reads query parameters.</li>
+<li><code>Q()</code> helps build complex queries.</li>
+<li><code>|</code> means OR between Q conditions.</li>
+<li><code>icontains</code> is useful for keyword search.</li>
+<li>Multiple QuerySet filters can narrow results step by step.</li>
+</ol>
+</div>
+</div>
+</div>
+</section>
+
+<footer class="text-center text-muted py-4">
+Django Class 40 — Search & Filter • Learning & Interview Notes
+</footer>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

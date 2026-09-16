@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Django Signals - Interview & Development Guide</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; scroll-padding-top: 82px; }
+    body { background:#f5f7fb; color:#212529; line-height:1.7; }
+    .sticky-nav { position:sticky; top:0; z-index:1030; }
+    .hero { background:linear-gradient(135deg,#172554,#2563eb); color:white; padding:55px 0; }
+    .doc-card { border:0; border-radius:16px; overflow:hidden; box-shadow:0 8px 25px rgba(0,0,0,.08); margin-bottom:28px; }
+    .card-header-custom { color:white; font-weight:700; padding:14px 20px; }
+    .header-blue { background:#2563eb; }
+    .header-green { background:#198754; }
+    .header-orange { background:#fd7e14; }
+    .header-purple { background:#6f42c1; }
+    .header-dark { background:#212529; }
+    .header-cyan { background:#0dcaf0; color:#052c35; }
+    pre { background:#111827; color:#e5e7eb; padding:18px; border-radius:12px; overflow-x:auto; font-size:.9rem; }
+    code { color:#d63384; }
+    pre code { color:inherit; }
+    .flow-box { border:2px solid #dee2e6; border-radius:12px; padding:15px; text-align:center; background:white; height:100%; }
+    .arrow { font-size:2rem; font-weight:bold; color:#2563eb; display:flex; align-items:center; justify-content:center; }
+    .mini-title { font-weight:700; color:#1e3a8a; }
+    .interview { border-left:5px solid #0d6efd; background:#eef5ff; }
+    .mistake { border-left:5px solid #dc3545; background:#fff1f2; }
+    .success { border-left:5px solid #198754; background:#effcf6; }
+    .tag { display:inline-block; padding:5px 10px; margin:3px; border-radius:20px; background:#e9ecef; font-size:.85rem; }
+    .section-label { color:#6c757d; text-transform:uppercase; letter-spacing:1px; font-size:.78rem; font-weight:700; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-nav shadow">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#top">Django Signals</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#what">What</a></li>
+        <li class="nav-item"><a class="nav-link" href="#why">Why</a></li>
+        <li class="nav-item"><a class="nav-link" href="#how">How</a></li>
+        <li class="nav-item"><a class="nav-link" href="#where">Where</a></li>
+        <li class="nav-item"><a class="nav-link" href="#code">Full Code</a></li>
+        <li class="nav-item"><a class="nav-link" href="#email">Email Example</a></li>
+        <li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header id="top" class="hero">
+  <div class="container">
+    <div class="section-label text-white-50">Django Backend Development</div>
+    <h1 class="display-5 fw-bold">Django Signals</h1>
+    <p class="lead mb-0">A simple, practical and interview-ready guide to <strong>pre_save</strong> and <strong>post_save</strong> signals.</p>
+  </div>
+</header>
+
+<main class="container py-5">
+
+<section id="what">
+  <div class="card doc-card">
+    <div class="card-header-custom header-blue"><h2 class="h4 mb-0">1. What are Signals in Django?</h2></div>
+    <div class="card-body p-4">
+      <p><strong>Definition:</strong> Django Signals allow one part of a Django application to be notified when a particular event happens somewhere else in the application.</p>
+      <div class="alert alert-primary"><strong>Simple meaning:</strong> A signal is like an automatic notification: <em>“Something happened. If you are interested, you can react to it.”</em></div>
+      <h5 class="mini-title">Layman example</h5>
+      <p>Imagine a shop. When a customer completes a purchase, the cashier system can automatically notify another system to send a receipt. The cashier does not need to manually call every other system.</p>
+      <p>In Django, the event could be <strong>“a BlogModel was saved”</strong>, and a signal handler can automatically run after that event.</p>
+      <div class="row g-3 mt-2">
+        <div class="col-md-4"><div class="flow-box"><strong>Event</strong><br>Blog is saved</div></div>
+        <div class="col-md-1 arrow">→</div>
+        <div class="col-md-3"><div class="flow-box"><strong>Signal</strong><br>post_save</div></div>
+        <div class="col-md-1 arrow">→</div>
+        <div class="col-md-3"><div class="flow-box"><strong>Handler</strong><br>after_blog_save()</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="card doc-card">
+    <div class="card-header-custom header-green"><h2 class="h4 mb-0">2. Why are Signals Used?</h2></div>
+    <div class="card-body p-4">
+      <p>Signals are useful when an action should happen automatically after or before a Django event.</p>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="alert alert-success h-100"><strong>Common uses</strong>
+            <ul class="mb-0 mt-2">
+              <li>Send an email after user registration.</li>
+              <li>Create a related profile automatically.</li>
+              <li>Update another model after a change.</li>
+              <li>Create an audit/log record.</li>
+              <li>Perform cleanup when an object is deleted.</li>
+              <li>Run small side effects around model events.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="alert alert-warning h-100"><strong>Important design point</strong>
+            <p class="mb-0 mt-2">Signals can reduce direct coupling between the code that causes an event and the code that reacts to it. However, too many hidden signal side effects can make an application harder to understand and debug.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="card doc-card">
+    <div class="card-header-custom header-orange"><h2 class="h4 mb-0">3. How do Signals Work?</h2></div>
+    <div class="card-body p-4">
+      <p>Django provides many built-in signals. A receiver function listens for a particular signal. When Django sends that signal, the receiver function runs.</p>
+      <div class="row g-3 align-items-stretch">
+        <div class="col-md-3"><div class="flow-box"><strong>1. Event</strong><br><small>Model save/delete or another Django event occurs.</small></div></div>
+        <div class="col-md-1 arrow">→</div>
+        <div class="col-md-3"><div class="flow-box"><strong>2. Signal sent</strong><br><small>Django sends the relevant signal.</small></div></div>
+        <div class="col-md-1 arrow">→</div>
+        <div class="col-md-3"><div class="flow-box"><strong>3. Receiver runs</strong><br><small>Your function handles the event.</small></div></div>
+      </div>
+      <hr class="my-4">
+      <h5 class="mini-title">pre_save vs post_save</h5>
+      <table class="table table-bordered align-middle">
+        <thead class="table-dark"><tr><th>Signal</th><th>When it runs</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>pre_save</code></td><td>Before the model is saved to the database.</td><td>Validate or prepare data before saving.</td></tr>
+          <tr><td><code>post_save</code></td><td>After the model has been saved.</td><td>Send a notification after a successful save.</td></tr>
+        </tbody>
+      </table>
+      <div class="alert alert-info"><strong>Easy memory trick:</strong> <code>pre</code> = before, <code>post</code> = after.</div>
+    </div>
+  </div>
+</section>
+
+<section id="where">
+  <div class="card doc-card">
+    <div class="card-header-custom header-purple"><h2 class="h4 mb-0">4. Where are Signals Used in Application Development?</h2></div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-4"><div class="flow-box"><h5>Registration</h5><p>After a user is created, create a profile or trigger a welcome email.</p></div></div>
+        <div class="col-md-4"><div class="flow-box"><h5>Blog / Content</h5><p>Log when a blog is created or updated.</p></div></div>
+        <div class="col-md-4"><div class="flow-box"><h5>E-commerce</h5><p>React to order creation or status changes.</p></div></div>
+        <div class="col-md-4"><div class="flow-box"><h5>Audit Logging</h5><p>Record important model changes for tracking.</p></div></div>
+        <div class="col-md-4"><div class="flow-box"><h5>Cleanup</h5><p>React when an object is deleted, where appropriate.</p></div></div>
+        <div class="col-md-4"><div class="flow-box"><h5>Notifications</h5><p>Trigger application notifications after an event.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="code">
+  <div class="card doc-card">
+    <div class="card-header-custom header-dark"><h2 class="h4 mb-0">5. Full Code — Blog Signals</h2></div>
+    <div class="card-body p-4">
+      <h5 class="mini-title">Project structure</h5>
+      <pre><code>innerproject/
+├── settings.py
+└── blog/
+    ├── apps.py
+    ├── models.py
+    ├── signals.py
+    └── admin.py</code></pre>
+
+      <h5 class="mini-title mt-4">innerproject/settings.py</h5>
+      <pre><code>INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'blog.apps.BlogConfig',
+]</code></pre>
+      <div class="alert alert-warning"><strong>Why use <code>blog.apps.BlogConfig</code>?</strong><br>
+      It ensures Django uses the app configuration class, whose <code>ready()</code> method imports the signals.</div>
+
+      <h5 class="mini-title mt-4">blog/signals.py</h5>
+      <pre><code>from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
+from .models import BlogModel
+
+
+@receiver(pre_save, sender=BlogModel)
+def before_blog_save(sender, instance, **kwargs):
+    print(f'About to save blog [pre-save]: {instance.title}')
+
+
+@receiver(post_save, sender=BlogModel)
+def after_blog_save(sender, instance, created, **kwargs):
+    if created:
+        print(f'New blog created [Post-Save]: {instance.title}')
+    else:
+        print(f'Blog updated [Post-Save]: {instance.title}')</code></pre>
+
+      <h5 class="mini-title mt-4">blog/models.py</h5>
+      <pre><code>from django.db import models
+
+
+class BlogModel(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    author = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title</code></pre>
+
+      <h5 class="mini-title mt-4">blog/apps.py</h5>
+      <pre><code>from django.apps import AppConfig
+
+
+class BlogConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'blog'
+
+    def ready(self):
+        import blog.signals</code></pre>
+
+      <h5 class="mini-title mt-4">blog/admin.py</h5>
+      <pre><code>from django.contrib import admin
+from .models import BlogModel
+
+
+@admin.register(BlogModel)
+class BlogModelAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'created_at')</code></pre>
+      <div class="alert alert-success mt-4"><strong>Note:</strong> The original example used <code>class BlogModel(admin.ModelAdmin)</code>. It is clearer to name the admin class <code>BlogModelAdmin</code> so it is not confused with the model class.</div>
+    </div>
+  </div>
+</section>
+
+<section id="execution">
+  <div class="card doc-card">
+    <div class="card-header-custom header-cyan"><h2 class="h4 mb-0">6. What Happens When You Add a Blog from Admin?</h2></div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-3"><div class="flow-box"><strong>Admin Panel</strong><br>User enters blog data.</div></div>
+        <div class="col-md-1 arrow">→</div>
+        <div class="col-md-3"><div class="flow-box"><strong>pre_save</strong><br><code>before_blog_save()</code> runs.</div></div>
+        <div class="col-md-1 arrow">→</div>
+        <div class="col-md-3"><div class="flow-box"><strong>Database Save</strong><br>Blog is saved.</div></div>
+      </div>
+      <div class="text-center fs-2 my-2">↓</div>
+      <div class="row justify-content-center">
+        <div class="col-md-5"><div class="flow-box"><strong>post_save</strong><br><code>after_blog_save()</code> runs.</div></div>
+      </div>
+
+      <h5 class="mini-title mt-4">Expected terminal output when creating a new blog</h5>
+      <pre><code>About to save blog [pre-save]: My First Blog
+New blog created [Post-Save]: My First Blog</code></pre>
+
+      <h5 class="mini-title">When updating an existing blog</h5>
+      <pre><code>About to save blog [pre-save]: Updated Blog Title
+Blog updated [Post-Save]: Updated Blog Title</code></pre>
+
+      <div class="alert alert-primary"><strong>Key point:</strong> The <code>created</code> argument in <code>post_save</code> tells you whether the save created a new database row. <code>created=True</code> means new object; <code>created=False</code> means an existing object was updated.</div>
+    </div>
+  </div>
+</section>
+
+<section id="email">
+  <div class="card doc-card">
+    <div class="card-header-custom header-green"><h2 class="h4 mb-0">7. Real-World Example — Send Email When User Registers</h2></div>
+    <div class="card-body p-4">
+      <p>This is a common signal use case. When a new user is created, a <code>post_save</code> receiver can detect <code>created=True</code> and send a welcome email.</p>
+
+      <pre><code>from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+
+
+@receiver(post_save, sender=User)
+def send_welcome_email(sender, instance, created, **kwargs):
+    if created:
+        send_mail(
+            subject='Welcome to our website',
+            message=f'Hello {instance.username}, welcome!',
+            from_email='noreply@example.com',
+            recipient_list=[instance.email],
+        )</code></pre>
+
+      <div class="alert alert-warning">
+        <strong>Production consideration:</strong> Sending email directly inside a model signal can make the save request wait for the email operation. For important or high-volume email, teams commonly move the work to a background task/queue system and keep the signal lightweight.
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-3"><div class="flow-box"><strong>1</strong><br>User registers</div></div>
+        <div class="col-md-1 arrow">→</div>
+        <div class="col-md-3"><div class="flow-box"><strong>2</strong><br>User saved</div></div>
+        <div class="col-md-1 arrow">→</div>
+        <div class="col-md-3"><div class="flow-box"><strong>3</strong><br><code>post_save</code> fires</div></div>
+      </div>
+      <div class="text-center fs-2 my-2">↓</div>
+      <div class="text-center"><span class="tag">created == True</span> → <span class="tag">Send welcome email</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="mistakes">
+  <div class="card doc-card">
+    <div class="card-header-custom header-orange"><h2 class="h4 mb-0">8. Common Developer Mistakes</h2></div>
+    <div class="card-body p-4">
+      <div class="alert mistake"><strong>1. Forgetting to import signals</strong><br>If <code>signals.py</code> is never imported, the receivers may not be registered.</div>
+      <div class="alert mistake"><strong>2. Wrong app configuration</strong><br>Make sure the correct AppConfig is used and its <code>ready()</code> imports the signals module.</div>
+      <div class="alert mistake"><strong>3. Using <code>post_save</code> when you need pre-save behavior</strong><br>Choose the signal according to whether the logic belongs before or after the save.</div>
+      <div class="alert mistake"><strong>4. Ignoring <code>created</code></strong><br>If an action should happen only for newly created objects, check <code>created</code>.</div>
+      <div class="alert mistake"><strong>5. Putting heavy business logic in signals</strong><br>Large hidden workflows can become difficult to trace. Keep signal handlers small and move complex workflows into explicit services/background jobs when appropriate.</div>
+    </div>
+  </div>
+</section>
+
+<section id="interview">
+  <div class="card doc-card">
+    <div class="card-header-custom header-purple"><h2 class="h4 mb-0">9. Interview-Ready Explanation</h2></div>
+    <div class="card-body p-4">
+      <div class="alert interview">
+        <strong>How to explain Django Signals in an interview:</strong>
+        <p class="mt-2 mb-0">“Django Signals provide a way for one part of the application to react automatically when a particular event occurs. For example, <code>pre_save</code> runs before a model is saved and <code>post_save</code> runs after the save. I can use <code>post_save</code> with <code>created=True</code> to perform an action only when a new object is created, such as triggering a welcome email or creating a related profile. In my blog example, I register signal receivers and import the signals through the app's <code>ready()</code> method.”</p>
+      </div>
+
+      <h5 class="mini-title">Likely follow-up questions</h5>
+      <ol>
+        <li>What is the difference between <code>pre_save</code> and <code>post_save</code>?</li>
+        <li>Why do we use <code>ready()</code> in <code>AppConfig</code>?</li>
+        <li>What does <code>created=True</code> mean?</li>
+        <li>Can signals be used for sending emails?</li>
+        <li>What are the risks of putting too much logic inside signals?</li>
+        <li>What is the difference between a signal and directly calling a function?</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="recap">
+  <div class="card doc-card">
+    <div class="card-header-custom header-dark"><h2 class="h4 mb-0">10. Quick Recap</h2></div>
+    <div class="card-body p-4">
+      <table class="table table-striped table-bordered">
+        <tbody>
+          <tr><th>Signal</th><td>An event notification mechanism in Django.</td></tr>
+          <tr><th>pre_save</th><td>Runs before the model is saved.</td></tr>
+          <tr><th>post_save</th><td>Runs after the model is saved.</td></tr>
+          <tr><th>receiver</th><td>The function that listens and reacts to a signal.</td></tr>
+          <tr><th>sender</th><td>The model/class that triggers the signal.</td></tr>
+          <tr><th>created</th><td>In <code>post_save</code>, tells whether a new object was created.</td></tr>
+          <tr><th>ready()</th><td>AppConfig method used here to import/register signal handlers when the app is initialized.</td></tr>
+        </tbody>
+      </table>
+      <div class="alert alert-success mb-0"><strong>One-line memory trick:</strong> <code>Event → Signal → Receiver → Action</code>.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-dark text-white text-center py-4">
+  <div class="container">
+    <small>Django Signals Documentation • Built with Bootstrap 5</small>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
