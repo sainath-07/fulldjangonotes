@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 52 - Django Template Fragment Cache</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #f2f5fa; color: #212529; }
+    .doc-section { scroll-margin-top: 84px; }
+    .hero { background: #14213d; color: #fff; }
+    .hero .lead { color: #cfd8ea; }
+    .card { border: 0; border-radius: .6rem; overflow: hidden; }
+    .card-header h2 { font-size: 1.25rem; margin: 0; }
+    .file-tag { font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: .9rem; }
+    .code-wrap { position: relative; }
+    pre.code-block {
+      background: #1b2033; color: #e8ecf8; border-radius: .5rem;
+      padding: 1rem 1rem 1rem 1.1rem; margin: 0; overflow-x: auto;
+      font-size: .9rem; line-height: 1.55;
+    }
+    .copy-btn { position: absolute; top: .5rem; right: .5rem; font-size: .75rem; }
+    .step-list li { padding: .75rem 1rem; }
+    .nav-link.active { font-weight: 600; }
+    .flow-chip { border-radius: 2rem; padding: .35rem .9rem; font-size: .9rem; }
+    .navbar .nav-link { font-size: .92rem; }
+    code.inline { background: #e9ecf5; color: #7a1f4d; padding: .1rem .35rem; border-radius: .25rem; }
+    footer { color: #6c757d; }
+  </style>
+</head>
+<body data-bs-spy="scroll" data-bs-target="#mainNav" data-bs-root-margin="-90px 0px -60% 0px" data-bs-smooth-scroll="true" tabindex="0">
+
+  <!-- Sticky navigation -->
+  <nav id="mainNav" class="navbar navbar-expand-xl navbar-dark bg-dark sticky-top shadow">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="#top">Class 52 &middot; Fragment Cache</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navLinks" aria-controls="navLinks" aria-expanded="false" aria-label="Open menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navLinks">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#what">What</a></li>
+          <li class="nav-item"><a class="nav-link" href="#why">Why</a></li>
+          <li class="nav-item"><a class="nav-link" href="#when">When</a></li>
+          <li class="nav-item"><a class="nav-link" href="#how">How it works</a></li>
+          <li class="nav-item"><a class="nav-link" href="#setup">Setup</a></li>
+          <li class="nav-item"><a class="nav-link" href="#code">Code</a></li>
+          <li class="nav-item"><a class="nav-link" href="#demo">Demo</a></li>
+          <li class="nav-item"><a class="nav-link" href="#syntax">Cheat sheet</a></li>
+          <li class="nav-item"><a class="nav-link" href="#mistakes">Mistakes</a></li>
+          <li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+          <li class="nav-item"><a class="nav-link" href="#summary">Summary</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header id="top" class="hero py-5">
+    <div class="container">
+      <span class="badge text-bg-info mb-3">Django</span>
+      <span class="badge text-bg-warning mb-3">Templates</span>
+      <span class="badge text-bg-light mb-3">Class 52</span>
+      <h1 class="display-5 fw-bold">Template Fragment Cache in Django</h1>
+      <p class="lead mb-0 col-lg-8">Simple notes with definitions, everyday examples, full working code, diagrams and interview tips.</p>
+    </div>
+  </header>
+
+  <main class="container py-5">
+
+    <!-- Quick overview -->
+    <section class="mb-5" aria-label="Topics in this class">
+      <div class="row g-3">
+        <div class="col-sm-6 col-lg-3">
+          <div class="card shadow-sm h-100 border-top border-4 border-primary">
+            <div class="card-body">
+              <h2 class="h5">What is it?</h2>
+              <p class="mb-2">Caching only one part of a web page.</p>
+              <a href="#what" class="stretched-link">Go to section</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card shadow-sm h-100 border-top border-4 border-warning">
+            <div class="card-body">
+              <h2 class="h5">Why use it?</h2>
+              <p class="mb-2">Save time and reduce database work.</p>
+              <a href="#why" class="stretched-link">Go to section</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card shadow-sm h-100 border-top border-4 border-success">
+            <div class="card-body">
+              <h2 class="h5">When to use it?</h2>
+              <p class="mb-2">Know the right time, and the time to avoid it.</p>
+              <a href="#when" class="stretched-link">Go to section</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card shadow-sm h-100 border-top border-4 border-danger">
+            <div class="card-body">
+              <h2 class="h5">How does it work?</h2>
+              <p class="mb-2">See the cache hit and miss flow.</p>
+              <a href="#how" class="stretched-link">Go to section</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. WHAT -->
+    <section id="what" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white"><h2>1. What is a Template Fragment Cache?</h2></div>
+        <div class="card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Definition</h3>
+                <p class="mb-2">A <strong>fragment</strong> is one small part of a template. A <strong>template fragment cache</strong> saves the finished HTML of that part, so Django does not need to build it again on every request.</p>
+                <p class="mb-0">We mark the part using the <code class="inline">{% cache %}</code> tag, and close it with <code class="inline">{% endcache %}</code>.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-2">Imagine a tea shop that sells snacks all day. The snack box is filled once in the morning and kept on the counter. Each customer just takes a snack from the box.</p>
+                <p class="mb-0">But the shopkeeper still greets each customer freshly. The <strong>greeting</strong> is not saved, but the <strong>snack box</strong> is. Only one part is saved. That saved part is the <strong>fragment cache</strong>.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="h6">Diagram: one page, many parts</h3>
+          <div class="border rounded p-2 bg-white mb-2">
+            <svg viewBox="0 0 900 300" class="img-fluid" role="img" aria-label="A page with a normal header, a cached user list fragment and a normal footer" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+              <rect x="20" y="15" width="400" height="270" rx="10" fill="#ffffff" stroke="#6c757d" stroke-width="2"/>
+
+              <rect x="40" y="35" width="360" height="55" rx="6" fill="#e2e3e5" stroke="#6c757d" stroke-width="1.5"/>
+              <text x="220" y="58" text-anchor="middle" font-size="15" font-weight="600" fill="#212529">Page title and Clear Cache link</text>
+              <text x="220" y="78" text-anchor="middle" font-size="13" fill="#495057">Normal part</text>
+
+              <rect x="40" y="105" width="360" height="110" rx="6" fill="#d1e7dd" stroke="#198754" stroke-width="2.5" stroke-dasharray="8 5"/>
+              <text x="220" y="140" text-anchor="middle" font-size="15" font-weight="700" fill="#0f5132">{% cache 20 user_list_cache %}</text>
+              <text x="220" y="163" text-anchor="middle" font-size="15" font-weight="600" fill="#212529">User list (name and sub)</text>
+              <text x="220" y="185" text-anchor="middle" font-size="13" fill="#0f5132">Cached fragment: saved for 20 seconds</text>
+              <text x="220" y="204" text-anchor="middle" font-size="12" fill="#0f5132">{% endcache %}</text>
+
+              <rect x="40" y="230" width="360" height="40" rx="6" fill="#e2e3e5" stroke="#6c757d" stroke-width="1.5"/>
+              <text x="220" y="255" text-anchor="middle" font-size="13" fill="#495057">Rest of the page: normal part</text>
+
+              <rect x="470" y="35" width="410" height="55" rx="8" fill="#e2e3e5" stroke="#6c757d" stroke-width="1.5"/>
+              <text x="490" y="59" font-size="15" font-weight="700" fill="#212529">Grey = normal part</text>
+              <text x="490" y="79" font-size="13" fill="#495057">Django builds it again on every request.</text>
+
+              <rect x="470" y="105" width="410" height="75" rx="8" fill="#d1e7dd" stroke="#198754" stroke-width="2"/>
+              <text x="490" y="129" font-size="15" font-weight="700" fill="#0f5132">Green = cached fragment</text>
+              <text x="490" y="149" font-size="13" fill="#212529">Built once, saved as ready-made HTML,</text>
+              <text x="490" y="167" font-size="13" fill="#212529">and reused until the 20 seconds are over.</text>
+
+              <rect x="470" y="195" width="410" height="75" rx="8" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+              <text x="490" y="219" font-size="15" font-weight="700" fill="#664d03">Result</text>
+              <text x="490" y="239" font-size="13" fill="#212529">Only the green part is skipped. The rest of the</text>
+              <text x="490" y="257" font-size="13" fill="#212529">page is still fresh on every visit.</text>
+            </svg>
+          </div>
+
+          <div class="alert alert-warning mt-3 mb-0" role="alert">
+            <strong>Interview tip:</strong> Say it in one line: "Template fragment caching saves the rendered HTML of one part of a template, so Django can skip the work for that part."
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. WHY -->
+    <section id="why" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-warning text-dark"><h2>2. Why Do We Need It?</h2></div>
+        <div class="card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Definition</h3>
+                <p class="mb-0">Building a template part can be slow when it has a loop, a database query, or heavy formatting. If the result is the same for many visitors, it is a waste to build it again and again. Fragment caching does this work <strong>once</strong> and reuses the result.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-0">A teacher writes the same homework on the board for every class. Instead of writing it again for each student, the teacher writes it <strong>once</strong>, and all students read the same board. Less work, same result.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="h6">Benefits</h3>
+          <ul class="list-group mb-3">
+            <li class="list-group-item"><strong>Faster pages:</strong> Django skips the loop and sends the saved HTML.</li>
+            <li class="list-group-item"><strong>Less database work:</strong> On a cache hit, the query for that part does not run at all.</li>
+            <li class="list-group-item"><strong>Lower server load:</strong> The server can handle more visitors with the same power.</li>
+            <li class="list-group-item"><strong>Partial control:</strong> You cache only the slow part, and the rest of the page stays fresh.</li>
+            <li class="list-group-item"><strong>Easy to add:</strong> Only two template tags are needed, and the view stays the same.</li>
+          </ul>
+
+          <div class="alert alert-info mb-0" role="alert">
+            <strong>Good to know:</strong> In our example, the view writes <code class="inline">UserModel.objects.all()</code>. Django queries are <strong>lazy</strong>, which means the database is only read when the template loops over <code class="inline">users</code>. When the fragment is cached, the loop is skipped, so the database is never touched.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. WHEN -->
+    <section id="when" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white"><h2>3. When Should We Use It?</h2></div>
+        <div class="card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Definition</h3>
+                <p class="mb-0">Use it when <strong>one part</strong> of a page is slow to build, is shown often, and does not change every second. It is best when only a part of the page should be cached and the rest must stay fresh.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-0">A shop puts up a <strong>"Top 10 Products" board</strong> and updates it once a day. Everyone reads the same board. But the <strong>cart</strong> is different for each customer, so it is never copied from another customer.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="card h-100 border border-success">
+                <div class="card-header bg-success-subtle text-success-emphasis fw-semibold">Good time to use it</div>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">Sidebars, menus, footers and "popular posts" lists.</li>
+                  <li class="list-group-item">Lists that take a heavy query to build.</li>
+                  <li class="list-group-item">Parts of a page shared by many visitors.</li>
+                  <li class="list-group-item">Data that changes slowly, like blog lists or product lists.</li>
+                  <li class="list-group-item">A page where only one block is slow.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card h-100 border border-danger">
+                <div class="card-header bg-danger-subtle text-danger-emphasis fw-semibold">Time to avoid it</div>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">Live data such as scores, prices or chat messages.</li>
+                  <li class="list-group-item">Private data (name, cart, account details) cached under a shared name.</li>
+                  <li class="list-group-item">Small parts that are already very fast.</li>
+                  <li class="list-group-item">Pages where the user must always see the newest data.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="h6">Where does fragment caching fit?</h3>
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+              <thead class="table-dark">
+                <tr><th>Caching style</th><th>What is saved</th><th>Where you write it</th><th>Best for</th></tr>
+              </thead>
+              <tbody>
+                <tr class="table-primary"><td><strong>Template fragment cache</strong></td><td>Finished HTML of one part</td><td>Template (<code class="inline">{% cache %}</code>)</td><td>One slow block on a page</td></tr>
+                <tr><td>Low-level cache</td><td>Any Python data</td><td>View (<code class="inline">cache.get / cache.set</code>)</td><td>Query results, API data (see Class 53)</td></tr>
+                <tr><td>Per-view cache</td><td>The whole page response</td><td>URL or view decorator</td><td>Pages that are the same for everyone</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alert alert-warning mb-0" role="alert">
+            <strong>Interview tip:</strong> If asked "Why not cache the full page?", answer: "Because some parts, like the logged-in user's name, must stay fresh. Fragment caching lets me cache only the slow, shared part."
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. HOW -->
+    <section id="how" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-danger text-white"><h2>4. How Does It Work?</h2></div>
+        <div class="card-body">
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Definition</h3>
+                <p class="mb-2">When Django reaches the <code class="inline">{% cache %}</code> tag, it checks the cache for a saved copy of that block.</p>
+                <ul class="mb-0">
+                  <li><strong>Cache hit:</strong> A fresh copy exists. Django uses it and skips the block.</li>
+                  <li><strong>Cache miss:</strong> No copy, or it has expired. Django runs the block, saves the HTML, and uses it.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-0">A photocopy shop keeps a copy of a popular form. If a customer asks for it, the clerk gives the ready copy (<strong>hit</strong>). If the copy is old or missing, the clerk prints a new one, keeps one aside for the next person, and hands it over (<strong>miss</strong>). After 20 seconds, the kept copy is thrown away.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="h6">Diagram: request flow</h3>
+          <div class="border rounded p-2 bg-white mb-2">
+            <svg viewBox="0 0 900 350" class="img-fluid" role="img" aria-label="Flow of a request through the template fragment cache showing cache hit and cache miss paths" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+              <defs>
+                <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+                </marker>
+              </defs>
+
+              <rect x="10" y="140" width="130" height="60" rx="8" fill="#e7f1ff" stroke="#0d6efd" stroke-width="2"/>
+              <text x="75" y="166" text-anchor="middle" font-size="16" font-weight="600" fill="#0a58ca">Browser</text>
+              <text x="75" y="186" text-anchor="middle" font-size="13" fill="#495057">opens /users/</text>
+
+              <line x1="140" y1="170" x2="188" y2="170" stroke="#495057" stroke-width="2" marker-end="url(#arr)"/>
+
+              <rect x="190" y="140" width="140" height="60" rx="8" fill="#e2e3e5" stroke="#6c757d" stroke-width="2"/>
+              <text x="260" y="166" text-anchor="middle" font-size="16" font-weight="600" fill="#212529">Django view</text>
+              <text x="260" y="186" text-anchor="middle" font-size="13" fill="#495057">renders template</text>
+
+              <line x1="330" y1="170" x2="372" y2="170" stroke="#495057" stroke-width="2" marker-end="url(#arr)"/>
+
+              <polygon points="470,105 565,170 470,235 375,170" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+              <text x="470" y="166" text-anchor="middle" font-size="15" font-weight="600" fill="#664d03">Saved and</text>
+              <text x="470" y="186" text-anchor="middle" font-size="15" font-weight="600" fill="#664d03">still fresh?</text>
+
+              <path d="M470,105 L470,62 L560,62" fill="none" stroke="#495057" stroke-width="2" marker-end="url(#arr)"/>
+              <text x="480" y="90" font-size="14" font-weight="700" fill="#198754">Yes</text>
+
+              <rect x="565" y="25" width="320" height="75" rx="8" fill="#d1e7dd" stroke="#198754" stroke-width="2"/>
+              <text x="725" y="52" text-anchor="middle" font-size="16" font-weight="700" fill="#0f5132">Cache hit</text>
+              <text x="725" y="72" text-anchor="middle" font-size="13" fill="#212529">Use the saved HTML (fast)</text>
+              <text x="725" y="90" text-anchor="middle" font-size="13" fill="#212529">Loop and database query are skipped</text>
+
+              <path d="M470,235 L470,268" fill="none" stroke="#495057" stroke-width="2" marker-end="url(#arr)"/>
+              <text x="480" y="257" font-size="14" font-weight="700" fill="#dc3545">No</text>
+
+              <rect x="370" y="270" width="200" height="65" rx="8" fill="#f8d7da" stroke="#dc3545" stroke-width="2"/>
+              <text x="470" y="297" text-anchor="middle" font-size="16" font-weight="700" fill="#842029">Cache miss</text>
+              <text x="470" y="318" text-anchor="middle" font-size="13" fill="#212529">Loop runs, database is read</text>
+
+              <line x1="570" y1="302" x2="638" y2="302" stroke="#495057" stroke-width="2" marker-end="url(#arr)"/>
+
+              <rect x="640" y="270" width="245" height="65" rx="8" fill="#cff4fc" stroke="#0dcaf0" stroke-width="2"/>
+              <text x="762" y="297" text-anchor="middle" font-size="16" font-weight="700" fill="#055160">Save HTML in a file</text>
+              <text x="762" y="318" text-anchor="middle" font-size="13" fill="#212529">Keep it for 20 seconds</text>
+            </svg>
+          </div>
+          <p class="text-body-secondary small">Both paths end the same way: the finished page is sent to the browser.</p>
+
+          <h3 class="h6 mt-4">Step by step</h3>
+          <ol class="list-group list-group-numbered mb-3 step-list">
+            <li class="list-group-item">The browser opens <code class="inline">/users/</code>. Django runs the <code class="inline">user_list</code> view.</li>
+            <li class="list-group-item">The view creates <code class="inline">users</code> (no database read yet, because queries are lazy) and renders the template.</li>
+            <li class="list-group-item">The template reaches <code class="inline">{% cache 20 user_list_cache %}</code>. Django looks for a saved copy named <em>user_list_cache</em>.</li>
+            <li class="list-group-item"><strong>Hit:</strong> a fresh copy exists, so Django inserts it and skips everything up to <code class="inline">{% endcache %}</code>.</li>
+            <li class="list-group-item"><strong>Miss:</strong> Django runs the loop, reads the users from the database, builds the HTML, and saves it for 20 seconds.</li>
+            <li class="list-group-item">The full page is sent to the browser. After 20 seconds the saved copy expires, and the next visit is a miss again.</li>
+          </ol>
+
+          <div class="alert alert-info" role="alert">
+            <strong>Where is the copy saved?</strong> In this class, we used the <strong>file-based cache</strong>. Django saves each cached item as a small file inside the folder <code class="inline">template_caching</code>. You can open that folder and see the files (they end with <code class="inline">.djcache</code>).
+          </div>
+
+          <div class="alert alert-warning mb-0" role="alert">
+            <strong>Interview tip:</strong> Mention that the <em>view</em> code does not change. All the caching is done in the template, so it is quick to add.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. SETUP -->
+    <section id="setup" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-info text-dark"><h2>5. Setup: Enable the File-Based Cache</h2></div>
+        <div class="card-body">
+          <p>Fragment caching needs a cache backend. In this class we used the <strong>file-based cache</strong>. It is easy to set up because it saves cache data as files in a folder.</p>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Definition</h3>
+                <p class="mb-0"><code class="inline">FileBasedCache</code> is a Django cache backend that stores every cached item as a file on disk. <code class="inline">LOCATION</code> is the folder where these files are kept.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-0">It is like a <strong>drawer with paper slips</strong>. Each cached item is one slip of paper in the drawer. <code class="inline">LOCATION</code> tells Django which drawer to use.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="h6">Steps</h3>
+          <ol class="list-group list-group-numbered mb-3 step-list">
+            <li class="list-group-item">Add the <code class="inline">CACHES</code> setting in <code class="inline">innerproject/settings.py</code> (see the <a href="#code">Code section</a>).</li>
+            <li class="list-group-item">Make sure <code class="inline">BASE_DIR</code> exists in <code class="inline">settings.py</code>. Django adds it by default.</li>
+            <li class="list-group-item">Create the model and run the normal commands shown below.</li>
+            <li class="list-group-item">Add a few users in the admin site and open <code class="inline">/users/</code>.</li>
+          </ol>
+
+          <div class="code-wrap mb-3">
+            <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver</code></pre>
+          </div>
+
+          <div class="alert alert-secondary mb-0" role="alert">
+            <strong>Different from Class 53:</strong> The database cache needs the <code class="inline">createcachetable</code> command. The file-based cache does <strong>not</strong> need it. Django creates the folder by itself when the first item is saved, as long as it has permission to write there.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CODE -->
+    <section id="code" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white"><h2>6. Full Code with Simple Explanation</h2></div>
+        <div class="card-body">
+
+          <div class="alert alert-info" role="alert">
+            <strong>Project layout used in this class:</strong>
+<pre class="mb-0 mt-2 bg-white border rounded p-2 small"><code>innerproject/
+├── innerproject/
+│   ├── settings.py
+│   └── urls.py
+├── blog_app/
+│   ├── templates/
+│   │   └── blog/
+│   │       └── users.html
+│   ├── admin.py
+│   ├── models.py
+│   ├── urls.py
+│   └── views.py
+├── template_caching/      (created by Django when the cache is used)
+└── manage.py</code></pre>
+          </div>
+
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Two names to check before you run the project</h3>
+            <ul class="mb-0">
+              <li><strong>Template file name:</strong> The view renders <code class="inline">'blog/users.html'</code>, but the file in the class notes is called <code class="inline">user.html</code>. The names must match, or Django shows <em>TemplateDoesNotExist</em>. Rename the file to <code class="inline">users.html</code>, or change the name in the view.</li>
+              <li><strong>App name:</strong> The folder is <code class="inline">blog_app</code>, but the project <code class="inline">urls.py</code> has <code class="inline">include('blog.urls')</code>. Use your real app folder name, for example <code class="inline">include('blog_app.urls')</code>.</li>
+            </ul>
+          </div>
+
+          <!-- settings -->
+          <div class="card mb-4 border">
+            <div class="card-header bg-primary-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">innerproject/settings.py</span>
+              <span class="badge text-bg-primary">Cache settings</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>CACHES={
+    'default':{
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION' : BASE_DIR / 'template_caching',
+    }
+}</code></pre>
+              </div>
+              <ul class="mb-0">
+                <li><code class="inline">'default'</code> is the main cache that Django uses unless you choose another.</li>
+                <li><code class="inline">BACKEND</code> tells Django to save cache data as files.</li>
+                <li><code class="inline">LOCATION</code> is the folder for those files. <code class="inline">BASE_DIR / 'template_caching'</code> means a folder named <em>template_caching</em> inside your project folder.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- project urls -->
+          <div class="card mb-4 border">
+            <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">innerproject/urls.py</span>
+              <span class="badge text-bg-success">Project URLs</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from django.contrib import admin
+from django.urls import path,include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('',include('blog.urls'))
+]</code></pre>
+              </div>
+              <ul class="mb-0">
+                <li><code class="inline">admin/</code> opens the Django admin site.</li>
+                <li><code class="inline">include(...)</code> sends all other URLs to the app's own <code class="inline">urls.py</code>.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- app urls -->
+          <div class="card mb-4 border">
+            <div class="card-header bg-info-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">blog_app/urls.py</span>
+              <span class="badge text-bg-info">App URLs</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from . import views
+from django.urls import path
+
+urlpatterns=[
+    path('clear/',views.clear_cache,name='clear'),
+    path('users/',views.user_list,name='user_list')
+]</code></pre>
+              </div>
+              <ul class="mb-0">
+                <li><code class="inline">/clear/</code> removes everything from the cache.</li>
+                <li><code class="inline">/users/</code> shows the user list.</li>
+                <li>The <code class="inline">name</code> values are used in the template (<code class="inline">{% url 'clear' %}</code>) and in <code class="inline">redirect('user_list')</code>.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- views -->
+          <div class="card mb-4 border border-danger">
+            <div class="card-header bg-danger-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">blog_app/views.py</span>
+              <span class="badge text-bg-danger">Views</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from django.shortcuts import render, redirect
+from django.core.cache import cache
+from .models import UserModel
+
+# Create your views here.
+def clear_cache(request):
+    cache.clear()
+    print('Cache cleared successfully')
+    return redirect('user_list')   # redirect, not render
+
+def user_list(request):
+    users=UserModel.objects.all()
+    return render(request,'blog/users.html',{'users':users})</code></pre>
+              </div>
+
+              <h3 class="h6">In simple words</h3>
+              <div class="table-responsive">
+                <table class="table table-bordered align-middle mb-3">
+                  <thead class="table-light"><tr><th style="width:38%">Code</th><th>Meaning</th></tr></thead>
+                  <tbody>
+                    <tr><td><code class="inline">cache.clear()</code></td><td>Deletes every saved item in the cache. For the file-based cache, it removes the cache files from the folder.</td></tr>
+                    <tr><td><code class="inline">redirect('user_list')</code></td><td>After clearing, sends the browser to the <code class="inline">/users/</code> page. This is better than <code class="inline">render</code>, because the address bar shows <code class="inline">/users/</code> and a page refresh will not clear the cache again.</td></tr>
+                    <tr><td><code class="inline">UserModel.objects.all()</code></td><td>Prepares a query for all users. It does not read the database yet (lazy query).</td></tr>
+                    <tr><td><code class="inline">render(request, 'blog/users.html', {...})</code></td><td>Builds the page from the template and passes <code class="inline">users</code> to it.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="alert alert-success mb-0" role="alert">
+                <strong>Notice:</strong> There is no cache code in <code class="inline">user_list</code>. The view stays simple. The template does all the caching.
+              </div>
+            </div>
+          </div>
+
+          <!-- models -->
+          <div class="card mb-4 border">
+            <div class="card-header bg-warning-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">blog_app/models.py</span>
+              <span class="badge text-bg-warning">Model</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from django.db import models
+
+# Create your models here.
+class UserModel(models.Model):
+    name=models.CharField(max_length=100)
+    sub=models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name</code></pre>
+              </div>
+              <ul class="mb-0">
+                <li><code class="inline">name</code> stores the user's name (up to 100 characters).</li>
+                <li><code class="inline">sub</code> stores the number of subscribers. The default is 0.</li>
+                <li><code class="inline">__str__</code> shows the name when the object is printed, for example in the admin site.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- admin -->
+          <div class="card mb-4 border">
+            <div class="card-header bg-secondary-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">blog_app/admin.py</span>
+              <span class="badge text-bg-secondary">Admin</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from django.contrib import admin
+from .models import UserModel
+
+# Register your models here.
+@admin.register(UserModel)
+class UserAdmin(admin.ModelAdmin):
+    list_display=['name','sub']</code></pre>
+              </div>
+              <ul class="mb-0">
+                <li><code class="inline">@admin.register</code> shows the model in the admin site, so we can add test users.</li>
+                <li><code class="inline">list_display</code> shows <em>name</em> and <em>sub</em> as columns in the admin list.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- template -->
+          <div class="card border border-success">
+            <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">blog_app/templates/blog/user.html</span>
+              <span class="badge text-bg-success">Most important file</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;User List&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h2&gt;User List: tempalte fragment cache&lt;/h2&gt;
+    &lt;a href="{% url 'clear' %}"&gt;Clear Cache&lt;/a&gt;
+
+    {% load cache %}
+    {% cache 20 user_list_cache %}
+    &lt;ul&gt;
+        {% for user in users %}
+            &lt;li&gt;{{ user.name }} — {{ user.sub }}&lt;/li&gt;
+        {% empty %}
+            &lt;p&gt;No users found.&lt;/p&gt;
+        {% endfor %}
+    &lt;/ul&gt;
+    {% endcache %}
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+              </div>
+
+              <h3 class="h6">Line by line in simple words</h3>
+              <div class="table-responsive">
+                <table class="table table-bordered align-middle mb-3">
+                  <thead class="table-light"><tr><th style="width:38%">Code</th><th>Meaning</th></tr></thead>
+                  <tbody>
+                    <tr><td><code class="inline">{% load cache %}</code></td><td>Turns on the cache tags for this template. Without it, <code class="inline">{% cache %}</code> gives an error.</td></tr>
+                    <tr><td><code class="inline">{% cache 20 user_list_cache %}</code></td><td>Starts the cached block. <strong>20</strong> is the time in seconds. <strong>user_list_cache</strong> is the name of this fragment.</td></tr>
+                    <tr><td><code class="inline">{% for user in users %}</code></td><td>Makes one list item for each user. This is the work we want to skip when the cache is fresh.</td></tr>
+                    <tr><td><code class="inline">{% empty %}</code></td><td>Runs only when there are no users.</td></tr>
+                    <tr><td><code class="inline">{% endcache %}</code></td><td>Ends the cached block. Only what is between the two cache tags is saved.</td></tr>
+                    <tr><td><code class="inline">{% url 'clear' %}</code></td><td>Builds the link to the <code class="inline">/clear/</code> page. It is outside the cache block, so it is always built fresh.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="alert alert-success mb-0" role="alert">
+                <strong>Layman example:</strong> The <code class="inline">{% cache %}</code> tag is like a <strong>photo frame</strong>. Whatever is inside the frame is saved as a photo for 20 seconds. Everything outside the frame is drawn fresh each time.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. DEMO -->
+    <section id="demo" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white"><h2>7. See It Working: Demo Walkthrough</h2></div>
+        <div class="card-body">
+          <p>This example has no print lines for hit and miss, so we test it by changing data in the admin site and watching the page.</p>
+
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+              <thead class="table-dark">
+                <tr><th>#</th><th>What you do</th><th>What you see</th><th>What it means</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>Open <code class="inline">/users/</code> for the first time</td><td>The user list appears. A file is created in <code class="inline">template_caching</code>.</td><td><span class="badge text-bg-danger">Miss</span> Django built the list and saved it.</td></tr>
+                <tr><td>2</td><td>Add a new user in admin, then refresh <code class="inline">/users/</code> within 20 seconds</td><td>The new user is <strong>not</strong> shown.</td><td><span class="badge text-bg-success">Hit</span> The saved HTML is used.</td></tr>
+                <tr><td>3</td><td>Wait 20 seconds and refresh</td><td>The new user appears.</td><td><span class="badge text-bg-danger">Miss</span> The copy expired, so a new one was built.</td></tr>
+                <tr><td>4</td><td>Add another user, then click <strong>Clear Cache</strong></td><td>The new user appears at once. You come back to <code class="inline">/users/</code>.</td><td>All saved copies were deleted, so the next load is a miss.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6">Diagram: what happens over time</h3>
+          <div class="d-flex flex-wrap gap-2 align-items-center bg-white border rounded p-3 mb-3">
+            <span class="flow-chip text-bg-danger">0 s: Miss (build and save)</span>
+            <span aria-hidden="true">&rarr;</span>
+            <span class="flow-chip text-bg-success">1 to 19 s: Hit (saved HTML)</span>
+            <span aria-hidden="true">&rarr;</span>
+            <span class="flow-chip text-bg-secondary">20 s: Copy expires</span>
+            <span aria-hidden="true">&rarr;</span>
+            <span class="flow-chip text-bg-danger">Next visit: Miss (build again)</span>
+          </div>
+
+          <div class="alert alert-info mb-0" role="alert">
+            <strong>Layman example:</strong> A wall clock that shows the time only once every 20 seconds is fast and cheap to run, but it can be a little behind. Caching gives <strong>speed in exchange for freshness</strong>. Choose the timeout to match how old the data is allowed to be.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. CHEAT SHEET -->
+    <section id="syntax" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white"><h2>8. Cache Tag Cheat Sheet</h2></div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+              <thead class="table-light">
+                <tr><th>Syntax</th><th>What it does</th><th>Used in class?</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="inline">{% load cache %}</code></td><td>Loads the cache tags into the template.</td><td><span class="badge text-bg-success">Yes</span></td></tr>
+                <tr><td><code class="inline">{% cache 20 name %} ... {% endcache %}</code></td><td>Caches the block for 20 seconds under the given name.</td><td><span class="badge text-bg-success">Yes</span></td></tr>
+                <tr><td><code class="inline">{% cache 300 name request.user.id %}</code></td><td>Keeps a <strong>separate copy for each user</strong> by adding an extra value to the key.</td><td><span class="badge text-bg-secondary">Extra</span></td></tr>
+                <tr><td><code class="inline">cache.clear()</code></td><td>Removes every saved item (used in the <code class="inline">clear_cache</code> view).</td><td><span class="badge text-bg-success">Yes</span></td></tr>
+                <tr><td><code class="inline">make_template_fragment_key('name')</code></td><td>Gives the exact key of one fragment, so you can delete only that fragment with <code class="inline">cache.delete(key)</code>.</td><td><span class="badge text-bg-secondary">Extra</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Extra: delete only one fragment</h3>
+<pre class="code-block mt-2"><code>from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
+
+key = make_template_fragment_key('user_list_cache')
+cache.delete(key)</code></pre>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-2">Adding <code class="inline">request.user.id</code> is like keeping <strong>one lunch box for each student</strong>, instead of one box for the whole class.</p>
+                <p class="mb-0"><code class="inline">cache.delete(key)</code> removes one lunch box. <code class="inline">cache.clear()</code> throws away all lunch boxes.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. MISTAKES -->
+    <section id="mistakes" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-warning text-dark"><h2>9. Common Mistakes and Good Habits</h2></div>
+        <div class="card-body">
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Mistake 1: Forgetting {% load cache %}</h3>
+            <p class="mb-0">If you skip it, Django shows the error "Invalid block tag: 'cache'". Put it at the top of the template, before the first cache tag.</p>
+          </div>
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Mistake 2: Template name does not match</h3>
+            <p class="mb-0">The name in <code class="inline">render()</code> and the real file name must be the same, including the folder. Here it is <code class="inline">blog/users.html</code>.</p>
+          </div>
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Mistake 3: Expecting instant updates</h3>
+            <p class="mb-0">For 20 seconds, the page shows the saved copy, even if the database changed. Use a short timeout, or clear the cache or delete the key when data changes.</p>
+          </div>
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Mistake 4: Caching private data with a shared name</h3>
+            <p class="mb-0">If a block shows one user's private data, every visitor may see it. Add a unique value, like <code class="inline">request.user.id</code>, or do not cache that block.</p>
+          </div>
+          <div class="alert alert-warning" role="alert">
+            <h3 class="h6 alert-heading">Watch out: Small typos in the template</h3>
+            <p class="mb-0">The heading says "tempalte" instead of "template". Also, a <code class="inline">&lt;p&gt;</code> tag inside a <code class="inline">&lt;ul&gt;</code> is not valid HTML. Use <code class="inline">&lt;li&gt;No users found.&lt;/li&gt;</code> instead.</p>
+          </div>
+          <div class="alert alert-success mb-0" role="alert">
+            <h3 class="h6 alert-heading">Good habits</h3>
+            <ul class="mb-0">
+              <li>Give each fragment a clear name such as <code class="inline">user_list_cache</code>.</li>
+              <li>Cache only the slow part, not the whole page.</li>
+              <li>Pick a timeout that matches how often the data changes.</li>
+              <li>Test after adding, editing and clearing data.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. INTERVIEW -->
+    <section id="interview" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white"><h2>10. Interview Questions and Answers</h2></div>
+        <div class="card-body">
+          <div class="alert alert-warning" role="alert">
+            <strong>How to answer well:</strong> Give the definition first, then a small example, then one trade-off. Keep each answer to three or four sentences.
+          </div>
+
+          <div class="accordion" id="interviewAccordion">
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1" aria-expanded="true" aria-controls="q1">Q1. What is template fragment caching in Django?</button>
+              </h3>
+              <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">It is a way to cache only one part of a template. We wrap that part in <code class="inline">{% cache %}</code> and <code class="inline">{% endcache %}</code>, and Django saves the rendered HTML for the given time.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2" aria-expanded="false" aria-controls="q2">Q2. What is the syntax of the cache tag?</button>
+              </h3>
+              <div id="q2" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">First write <code class="inline">{% load cache %}</code>. Then write <code class="inline">{% cache timeout fragment_name %}</code>, followed by the content, and end with <code class="inline">{% endcache %}</code>. The timeout is in seconds.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3" aria-expanded="false" aria-controls="q3">Q3. What does Django save in a fragment cache?</button>
+              </h3>
+              <div id="q3" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">It saves the final rendered HTML of that block, not the Python objects or the queryset.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4" aria-expanded="false" aria-controls="q4">Q4. Does the database query still run when the fragment is cached?</button>
+              </h3>
+              <div id="q4" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">Not if the query is lazy and is only used inside the cached block. Django runs the query when the template loops over it. On a cache hit, the loop is skipped, so the database is not read. But if the view already used the queryset (for example, by calling <code class="inline">len()</code> or looping in Python), the query has already run.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5" aria-expanded="false" aria-controls="q5">Q5. How do you cache a different copy for each user?</button>
+              </h3>
+              <div id="q5" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">Pass an extra value after the fragment name, for example <code class="inline">{% cache 300 sidebar request.user.id %}</code>. Django then keeps a separate copy for each different value.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q6" aria-expanded="false" aria-controls="q6">Q6. What is LOCATION in FileBasedCache?</button>
+              </h3>
+              <div id="q6" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">It is the folder path where Django stores the cache files. Django needs permission to write in that folder.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q7" aria-expanded="false" aria-controls="q7">Q7. How do you remove old data from the cache?</button>
+              </h3>
+              <div id="q7" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">Wait for the timeout to finish, call <code class="inline">cache.clear()</code> to remove everything, or use <code class="inline">cache.delete(key)</code> with <code class="inline">make_template_fragment_key()</code> to remove only one fragment.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q8" aria-expanded="false" aria-controls="q8">Q8. Fragment cache, low-level cache, per-view cache: what is the difference?</button>
+              </h3>
+              <div id="q8" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">Fragment cache saves the HTML of one block in a template. Low-level cache saves any Python data using <code class="inline">cache.get</code> and <code class="inline">cache.set</code>. Per-view cache saves the whole page response. Choose the smallest one that solves the problem.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. SUMMARY -->
+    <section id="summary" class="doc-section mb-4">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white"><h2>11. Quick Summary</h2></div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card h-100 border border-success">
+                <div class="card-header bg-success-subtle text-success-emphasis fw-semibold">Key points to remember</div>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">Fragment cache saves the HTML of <strong>one part</strong> of a template.</li>
+                  <li class="list-group-item">Write <code class="inline">{% load cache %}</code> first, then use <code class="inline">{% cache 20 name %}</code> and <code class="inline">{% endcache %}</code>.</li>
+                  <li class="list-group-item">The first load is a miss. Loads within 20 seconds are hits.</li>
+                  <li class="list-group-item">On a hit, the loop and database query are skipped.</li>
+                  <li class="list-group-item"><code class="inline">FileBasedCache</code> keeps cache files in the <code class="inline">LOCATION</code> folder.</li>
+                  <li class="list-group-item">Use <code class="inline">cache.clear()</code> to remove all saved copies.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card h-100 border border-primary">
+                <div class="card-header bg-primary-subtle text-primary-emphasis fw-semibold">Template recap</div>
+                <div class="card-body">
+                  <div class="code-wrap">
+                    <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>{% load cache %}
+{% cache 20 user_list_cache %}
+    ... slow or heavy part here ...
+{% endcache %}</code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center pb-5 small">
+    Class 52 &middot; Django Template Fragment Cache &middot; Study notes
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Copy buttons for code blocks
+    document.querySelectorAll('.copy-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var code = btn.parentElement.querySelector('pre').innerText;
+        var done = function () {
+          var old = btn.textContent;
+          btn.textContent = 'Copied';
+          setTimeout(function () { btn.textContent = old; }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(done);
+        } else {
+          var t = document.createElement('textarea');
+          t.value = code;
+          document.body.appendChild(t);
+          t.select();
+          document.execCommand('copy');
+          document.body.removeChild(t);
+          done();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

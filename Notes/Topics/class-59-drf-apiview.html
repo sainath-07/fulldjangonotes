@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class-59 | DRF: APIView</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<style>
+  body { background:#f4f6f9; font-family:'Segoe UI',Roboto,Arial,sans-serif; }
+  .navbar-brand { font-weight:700; letter-spacing:.5px; }
+  .card-header i { margin-right:8px; }
+  .section-card { border:none; border-radius:14px; overflow:hidden; margin-bottom:2rem; }
+  .section-card .card-header { font-size:1.15rem; font-weight:600; padding:.9rem 1.25rem; }
+  .hdr-blue   { background:linear-gradient(135deg,#2b5876,#4e4376); color:#fff; }
+  .hdr-purple { background:linear-gradient(135deg,#6a11cb,#2575fc); color:#fff; }
+  .hdr-teal   { background:linear-gradient(135deg,#11998e,#38ef7d); color:#fff; }
+  .hdr-orange { background:linear-gradient(135deg,#f7971e,#ffd200); color:#212529; }
+  .hdr-red    { background:linear-gradient(135deg,#cb2d3e,#ef473a); color:#fff; }
+  .hdr-dark   { background:linear-gradient(135deg,#232526,#414345); color:#fff; }
+  .hdr-indigo { background:linear-gradient(135deg,#3a1c71,#5c258d); color:#fff; }
+  pre.code-box { background:#1e1e2e; color:#d4d4d4; padding:1rem; border-radius:10px; font-size:.85rem; overflow-x:auto; }
+  code.inline { background:#eef1f6; color:#c7254e; padding:2px 6px; border-radius:5px; font-size:.9em; }
+  .flow-box { background:#fff; border:2px solid #4e4376; border-radius:10px; padding:.6rem 1rem; font-weight:600; text-align:center; }
+  .flow-arrow { font-size:1.4rem; color:#6a11cb; }
+  .badge-tip { background:#38ef7d; color:#054a29; }
+  .table-key th { background:#2b5876; color:#fff; }
+  .file-tag { display:inline-block; background:#2b5876; color:#fff; padding:.25rem .7rem; border-radius:6px; font-size:.8rem; font-family:monospace; margin-bottom:.5rem; }
+  footer { color:#8a94a6; font-size:.85rem; }
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark hdr-dark shadow">
+  <div class="container">
+    <span class="navbar-brand"><i class="fa-solid fa-layer-group"></i> Class-59 · DRF Docs</span>
+    <span class="text-light small">APIView (Class Based)</span>
+  </div>
+</nav>
+
+<div class="container py-4">
+
+  <div class="p-4 mb-4 rounded-4 shadow-sm hdr-purple text-center">
+    <h2 class="mb-1"><i class="fa-solid fa-book"></i> CLASS-59: DRF with APIView</h2>
+    <p class="mb-0">Function-based vs API view, when to use which, and the complete project code</p>
+  </div>
+
+  <!-- FBV vs APIView -->
+  <div class="card section-card shadow">
+    <div class="card-header hdr-blue"><i class="fa-solid fa-code-compare"></i>1. Function Based View vs APIView (Class Based)</div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-key align-middle">
+          <thead><tr><th>Function Based View (FBV)</th><th>APIView (Class Based)</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Written as a plain Python function, usually decorated with <code class="inline">@api_view(['GET','POST'])</code></td>
+              <td>Written as a class extending <code class="inline">rest_framework.views.APIView</code></td>
+            </tr>
+            <tr>
+              <td>One function handles all allowed methods with <code class="inline">if request.method == 'POST':</code> branching</td>
+              <td>Each HTTP method gets its own dedicated method: <code class="inline">get()</code>, <code class="inline">post()</code>, <code class="inline">put()</code>, <code class="inline">delete()</code></td>
+            </tr>
+            <tr>
+              <td>Simple, explicit, easy to read for small/one-off endpoints</td>
+              <td>Cleaner separation of logic, easier to extend, supports inheritance and mixins</td>
+            </tr>
+            <tr>
+              <td>Harder to reuse logic across endpoints</td>
+              <td>Reusable via inheritance — basis for GenericAPIView/Mixins/Generic views later</td>
+            </tr>
+            <tr>
+              <td>No built-in method routing — you write the if/elif yourself</td>
+              <td>Django/DRF automatically routes GET → <code class="inline">get()</code>, POST → <code class="inline">post()</code>, etc.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-info mb-0">
+        <i class="fa-solid fa-circle-info"></i> Both ultimately do the same job — parse request, talk to serializer,
+        return <code class="inline">Response</code>. The difference is purely about <strong>organization and scalability</strong>, not capability.
+      </div>
+    </div>
+  </div>
+
+  <!-- When to use which -->
+  <div class="card section-card shadow">
+    <div class="card-header hdr-orange"><i class="fa-solid fa-clock"></i>2. When to use which?</div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <strong><i class="fa-solid fa-function text-primary"></i> Use FBV when:</strong>
+            <ul class="mb-0 mt-2 small">
+              <li>Endpoint is simple/one-off (e.g. a single custom action)</li>
+              <li>Quick prototyping or a small script-style API</li>
+              <li>No plan to reuse logic across multiple endpoints</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <strong><i class="fa-solid fa-cubes text-success"></i> Use APIView (class based) when:</strong>
+            <ul class="mb-0 mt-2 small">
+              <li>Endpoint needs multiple HTTP methods (GET/POST/PUT/DELETE) on the same URL</li>
+              <li>You want to organize CRUD logic cleanly per-method</li>
+              <li>You're heading toward GenericAPIView + Mixins or fully generic views later</li>
+              <li>You need to override behaviour like permissions/auth per class</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <span class="badge badge-tip px-3 py-2 mt-3"><i class="fa-solid fa-lightbulb"></i> Rule of thumb: standard CRUD resource → class based (APIView or Generic views). One-off custom logic endpoint → FBV is fine.</span>
+    </div>
+  </div>
+
+  <!-- Flow diagram -->
+  <div class="card section-card shadow">
+    <div class="card-header hdr-teal"><i class="fa-solid fa-diagram-project"></i>3. How APIView routes a request</div>
+    <div class="card-body">
+      <div class="row text-center g-3 align-items-center">
+        <div class="col-md-3"><div class="flow-box">HTTP Request<br><small class="text-muted">GET/POST/PUT/DELETE</small></div></div>
+        <div class="col-md-1 flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="col-md-3"><div class="flow-box">StudentApi.as_view()<br><small class="text-muted">URL dispatcher</small></div></div>
+        <div class="col-md-1 flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="col-md-3"><div class="flow-box">Matching method<br><small class="text-muted">get()/post()/put()/delete()</small></div></div>
+      </div>
+      <p class="mt-3 mb-0 text-center text-muted">DRF's <code class="inline">as_view()</code> looks at <code class="inline">request.method</code> and calls the class method with the same name — no manual if/elif needed.</p>
+    </div>
+  </div>
+
+  <!-- Full project code -->
+  <div class="card section-card shadow">
+    <div class="card-header hdr-indigo"><i class="fa-solid fa-file-code"></i>4. Full Project Code</div>
+    <div class="card-body">
+
+      <span class="file-tag"><i class="fa-solid fa-folder"></i> blog_app/views.py</span>
+<pre class="code-box">from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
+from .models import StudentModel
+from .serializers import StudentSerializer
+
+# Create your views here
+class StudentApi(APIView):
+    def get(self,request,pk=None):
+        if pk:
+            try:
+                Student = StudentModel.objects.get(id=pk)
+                serializer = StudentSerializer(Student)
+                return Response(serializer.data,status=status.HTTP_200_OK)
+            except StudentModel.DoesNotExist: 
+                return Response({'error':"student not found"},status=status.HTTP_404_NOT_FOUND)
+        else:
+            Student = StudentModel.objects.all()
+            serializer = StudentSerializer(Student,many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+#create post
+    def post(self,request):
+        seralizer = StudentSerializer(data= request.data)
+        if seralizer.is_valid():
+            seralizer.save()
+            return Response(seralizer.data,status=status.HTTP_201_CREATED)
+
+        return Response(seralizer.errors,status= status.HTTP_400_BAD_REQUEST)
+
+
+# update method
+    def put(self,request,pk):
+        try:
+            student=StudentModel.objects.get(id=pk)
+        except StudentModel.DoesNotExist :
+            return Response({"error":"student not found"},status=status.HTTP_404_NOT_FOUND)
+
+        serializer = StudentSerializer(student,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+# delete method
+    def delete(self,request,pk):
+        try:
+            student = StudentModel.objects.get(id=pk)
+            student.delete()
+            return Response(status=status.HTTP_200_OK)
+        except StudentModel.DoesNotExist:
+            return Response({"error": "Student not found"}, status= status.HTTP_400_BAD_REQUEST)</pre>
+
+      <span class="file-tag mt-3"><i class="fa-solid fa-folder"></i> blog_app/urls.py</span>
+<pre class="code-box">from .views import StudentApi
+from django.urls import path
+
+urlpatterns=[
+    path('students/',StudentApi.as_view()), # only for GET and POST api.
+    path('students/&lt;int:pk&gt;/',StudentApi.as_view()) # for GET(single),PUT,PATCH,DELETE 
+]</pre>
+
+      <span class="file-tag mt-3"><i class="fa-solid fa-folder"></i> blog_app/serializers.py</span>
+<pre class="code-box">from .models import  StudentModel
+from rest_framework import serializers
+
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=StudentModel
+        fields="__all__"</pre>
+
+      <span class="file-tag mt-3"><i class="fa-solid fa-folder"></i> blog_app/models.py</span>
+<pre class="code-box">from django.db import models
+
+# Create your models here.
+class StudentModel(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    city = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name</pre>
+
+      <p class="mt-3 mb-1">Your <code class="inline">urls.py</code> correctly maps two paths to the <strong>same</strong> class:</p>
+      <ul>
+        <li><code class="inline">/students/</code> → no <code class="inline">pk</code> → hits GET (all) and POST</li>
+        <li><code class="inline">/students/&lt;int:pk&gt;/</code> → <code class="inline">pk</code> passed in → hits GET (one), PUT, DELETE</li>
+      </ul>
+      <div class="alert alert-success mb-0">
+        <i class="fa-solid fa-circle-check"></i> This is the correct standard pattern for a single-resource APIView handling full CRUD, and your <code class="inline">delete()</code> already correctly catches <code class="inline">StudentModel.DoesNotExist</code>.
+      </div>
+    </div>
+  </div>
+
+  <!-- Interview tips -->
+  <div class="card section-card shadow">
+    <div class="card-header hdr-dark"><i class="fa-solid fa-user-tie"></i>Interview Tips</div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <strong><i class="fa-solid fa-star text-warning"></i> Q: How does DRF know to call get() for a GET request in APIView?</strong>
+            <p class="mb-0 mt-1 small text-muted">as_view() dispatches based on request.method, matching it to a same-named method on the class (Django's View.dispatch() pattern).</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <strong><i class="fa-solid fa-star text-warning"></i> Q: Why prefer APIView over plain Django View?</strong>
+            <p class="mb-0 mt-1 small text-muted">APIView gives you request.data (parsed), DRF's Response/content negotiation, authentication, permissions, and throttling out of the box.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <strong><i class="fa-solid fa-star text-warning"></i> Q: Can one URL map to two different methods on the same class?</strong>
+            <p class="mb-0 mt-1 small text-muted">Yes — as shown here, /students/ and /students/&lt;pk&gt;/ both point to StudentApi.as_view(); the method + presence of pk decides the branch.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <strong><i class="fa-solid fa-star text-warning"></i> Q: What's the next step up from APIView?</strong>
+            <p class="mb-0 mt-1 small text-muted">GenericAPIView + Mixins (less boilerplate), then fully pre-built generic views like ListCreateAPIView.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <strong><i class="fa-solid fa-star text-warning"></i> Q: Why catch StudentModel.DoesNotExist and not just Exception?</strong>
+            <p class="mb-0 mt-1 small text-muted">Catching the specific exception avoids silently swallowing unrelated bugs (e.g. serializer or DB connection errors) and lets you return an accurate 404.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <strong><i class="fa-solid fa-star text-warning"></i> Q: What does PATCH do differently from PUT?</strong>
+            <p class="mb-0 mt-1 small text-muted">PUT expects the full object (full replace); PATCH allows partial updates — needs serializer(..., partial=True) if you add it.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center py-3">
+    Class-59 Documentation · DRF APIView (Class Based Views)
+  </footer>
+</div>
+
+</body>
+</html>

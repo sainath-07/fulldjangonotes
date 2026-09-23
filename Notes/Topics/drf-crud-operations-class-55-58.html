@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DRF CRUD Operations – Class 55 to 58 Notes</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+
+<style>
+  :root {
+    --ink: #1f2937;
+    --muted: #5b6472;
+    --page: #f3f5f9;
+    --brand: #1d3557;
+    --brand-accent: #2f6fed;
+    --code-bg: #1e2430;
+  }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    background: var(--page);
+    color: var(--ink);
+    line-height: 1.75;
+    font-size: 1.02rem;
+  }
+
+  /* ---------- Sticky navigation ---------- */
+  .topbar { background: var(--brand); box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .topbar .navbar-brand { color: #fff; font-weight: 600; margin-right: 1rem; }
+  .nav-scroll {
+    display: flex; flex-wrap: nowrap; gap: .25rem;
+    overflow-x: auto; scrollbar-width: thin; padding-bottom: 2px;
+  }
+  .topbar .nav-link {
+    color: #cfd8e6; white-space: nowrap;
+    padding: .35rem .7rem; border-radius: .4rem; font-size: .9rem;
+  }
+  .topbar .nav-link:hover { color: #fff; background: rgba(255,255,255,.12); }
+  .topbar .nav-link.active { color: #fff; background: var(--brand-accent); }
+  .topbar .nav-link:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    background: var(--brand); color: #fff;
+    border-radius: .9rem; padding: 2.2rem 2rem;
+    box-shadow: 0 .5rem 1.2rem rgba(29,53,87,.3);
+  }
+  .hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; }
+  .hero p { color: #d6dfec; max-width: 60ch; }
+  .hero .chip {
+    display: inline-block; background: rgba(255,255,255,.14);
+    border-radius: 2rem; padding: .2rem .8rem; margin: 0 .35rem .35rem 0; font-size: .88rem;
+  }
+
+  /* ---------- Sections and cards ---------- */
+  .doc-section { scroll-margin-top: 80px; margin-bottom: 2.2rem; }
+  .doc-section > .card { border: 0; box-shadow: 0 .35rem 1rem rgba(31,41,55,.12); overflow: hidden; }
+  .doc-section .card-header h2 { font-size: 1.3rem; margin: 0; }
+  .sub-card { border: 0; box-shadow: 0 .2rem .6rem rgba(31,41,55,.12); }
+  .sub-card .card-header { font-weight: 600; }
+  h3.part { font-size: 1.1rem; font-weight: 600; margin: 1.6rem 0 .7rem; color: var(--brand); }
+  p { margin-bottom: .85rem; }
+  .lead-sm { color: var(--muted); }
+
+  /* ---------- Alerts ---------- */
+  .alert { border: 0; border-left: 5px solid; border-radius: .5rem; }
+  .alert-info    { border-left-color: #0dcaf0; }
+  .alert-success { border-left-color: #198754; }
+  .alert-warning { border-left-color: #ffc107; }
+  .alert-danger  { border-left-color: #dc3545; }
+  .alert-primary { border-left-color: #0d6efd; }
+  .alert .alert-title { display: block; font-weight: 700; margin-bottom: .25rem; }
+  .alert p:last-child, .alert ul:last-child { margin-bottom: 0; }
+
+  /* ---------- Code blocks ---------- */
+  .code-block { border-radius: .6rem; overflow: hidden; margin: .8rem 0 1.1rem; box-shadow: 0 .2rem .6rem rgba(0,0,0,.2); }
+  .code-title {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #2b3344; color: #cbd5e1;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .85rem;
+    padding: .4rem .8rem;
+  }
+  .code-block pre { margin: 0; background: var(--code-bg); color: #e6edf3; }
+  .code-block pre code {
+    display: block; padding: 1rem; overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: .88rem; line-height: 1.6; background: var(--code-bg);
+  }
+  code.inline { background: #e8edf5; color: #b0246b; padding: .1rem .35rem; border-radius: .3rem; font-size: .9em; }
+
+  /* ---------- Flow diagrams ---------- */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: .5rem; margin: .8rem 0 1rem; }
+  .flow-step {
+    flex: 1 1 130px; background: #fff; border: 2px solid; border-radius: .6rem;
+    padding: .6rem .7rem; text-align: center; font-size: .9rem; line-height: 1.4;
+  }
+  .flow-step small { display: block; color: var(--muted); margin-top: .2rem; }
+  .flow-arrow { align-self: center; font-weight: 700; font-size: 1.4rem; color: #6c757d; }
+  .flow-arrow::before { content: "\2192"; }
+  @media (max-width: 767.98px) {
+    .flow { flex-direction: column; }
+    .flow-arrow::before { content: "\2193"; }
+    .flow-arrow { text-align: center; }
+  }
+  .fs-blue   { border-color: #0d6efd; }
+  .fs-green  { border-color: #198754; }
+  .fs-orange { border-color: #fd7e14; }
+  .fs-purple { border-color: #6f42c1; }
+  .fs-red    { border-color: #dc3545; }
+  .fs-gray   { border-color: #6c757d; }
+
+  .method { min-width: 4.5rem; display: inline-block; text-align: center; }
+  table th { white-space: nowrap; }
+  .accordion-button:not(.collapsed) { background: #e7effe; color: #0a3d91; }
+  footer { color: var(--muted); }
+</style>
+</head>
+
+<body data-bs-spy="scroll" data-bs-target="#topnav" data-bs-root-margin="-80px 0px -65% 0px" tabindex="0">
+
+<!-- ================= STICKY NAV ================= -->
+<nav id="topnav" class="navbar topbar sticky-top">
+  <div class="container d-flex flex-nowrap align-items-center">
+    <a class="navbar-brand" href="#top">DRF CRUD Notes</a>
+    <div class="nav nav-scroll">
+      <a class="nav-link" href="#overview">Overview</a>
+      <a class="nav-link" href="#setup">Setup</a>
+      <a class="nav-link" href="#serializer">Serializer</a>
+      <a class="nav-link" href="#model">Model</a>
+      <a class="nav-link" href="#urls">URLs</a>
+      <a class="nav-link" href="#views">Views</a>
+      <a class="nav-link" href="#get-all">GET all</a>
+      <a class="nav-link" href="#get-one">GET one</a>
+      <a class="nav-link" href="#post">POST</a>
+      <a class="nav-link" href="#update">PUT / PATCH</a>
+      <a class="nav-link" href="#delete">DELETE</a>
+      <a class="nav-link" href="#status">Status codes</a>
+      <a class="nav-link" href="#testing">Testing</a>
+      <a class="nav-link" href="#mistakes">Mistakes</a>
+      <a class="nav-link" href="#interview">Interview</a>
+      <a class="nav-link" href="#revision">Revision</a>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4" id="top">
+
+<!-- ================= HERO ================= -->
+<header class="hero mb-4">
+  <span class="chip">Class 55 to 58</span>
+  <span class="chip">Django REST framework</span>
+  <span class="chip">CRUD operations</span>
+  <h1 class="mt-2">DRF CRUD Operations</h1>
+  <p class="mb-0">Learn what a serializer is, how it works, and how to build Create, Read, Update and Delete APIs step by step. Every topic has a simple definition, a real-life example, and interview tips.</p>
+</header>
+
+<!-- ================= 1. OVERVIEW ================= -->
+<section id="overview" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-primary text-white"><h2>1. Overview: what are we building?</h2></div>
+    <div class="card-body">
+      <p>In classes 55 to 58 we build a complete <strong>CRUD API</strong> with Django REST framework (DRF). CRUD means <strong>C</strong>reate, <strong>R</strong>ead, <strong>U</strong>pdate and <strong>D</strong>elete. These are the four basic actions almost every application performs on its data.</p>
+
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example: the school register</span>
+        <p>Think of a school office register. The clerk can <em>add</em> a new student (Create), <em>look up</em> a student (Read), <em>correct</em> a wrong phone number (Update), or <em>remove</em> a student who left (Delete). Our API does the same work, but for a computer or a mobile app instead of a person.</p>
+      </div>
+
+      <h3 class="part">The five endpoints in our demo</h3>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+          <thead class="table-dark">
+            <tr><th>Action</th><th>HTTP method</th><th>URL</th><th>View function</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Create a student</td><td><span class="badge text-bg-primary method">POST</span></td><td><code class="inline">add_student/</code></td><td><code class="inline">add_student</code></td></tr>
+            <tr><td>Read all students</td><td><span class="badge text-bg-success method">GET</span></td><td><code class="inline">students/</code></td><td><code class="inline">student_list</code></td></tr>
+            <tr><td>Read one student</td><td><span class="badge text-bg-success method">GET</span></td><td><code class="inline">get_student/&lt;pk&gt;/</code></td><td><code class="inline">get_student</code></td></tr>
+            <tr><td>Update a student</td><td><span class="badge text-bg-warning method">PUT</span> <span class="badge text-bg-info method">PATCH</span></td><td><code class="inline">update_student/&lt;pk&gt;/</code></td><td><code class="inline">update_student</code></td></tr>
+            <tr><td>Delete a student</td><td><span class="badge text-bg-danger method">DELETE</span></td><td><code class="inline">delete_student/&lt;pk&gt;/</code></td><td><code class="inline">delete_student</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="part">The journey of one request</h3>
+      <p>Every request passes through the same path. Learn this path once and every CRUD operation becomes easy to follow.</p>
+      <div class="flow">
+        <div class="flow-step fs-blue"><strong>Client</strong><small>Browser, Postman or app</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-purple"><strong>urls.py</strong><small>Finds the right view</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-green"><strong>View</strong><small>@api_view function</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-orange"><strong>Serializer</strong><small>Converts and checks data</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-gray"><strong>Model / DB</strong><small>Stores the data</small></div>
+      </div>
+      <p class="lead-sm mb-0">The answer travels back the same way: the view returns a <code class="inline">Response</code>, and DRF sends it to the client as JSON.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2. SETUP ================= -->
+<section id="setup" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-success text-white"><h2>2. Project setup</h2></div>
+    <div class="card-body">
+      <p>Before writing any code, install DRF and tell Django about it. Django only uses the apps that are listed in <code class="inline">INSTALLED_APPS</code>, so both your own app and the DRF library must be on that list.</p>
+
+      <div class="code-block">
+        <div class="code-title"><span>terminal</span></div>
+        <pre><code class="language-bash">pip install djangorestframework</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-title"><span>innerproject/settings.py</span></div>
+        <pre><code class="language-python">INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'api',             # your own app
+    'rest_framework'   # the DRF library
+]</code></pre>
+      </div>
+
+      <div class="alert alert-warning">
+        <span class="alert-title">Important: register both</span>
+        <p><code class="inline">'api'</code> is the app you created with <code class="inline">startapp</code>. <code class="inline">'rest_framework'</code> is the library you installed with pip. If you forget <code class="inline">'rest_framework'</code>, Django cannot find DRF's templates, such as the browsable API page, and you will see errors like <code class="inline">TemplateDoesNotExist</code>.</p>
+      </div>
+
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example</span>
+        <p><code class="inline">INSTALLED_APPS</code> is like the guest list at a wedding gate. A person who is not on the list cannot enter. In the same way, an app that is not on the list is ignored by Django.</p>
+      </div>
+
+      <p>Next, connect your app's URLs to the main project. Use the same app name you added to <code class="inline">INSTALLED_APPS</code>.</p>
+      <div class="code-block">
+        <div class="code-title"><span>innerproject/urls.py</span></div>
+        <pre><code class="language-python">from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('api.urls')),   # sends all other URLs to the app
+]</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. SERIALIZER ================= -->
+<section id="serializer" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-primary text-white"><h2>3. What is a serializer?</h2></div>
+    <div class="card-body">
+
+      <div class="alert alert-info">
+        <span class="alert-title">Definition</span>
+        <p>A <strong>serializer</strong> is a DRF class that does two jobs. First, it converts Django model objects (and querysets) into simple Python data that can be sent as JSON. Second, it takes incoming JSON data, checks it, and converts it back into a form Django can save in the database.</p>
+      </div>
+
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example 1: the translator</span>
+        <p>Your database speaks "Django objects". A mobile app or website speaks "JSON". They cannot understand each other directly. The serializer stands between them like a translator: it translates in both directions and also checks that nothing wrong is being said.</p>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example 2: packing a parcel</span>
+        <p>When you send a parcel, you pack the items in a box. That is <strong>serialization</strong>. When the parcel arrives, the receiver opens the box and checks every item against the list. That is <strong>deserialization plus validation</strong>. The serializer is the person who packs, opens and checks.</p>
+      </div>
+      <div class="alert alert-primary">
+        <span class="alert-title">If you know JavaScript</span>
+        <p>A serializer is like <code class="inline">JSON.stringify</code> and <code class="inline">JSON.parse</code> combined with a validation schema (similar to Yup or Zod). It converts the data and also checks it.</p>
+      </div>
+
+      <h3 class="part">What does a serializer do?</h3>
+      <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="col">
+          <div class="card sub-card h-100">
+            <div class="card-header bg-success text-white">Serialization</div>
+            <div class="card-body">Turns a model object or queryset into Python data (and then JSON). Used in <strong>GET</strong> requests, when we send data out.</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card sub-card h-100">
+            <div class="card-header bg-primary text-white">Deserialization</div>
+            <div class="card-body">Turns incoming JSON data into Python data. Used in <strong>POST, PUT and PATCH</strong> requests, when we take data in.</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card sub-card h-100">
+            <div class="card-header bg-warning text-dark">Validation</div>
+            <div class="card-body">Checks the incoming data: are all required fields present, is the type correct (a number where a number is needed), is the text too long, is the email unique?</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card sub-card h-100">
+            <div class="card-header bg-danger text-white">Saving</div>
+            <div class="card-body">With <code class="inline">serializer.save()</code> it creates a new record or updates an existing one in the database.</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="part">How does it work?</h3>
+      <p><strong>A. Reading data (GET): database to JSON</strong></p>
+      <div class="flow">
+        <div class="flow-step fs-gray"><strong>Database</strong><small>Student rows</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-green"><strong>Model objects</strong><small>StudentModel</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-orange"><strong>Serializer</strong><small>Reads each field</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-purple"><strong>serializer.data</strong><small>Python dictionary</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-blue"><strong>Response</strong><small>JSON to client</small></div>
+      </div>
+
+      <p><strong>B. Writing data (POST, PUT, PATCH): JSON to database</strong></p>
+      <div class="flow">
+        <div class="flow-step fs-blue"><strong>Client</strong><small>Sends JSON</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-purple"><strong>request.data</strong><small>Parsed by DRF</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-orange"><strong>Serializer</strong><small>data=request.data</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-red"><strong>is_valid()</strong><small>Checks the data</small></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step fs-green"><strong>save()</strong><small>Writes to the database</small></div>
+      </div>
+      <p class="lead-sm">If <code class="inline">is_valid()</code> fails, nothing is saved. The serializer keeps the problems in <code class="inline">serializer.errors</code>, and the view sends them back with status 400.</p>
+
+      <h3 class="part">Same data, three forms</h3>
+      <div class="code-block">
+        <div class="code-title"><span>what the serializer converts</span></div>
+        <pre><code class="language-python"># 1. A model object (what the database gives us)
+student = StudentModel(id=1, name='Ravi', age=21)
+
+# 2. After the serializer (serializer.data): a Python dictionary
+{'id': 1, 'name': 'Ravi', 'age': 21}
+
+# 3. After Response(...): JSON text sent over the internet
+# {"id": 1, "name": "Ravi", "age": 21}</code></pre>
+      </div>
+
+      <h3 class="part">The serializer parts you will use most</h3>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+          <thead class="table-dark"><tr><th>Part</th><th>Meaning</th><th>Simple example</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inline">StudentSerializer(obj)</code></td><td>Serialize one existing object</td><td>Show one student</td></tr>
+            <tr><td><code class="inline">many=True</code></td><td>We are giving a list of objects, not one</td><td>Show the whole class register</td></tr>
+            <tr><td><code class="inline">data=request.data</code></td><td>We are giving incoming data to be checked</td><td>A new admission form</td></tr>
+            <tr><td><code class="inline">is_valid()</code></td><td>Runs all the checks. Returns True or False</td><td>Clerk checks the form</td></tr>
+            <tr><td><code class="inline">serializer.data</code></td><td>The final Python data, ready for Response</td><td>The packed parcel</td></tr>
+            <tr><td><code class="inline">serializer.errors</code></td><td>A dictionary of what went wrong</td><td>Clerk's remarks on the form</td></tr>
+            <tr><td><code class="inline">save()</code></td><td>Creates or updates the record</td><td>Filing the form in the register</td></tr>
+            <tr><td><code class="inline">partial=True</code></td><td>Allow only some fields (used with PATCH)</td><td>Correct one word only</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-primary">
+        <span class="alert-title">🎯 Interview tip</span>
+        <p>Give a one-line answer first: "A serializer converts complex data like model objects to JSON and back, and it also validates incoming data." Then add the parcel or translator example. Interviewers like short definitions followed by a simple example.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4. MODEL ================= -->
+<section id="model" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-info text-dark"><h2>4. Model and serializer files</h2></div>
+    <div class="card-body">
+      <div class="alert alert-warning">
+        <span class="alert-title">Note</span>
+        <p>The demo code shared with these notes does not include <code class="inline">models.py</code> and <code class="inline">serializers.py</code>. The files below are a typical example so that the demo can run. Use the fields from your own class code.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-title"><span>api/models.py (example)</span></div>
+        <pre><code class="language-python">from django.db import models
+
+class StudentModel(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField(unique=True)
+
+    def __str__(self):
+        return self.name</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-title"><span>api/serializers.py (example)</span></div>
+        <pre><code class="language-python">from rest_framework import serializers
+from .models import StudentModel
+
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentModel
+        fields = '__all__'</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-title"><span>terminal</span></div>
+        <pre><code class="language-bash">python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver</code></pre>
+      </div>
+
+      <h3 class="part">Line by line</h3>
+      <ul>
+        <li><code class="inline">ModelSerializer</code> is a shortcut. It reads your model and creates the serializer fields for you. It also gives you ready-made <code class="inline">create()</code> and <code class="inline">update()</code> methods.</li>
+        <li><code class="inline">class Meta</code> holds the settings for the serializer.</li>
+        <li><code class="inline">model = StudentModel</code> tells the serializer which model to use.</li>
+        <li><code class="inline">fields = '__all__'</code> means "include every field of the model". You can also give a list, such as <code class="inline">['id', 'name']</code>, to send only some fields.</li>
+      </ul>
+
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example</span>
+        <p>A plain <code class="inline">Serializer</code> is like writing every field on a form by hand. A <code class="inline">ModelSerializer</code> is like printing the form automatically from a template you already have, which is your model.</p>
+      </div>
+
+      <div class="alert alert-primary">
+        <span class="alert-title">🎯 Interview tip</span>
+        <p>Question: "Serializer or ModelSerializer?" Answer: "ModelSerializer writes less code because it builds the fields and the create and update methods from the model. I use a plain Serializer when the data does not match a model exactly."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5. URLS ================= -->
+<section id="urls" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-dark text-white"><h2>5. URL routing</h2></div>
+    <div class="card-body">
+      <p>The URL file decides which view runs for which address. Each <code class="inline">path()</code> has three parts: the address, the view function, and a name.</p>
+
+      <div class="code-block">
+        <div class="code-title"><span>api_app/urls.py</span></div>
+        <pre><code class="language-python">from . import views
+from django.urls import path
+
+urlpatterns = [
+    path('students/', views.student_list, name='student_list'),
+    path('get_student/&lt;int:pk&gt;/', views.get_student, name='get_student'),
+    path('add_student/', views.add_student, name='add_student'),
+    path('delete_student/&lt;int:pk&gt;/', views.delete_student, name='delete_student'),
+    path('update_student/&lt;int:pk&gt;/', views.update_student, name='update_student'),
+]</code></pre>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-title">What is &lt;int:pk&gt;?</span>
+        <p><code class="inline">pk</code> means <strong>primary key</strong>, which is the unique id of a record. <code class="inline">int</code> means only whole numbers are allowed. So <code class="inline">get_student/5/</code> works, but <code class="inline">get_student/abc/</code> does not match and gives a 404 error.</p>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example</span>
+        <p><code class="inline">pk</code> is like a student's roll number. To find one student in a big register, you do not say the name. You say the roll number, because it is unique.</p>
+      </div>
+      <div class="alert alert-primary">
+        <span class="alert-title">🎯 Interview tip</span>
+        <p>In this demo the action is written in the URL (<code class="inline">add_student</code>, <code class="inline">delete_student</code>). This is good for learning. In real REST design, the URL names the resource (<code class="inline">/students/</code> and <code class="inline">/students/5/</code>) and the HTTP method says the action. DRF ViewSets and routers build such URLs automatically. Mentioning this shows you know the next step.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6. VIEWS INTRO ================= -->
+<section id="views" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-secondary text-white"><h2>6. Views: imports and the @api_view decorator</h2></div>
+    <div class="card-body">
+      <div class="code-block">
+        <div class="code-title"><span>api_app/views.py (top of the file)</span></div>
+        <pre><code class="language-python">from django.shortcuts import render
+from rest_framework.decorators import api_view
+from .models import StudentModel
+from .serializers import StudentSerializer
+from rest_framework.response import Response
+from rest_framework import status</code></pre>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+          <thead class="table-dark"><tr><th>Import</th><th>Why we need it</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inline">api_view</code></td><td>Turns a normal Python function into a DRF API view</td></tr>
+            <tr><td><code class="inline">StudentModel</code></td><td>Lets us read and write student records in the database</td></tr>
+            <tr><td><code class="inline">StudentSerializer</code></td><td>Converts and validates student data</td></tr>
+            <tr><td><code class="inline">Response</code></td><td>Sends data back to the client, usually as JSON</td></tr>
+            <tr><td><code class="inline">status</code></td><td>Gives readable names for status codes, such as <code class="inline">status.HTTP_201_CREATED</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-title">What does @api_view do?</span>
+        <p>The <code class="inline">@api_view(['GET'])</code> decorator does three things. It allows only the HTTP methods you list (other methods get a 405 error). It gives you a DRF <code class="inline">request</code> object with <code class="inline">request.data</code>. And it lets you return a DRF <code class="inline">Response</code>.</p>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example</span>
+        <p>It works like a security guard at the office door. The guard has a list that says "only visitors with an appointment for this counter may enter". Anyone else is politely sent away.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7. GET ALL ================= -->
+<section id="get-all" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-success text-white"><h2><span class="badge text-bg-light me-2">GET</span> 7. Read all students</h2></div>
+    <div class="card-body">
+      <p>This view returns the full list of students. It is the "Read" part of CRUD.</p>
+
+      <div class="code-block">
+        <div class="code-title"><span>api_app/views.py</span></div>
+        <pre><code class="language-python">@api_view(['GET'])
+def student_list(request):
+    students = StudentModel.objects.all()
+    serializer = StudentSerializer(students, many=True)
+    return Response(serializer.data)</code></pre>
+      </div>
+
+      <h3 class="part">Step by step</h3>
+      <ol>
+        <li><code class="inline">StudentModel.objects.all()</code> gets every student from the database. The result is called a <strong>queryset</strong> (a list-like collection of objects).</li>
+        <li><code class="inline">StudentSerializer(students, many=True)</code> converts all of them into Python data.</li>
+        <li><code class="inline">Response(serializer.data)</code> sends the data back as JSON.</li>
+      </ol>
+
+      <div class="alert alert-warning">
+        <span class="alert-title">A small correction about many=True</span>
+        <p>The class comment says <code class="inline">many=True</code> means "many fields". That is not correct. <code class="inline">many=True</code> means <strong>many objects</strong>, in other words a list or queryset of students. The serializer already knows all the fields from its <code class="inline">Meta</code> class.</p>
+        <p>Use <code class="inline">many=True</code> when you pass a queryset. Do not use it when you pass a single object.</p>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example</span>
+        <p>One student's admission form is a single object. The whole class register has many students. <code class="inline">many=True</code> tells the serializer: "This is the full register, so please handle every row."</p>
+      </div>
+
+      <h3 class="part">Sample response (status 200 OK)</h3>
+      <div class="code-block">
+        <div class="code-title"><span>JSON</span></div>
+        <pre><code class="language-json">[
+  { "id": 1, "name": "Ravi",  "age": 21, "email": "ravi@example.com" },
+  { "id": 2, "name": "Anita", "age": 22, "email": "anita@example.com" }
+]</code></pre>
+      </div>
+
+      <div class="alert alert-primary">
+        <span class="alert-title">🎯 Interview tip</span>
+        <p>Question: "What happens if you forget <code class="inline">many=True</code> with a queryset?" Answer: "The serializer expects one object, so it raises an error or gives wrong output. A queryset needs <code class="inline">many=True</code>."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 8. GET ONE ================= -->
+<section id="get-one" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-success text-white"><h2><span class="badge text-bg-light me-2">GET</span> 8. Read one student</h2></div>
+    <div class="card-body">
+      <p>This view returns one student. The id comes from the URL, for example <code class="inline">get_student/1/</code>.</p>
+
+      <div class="code-block">
+        <div class="code-title"><span>api_app/views.py (class version)</span></div>
+        <pre><code class="language-python">@api_view(['GET'])
+def get_student(request, pk):
+    student = StudentModel.objects.get(id=pk)
+    serializer = StudentSerializer(student)
+    return Response(serializer.data)</code></pre>
+      </div>
+
+      <p>Here there is no <code class="inline">many=True</code>, because we give the serializer only one object.</p>
+
+      <div class="alert alert-danger">
+        <span class="alert-title">What if the student does not exist?</span>
+        <p><code class="inline">.get()</code> raises a <code class="inline">DoesNotExist</code> error when nothing matches. In the code above nobody catches it, so the API crashes with a 500 server error instead of a friendly message.</p>
+      </div>
+
+      <p><strong>Better version:</strong> handle the missing student and return 404, exactly as the update and delete views do.</p>
+      <div class="code-block">
+        <div class="code-title"><span>api_app/views.py (improved)</span></div>
+        <pre><code class="language-python">@api_view(['GET'])
+def get_student(request, pk):
+    try:
+        student = StudentModel.objects.get(id=pk)
+    except StudentModel.DoesNotExist:
+        return Response({'error': 'student not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = StudentSerializer(student)
+    return Response(serializer.data)</code></pre>
+      </div>
+
+      <div class="alert alert-primary">
+        <span class="alert-title">🎯 Interview tip</span>
+        <p>Say that a good API never lets the user see a server crash. It returns a clear 404 for "not found". You can also mention the shortcut <code class="inline">get_object_or_404()</code> from Django.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 9. POST ================= -->
+<section id="post" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-primary text-white"><h2><span class="badge text-bg-light me-2">POST</span> 9. Create a student</h2></div>
+    <div class="card-body">
+      <p>This view receives new student data from the client, checks it, and saves it. It is the "Create" part of CRUD.</p>
+
+      <div class="code-block">
+        <div class="code-title"><span>api_app/views.py</span></div>
+        <pre><code class="language-python">@api_view(['POST'])
+def add_student(request):
+    serializer = StudentSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
+      </div>
+
+      <h3 class="part">Step by step</h3>
+      <ol>
+        <li>The client sends JSON in the request body. DRF reads it into <code class="inline">request.data</code>.</li>
+        <li><code class="inline">StudentSerializer(data=request.data)</code> gives the data to the serializer. The word <code class="inline">data=</code> is important. It tells the serializer "this is new data to check".</li>
+        <li><code class="inline">is_valid()</code> runs all the checks.</li>
+        <li>If valid, <code class="inline">save()</code> adds a new row to the database. We return the saved data with status <strong>201 Created</strong>.</li>
+        <li>If not valid, we return <code class="inline">serializer.errors</code> with status <strong>400 Bad Request</strong>.</li>
+      </ol>
+
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example: the bank counter</span>
+        <p>You fill a form and give it to the bank clerk. The clerk checks it first: is the name written, is the phone number correct? If everything is fine, the clerk files it (201 Created). If something is missing, the clerk hands it back with remarks (400 Bad Request). The clerk never files a wrong form.</p>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card sub-card h-100">
+            <div class="card-header bg-success text-white">Request body</div>
+            <div class="card-body p-0">
+              <div class="code-block m-0" style="border-radius:0; box-shadow:none;">
+                <pre><code class="language-json">{
+  "name": "Ravi",
+  "age": 21,
+  "email": "ravi@example.com"
+}</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card sub-card h-100">
+            <div class="card-header bg-success text-white">Success: 201 Created</div>
+            <div class="card-body p-0">
+              <div class="code-block m-0" style="border-radius:0; box-shadow:none;">
+                <pre><code class="language-json">{
+  "id": 3,
+  "name": "Ravi",
+  "age": 21,
+  "email": "ravi@example.com"
+}</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="card sub-card">
+            <div class="card-header bg-danger text-white">Failure: 400 Bad Request (email was missing, age was not a number)</div>
+            <div class="card-body p-0">
+              <div class="code-block m-0" style="border-radius:0; box-shadow:none;">
+                <pre><code class="language-json">{
+  "age": ["A valid integer is required."],
+  "email": ["This field is required."]
+}</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-primary mt-3">
+        <span class="alert-title">🎯 Interview tip</span>
+        <p>Remember the pattern: <strong>serializer with data, is_valid, save, Response</strong>. Explain why 201 is used for a successful create (not 200), and why 400 is used for wrong input.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 10. PUT / PATCH ================= -->
+<section id="update" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-warning text-dark"><h2><span class="badge text-bg-dark me-2">PUT</span><span class="badge text-bg-dark me-2">PATCH</span> 10. Update a student</h2></div>
+    <div class="card-body">
+      <p>This view changes an existing student. One view handles both PUT and PATCH, and it uses <code class="inline">request.method</code> to see which one was used.</p>
+
+      <div class="code-block">
+        <div class="code-title"><span>api_app/views.py (corrected)</span></div>
+        <pre><code class="language-python">@api_view(['PUT', 'PATCH'])
+def update_student(request, pk):
+    try:
+        student = StudentModel.objects.get(id=pk)
+    except StudentModel.DoesNotExist:
+        return Response({'error': 'student not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        serializer = StudentSerializer(student, data=request.data, partial=True)
+    else:
+        serializer = StudentSerializer(student, data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
+      </div>
+
+      <div class="alert alert-danger">
+        <span class="alert-title">Bug fixed in the last line</span>
+        <p>In the class code, the last line was <code class="inline">status=HTTP_400_BAD_REQUEST</code>. That name does not exist on its own, so Python raises a <code class="inline">NameError</code> the moment invalid data is sent. The correct form is <code class="inline">status=status.HTTP_400_BAD_REQUEST</code>, with the <code class="inline">status.</code> prefix.</p>
+      </div>
+
+      <h3 class="part">The most important idea: passing the existing object</h3>
+      <p>Look at <code class="inline">StudentSerializer(student, data=request.data)</code>. The first argument is the <strong>existing student</strong>. Because of this, <code class="inline">save()</code> knows it must <em>update</em> that record. In the POST view there was no existing object, so <code class="inline">save()</code> created a new one.</p>
+
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-dark"><tr><th>How the serializer is created</th><th>What save() does</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inline">StudentSerializer(data=...)</code></td><td>Creates a new record (INSERT)</td></tr>
+            <tr><td><code class="inline">StudentSerializer(student, data=...)</code></td><td>Updates the existing record (UPDATE)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="part">PUT and PATCH: what is the difference?</h3>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+          <thead class="table-dark"><tr><th></th><th>PUT</th><th>PATCH</th></tr></thead>
+          <tbody>
+            <tr><th>Meaning</th><td>Replace the whole record</td><td>Change only some fields</td></tr>
+            <tr><th>Data you must send</th><td>All required fields</td><td>Only the fields that change</td></tr>
+            <tr><th>In our code</th><td>No <code class="inline">partial</code></td><td><code class="inline">partial=True</code></td></tr>
+            <tr><th>Missing field</th><td>Gives a 400 error</td><td>Allowed, the old value stays</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example</span>
+        <p><strong>PUT</strong> is like tearing out a page of your notebook and writing the whole page again. <strong>PATCH</strong> is like taking a pen and correcting one wrong word on the same page.</p>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card sub-card h-100">
+            <div class="card-header bg-warning text-dark">PUT request body (all fields)</div>
+            <div class="card-body p-0">
+              <div class="code-block m-0" style="border-radius:0; box-shadow:none;">
+                <pre><code class="language-json">{
+  "name": "Ravi Kumar",
+  "age": 22,
+  "email": "ravi@example.com"
+}</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card sub-card h-100">
+            <div class="card-header bg-info text-dark">PATCH request body (one field)</div>
+            <div class="card-body p-0">
+              <div class="code-block m-0" style="border-radius:0; box-shadow:none;">
+                <pre><code class="language-json">{
+  "age": 22
+}</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-primary mt-3">
+        <span class="alert-title">🎯 Interview tip</span>
+        <p>Two favourite questions: "PUT vs PATCH?" and "How does <code class="inline">save()</code> know whether to create or update?" The answers are in the two tables above. Also say what <code class="inline">partial=True</code> does: it makes all fields optional for that request.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 11. DELETE ================= -->
+<section id="delete" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-danger text-white"><h2><span class="badge text-bg-light me-2">DELETE</span> 11. Delete a student</h2></div>
+    <div class="card-body">
+      <p>This view removes a student from the database. It is the "Delete" part of CRUD.</p>
+
+      <div class="code-block">
+        <div class="code-title"><span>api_app/views.py</span></div>
+        <pre><code class="language-python">@api_view(['DELETE'])
+def delete_student(request, pk):
+    try:
+        student = StudentModel.objects.get(id=pk)
+    except StudentModel.DoesNotExist:
+        return Response({'error': 'student not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    student.delete()
+    return Response({'message': 'student deleted successfully'}, status=status.HTTP_204_NO_CONTENT)</code></pre>
+      </div>
+
+      <h3 class="part">Step by step</h3>
+      <ol>
+        <li>Find the student by <code class="inline">pk</code>. If there is none, return 404.</li>
+        <li><code class="inline">student.delete()</code> removes the row from the database.</li>
+        <li>Return a success response.</li>
+      </ol>
+      <p>Notice that no serializer is needed here. We are not converting or checking any data, we are only removing a record.</p>
+
+      <div class="alert alert-warning">
+        <span class="alert-title">About status 204</span>
+        <p><strong>204 No Content</strong> means "the job is done and I have nothing to send back". By HTTP rules a 204 response has no body, so the message <em>student deleted successfully</em> may never reach the client. If you want the client to see the message, return <code class="inline">status.HTTP_200_OK</code> instead. If you keep 204, send an empty <code class="inline">Response(status=status.HTTP_204_NO_CONTENT)</code>.</p>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-title">Layman example</span>
+        <p>A student leaves the school, and the clerk crosses the name out of the register. If the name is not in the register at all, the clerk says "no such student" (404).</p>
+      </div>
+      <div class="alert alert-primary">
+        <span class="alert-title">🎯 Interview tip</span>
+        <p>Good to know: in real projects, many teams do a <em>soft delete</em>. They mark the record as inactive instead of removing it, so the data can be recovered later.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 12. STATUS CODES ================= -->
+<section id="status" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-dark text-white"><h2>12. HTTP status codes used in this demo</h2></div>
+    <div class="card-body">
+      <p>A status code is a short number the server sends to say how the request went. Think of it as a receipt or a traffic signal for the request.</p>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+          <thead class="table-dark"><tr><th>Code</th><th>DRF name</th><th>Meaning</th><th>Used in</th></tr></thead>
+          <tbody>
+            <tr class="table-success"><td>200</td><td><code class="inline">HTTP_200_OK</code></td><td>Request worked</td><td>GET, PUT, PATCH</td></tr>
+            <tr class="table-success"><td>201</td><td><code class="inline">HTTP_201_CREATED</code></td><td>New record created</td><td>POST</td></tr>
+            <tr class="table-success"><td>204</td><td><code class="inline">HTTP_204_NO_CONTENT</code></td><td>Done, nothing to send back</td><td>DELETE</td></tr>
+            <tr class="table-warning"><td>400</td><td><code class="inline">HTTP_400_BAD_REQUEST</code></td><td>The data sent was wrong</td><td>POST, PUT, PATCH</td></tr>
+            <tr class="table-warning"><td>404</td><td><code class="inline">HTTP_404_NOT_FOUND</code></td><td>Record does not exist</td><td>GET one, PUT, PATCH, DELETE</td></tr>
+            <tr class="table-warning"><td>405</td><td><code class="inline">HTTP_405_METHOD_NOT_ALLOWED</code></td><td>Wrong method for this URL</td><td>Sent automatically by @api_view</td></tr>
+            <tr class="table-danger"><td>500</td><td><code class="inline">HTTP_500_INTERNAL_SERVER_ERROR</code></td><td>The server code crashed</td><td>Any unhandled error</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-info mb-0">
+        <span class="alert-title">Easy way to remember</span>
+        <p class="mb-0">2xx means success. 4xx means the client made a mistake. 5xx means the server made a mistake.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 13. TESTING ================= -->
+<section id="testing" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-info text-dark"><h2>13. How to test the APIs</h2></div>
+    <div class="card-body">
+      <p>Start the server with <code class="inline">python manage.py runserver</code>. You can then test the endpoints in three ways.</p>
+      <ul>
+        <li><strong>Browser:</strong> open <code class="inline">http://127.0.0.1:8000/students/</code>. DRF shows a readable page called the browsable API. GET URLs work directly.</li>
+        <li><strong>Postman or Thunder Client:</strong> best for POST, PUT, PATCH and DELETE. For POST and PUT, choose Body, then raw, then JSON.</li>
+        <li><strong>curl:</strong> use the commands below in a terminal.</li>
+      </ul>
+
+      <div class="code-block">
+        <div class="code-title"><span>terminal (curl)</span></div>
+        <pre><code class="language-bash"># Read all
+curl http://127.0.0.1:8000/students/
+
+# Read one
+curl http://127.0.0.1:8000/get_student/1/
+
+# Create
+curl -X POST http://127.0.0.1:8000/add_student/ \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Ravi","age":21,"email":"ravi@example.com"}'
+
+# Update everything (PUT)
+curl -X PUT http://127.0.0.1:8000/update_student/1/ \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Ravi Kumar","age":22,"email":"ravi@example.com"}'
+
+# Update one field (PATCH)
+curl -X PATCH http://127.0.0.1:8000/update_student/1/ \
+  -H "Content-Type: application/json" \
+  -d '{"age":22}'
+
+# Delete
+curl -X DELETE http://127.0.0.1:8000/delete_student/1/</code></pre>
+      </div>
+
+      <div class="alert alert-warning mb-0">
+        <span class="alert-title">Tip for Windows Command Prompt</span>
+        <p class="mb-0">Single quotes around JSON do not work in Command Prompt, and the <code class="inline">\</code> line breaks are for Linux and Mac. On Windows, use Postman, or put the whole command on one line with double quotes escaped like <code class="inline">\"</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 14. MISTAKES ================= -->
+<section id="mistakes" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-danger text-white"><h2>14. Common mistakes and how to fix them</h2></div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+          <thead class="table-dark"><tr><th>Mistake</th><th>What happens</th><th>Fix</th></tr></thead>
+          <tbody>
+            <tr><td>Forgot <code class="inline">'rest_framework'</code> in <code class="inline">INSTALLED_APPS</code></td><td>Template errors, such as <code class="inline">TemplateDoesNotExist</code></td><td>Add it to the list</td></tr>
+            <tr><td>Wrote <code class="inline">StudentSerializer(request.data)</code> without <code class="inline">data=</code></td><td>The serializer treats it as an existing object, so validation and saving do not work</td><td>Write <code class="inline">data=request.data</code></td></tr>
+            <tr><td>Called <code class="inline">save()</code> before <code class="inline">is_valid()</code></td><td>An assertion error asks you to call <code class="inline">is_valid()</code> first</td><td>Always check <code class="inline">is_valid()</code> first</td></tr>
+            <tr><td>Forgot <code class="inline">many=True</code> for a queryset</td><td>Error or wrong output</td><td>Add <code class="inline">many=True</code></td></tr>
+            <tr><td>Wrote <code class="inline">HTTP_400_BAD_REQUEST</code> without <code class="inline">status.</code></td><td><code class="inline">NameError</code></td><td>Write <code class="inline">status.HTTP_400_BAD_REQUEST</code></td></tr>
+            <tr><td>Used <code class="inline">.get()</code> without try and except</td><td>500 crash when the id does not exist</td><td>Catch <code class="inline">DoesNotExist</code> and return 404</td></tr>
+            <tr><td>Left out the trailing slash in the URL</td><td>404 error (or a redirect problem for POST)</td><td>Our URLs end with <code class="inline">/</code>, so always type it</td></tr>
+            <tr><td>Used the wrong HTTP method</td><td>405 Method Not Allowed</td><td>Match the method with the one in <code class="inline">@api_view</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 15. INTERVIEW ================= -->
+<section id="interview" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-primary text-white"><h2>15. Interview questions and answers</h2></div>
+    <div class="card-body">
+      <div class="accordion" id="qaAccordion">
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">1. What is a serializer in DRF?</button></h3>
+          <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#qaAccordion">
+            <div class="accordion-body">A serializer converts model objects and querysets into Python data that can be sent as JSON. It also converts incoming JSON into validated Python data that can be saved in the database. <em>Example: it is a translator and a checker between the database and the client.</em></div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">2. What is the difference between serialization and deserialization?</button></h3>
+          <div id="q2" class="accordion-collapse collapse" data-bs-parent="#qaAccordion">
+            <div class="accordion-body">Serialization converts an object into JSON-ready data (used in GET). Deserialization converts incoming JSON into Python data (used in POST, PUT and PATCH). <em>Memory trick: serialize means send out, deserialize means take in.</em></div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">3. Serializer or ModelSerializer: what is the difference?</button></h3>
+          <div id="q3" class="accordion-collapse collapse" data-bs-parent="#qaAccordion">
+            <div class="accordion-body">With <code class="inline">Serializer</code> you declare each field yourself and write <code class="inline">create()</code> and <code class="inline">update()</code>. With <code class="inline">ModelSerializer</code>, DRF builds the fields from the model and gives you default <code class="inline">create()</code> and <code class="inline">update()</code>. It means less code.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4">4. What does many=True do?</button></h3>
+          <div id="q4" class="accordion-collapse collapse" data-bs-parent="#qaAccordion">
+            <div class="accordion-body">It tells the serializer that it receives a list or queryset of objects instead of one object. It is about the number of objects, not the number of fields.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5">5. Why do we call is_valid() before save()?</button></h3>
+          <div id="q5" class="accordion-collapse collapse" data-bs-parent="#qaAccordion">
+            <div class="accordion-body"><code class="inline">is_valid()</code> runs the checks on the incoming data. DRF forces you to call it: if you call <code class="inline">save()</code> first, it raises an assertion error. This protects the database from bad data.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q6">6. PUT vs PATCH?</button></h3>
+          <div id="q6" class="accordion-collapse collapse" data-bs-parent="#qaAccordion">
+            <div class="accordion-body">PUT replaces the whole record, so all required fields must be sent. PATCH updates only the fields you send. In DRF, PATCH is done with <code class="inline">partial=True</code>.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q7">7. How does save() know whether to create or update?</button></h3>
+          <div id="q7" class="accordion-collapse collapse" data-bs-parent="#qaAccordion">
+            <div class="accordion-body">If the serializer was created with an existing object (<code class="inline">StudentSerializer(student, data=...)</code>), <code class="inline">save()</code> calls <code class="inline">update()</code>. If there is no existing object, it calls <code class="inline">create()</code>.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q8">8. What does @api_view do?</button></h3>
+          <div id="q8" class="accordion-collapse collapse" data-bs-parent="#qaAccordion">
+            <div class="accordion-body">It converts a normal function into a DRF API view. It restricts the allowed HTTP methods, provides <code class="inline">request.data</code>, and lets us return a DRF <code class="inline">Response</code>.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q9">9. Why use Response instead of JsonResponse?</button></h3>
+          <div id="q9" class="accordion-collapse collapse" data-bs-parent="#qaAccordion">
+            <div class="accordion-body">DRF's <code class="inline">Response</code> chooses the output format based on what the client asks for. It can give JSON to an app and the browsable API page to a browser. It also works smoothly with status codes.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q10">10. Which status codes do you use for CRUD?</button></h3>
+          <div id="q10" class="accordion-collapse collapse" data-bs-parent="#qaAccordion">
+            <div class="accordion-body">200 for a successful read or update, 201 for create, 204 for delete (no content), 400 for invalid data, and 404 when the record is not found.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q11">11. Function-based views or class-based views: which is better?</button></h3>
+          <div id="q11" class="accordion-collapse collapse" data-bs-parent="#qaAccordion">
+            <div class="accordion-body">Function-based views (like ours) are simple and easy to read, which is good for learning. Class-based views, generic views and ViewSets reduce repeated code, and routers can create the URLs automatically. Large projects usually prefer ViewSets.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 16. REVISION ================= -->
+<section id="revision" class="doc-section">
+  <div class="card">
+    <div class="card-header bg-success text-white"><h2>16. Quick revision</h2></div>
+    <div class="card-body">
+      <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="col">
+          <div class="card sub-card h-100">
+            <div class="card-header bg-primary text-white">Patterns to remember</div>
+            <div class="card-body">
+              <ul class="mb-0">
+                <li><strong>GET all:</strong> <code class="inline">.all()</code>, serializer with <code class="inline">many=True</code>, Response</li>
+                <li><strong>GET one:</strong> <code class="inline">.get(id=pk)</code>, serializer, Response</li>
+                <li><strong>POST:</strong> <code class="inline">data=request.data</code>, <code class="inline">is_valid()</code>, <code class="inline">save()</code>, 201</li>
+                <li><strong>PUT / PATCH:</strong> pass the object and data, PATCH uses <code class="inline">partial=True</code></li>
+                <li><strong>DELETE:</strong> find the object, <code class="inline">.delete()</code>, Response</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card sub-card h-100">
+            <div class="card-header bg-danger text-white">Golden rules</div>
+            <div class="card-body">
+              <ul class="mb-0">
+                <li>Register <code class="inline">api</code> and <code class="inline">rest_framework</code> in settings.</li>
+                <li>Always use <code class="inline">data=</code> for incoming data.</li>
+                <li>Always call <code class="inline">is_valid()</code> before <code class="inline">save()</code>.</li>
+                <li>Handle "not found" with a 404, never a crash.</li>
+                <li>Use <code class="inline">status.</code> before every status name.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion mt-4" id="fullCode">
+        <div class="accordion-item">
+          <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fullViews">Show the complete views.py (with the fixes applied)</button></h3>
+          <div id="fullViews" class="accordion-collapse collapse" data-bs-parent="#fullCode">
+            <div class="accordion-body">
+              <div class="code-block">
+                <div class="code-title"><span>api_app/views.py</span></div>
+                <pre><code class="language-python">from django.shortcuts import render
+from rest_framework.decorators import api_view
+from .models import StudentModel
+from .serializers import StudentSerializer
+from rest_framework.response import Response
+from rest_framework import status
+
+
+# GET all students
+@api_view(['GET'])
+def student_list(request):
+    students = StudentModel.objects.all()
+    serializer = StudentSerializer(students, many=True)   # many=True: many objects
+    return Response(serializer.data)
+
+
+# GET one student
+@api_view(['GET'])
+def get_student(request, pk):
+    try:
+        student = StudentModel.objects.get(id=pk)
+    except StudentModel.DoesNotExist:
+        return Response({'error': 'student not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = StudentSerializer(student)
+    return Response(serializer.data)
+
+
+# POST: create a student
+@api_view(['POST'])
+def add_student(request):
+    serializer = StudentSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# PUT / PATCH: update a student
+@api_view(['PUT', 'PATCH'])
+def update_student(request, pk):
+    try:
+        student = StudentModel.objects.get(id=pk)
+    except StudentModel.DoesNotExist:
+        return Response({'error': 'student not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        serializer = StudentSerializer(student, data=request.data, partial=True)
+    else:
+        serializer = StudentSerializer(student, data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# DELETE: remove a student
+@api_view(['DELETE'])
+def delete_student(request, pk):
+    try:
+        student = StudentModel.objects.get(id=pk)
+    except StudentModel.DoesNotExist:
+        return Response({'error': 'student not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    student.delete()
+    return Response({'message': 'student deleted successfully'}, status=status.HTTP_204_NO_CONTENT)</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="text-center py-4 small">
+  DRF CRUD Operations · Class 55 to 58 study notes
+</footer>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  // Syntax colours (skipped quietly if the CDN file is not available)
+  if (window.hljs) { hljs.highlightAll(); }
+
+  // Add a copy button to every code block that has a title bar
+  document.querySelectorAll('.code-block').forEach(function (block) {
+    var title = block.querySelector('.code-title');
+    if (!title) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-sm btn-outline-light py-0';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', function () {
+      var text = block.querySelector('code').innerText;
+      var done = function () {
+        btn.textContent = 'Copied';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {});
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        done();
+      }
+    });
+    title.appendChild(btn);
+  });
+</script>
+</body>
+</html>

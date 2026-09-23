@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class 47 - Sending Mail with Django Signals</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+:root{--nav:#182235;--soft:#f5f7fb;--border:#e3e7ef}
+html{scroll-behavior:smooth}
+body{background:var(--soft);color:#202633;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.65}
+.navbar{background:var(--nav);position:sticky;top:0;z-index:1050;box-shadow:0 2px 12px #0003}
+.navbar-brand{font-weight:700}
+.page-wrap{max-width:1500px;margin:auto}
+main{padding:28px}
+.card{border:0;border-radius:14px;box-shadow:0 5px 20px #17203314;margin-bottom:24px}
+.card-header{border:0;border-radius:14px 14px 0 0!important;font-weight:700}
+.codebox{background:#101827;color:#e8eef8;border-radius:12px;padding:18px;overflow:auto;font-size:.86rem;line-height:1.55}
+pre{margin:0}
+.badge-soft{background:#eaf3ff;color:#084298}
+.alert{border:0;border-radius:10px}
+.diagram{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;background:#f8f9fa;border-radius:12px;padding:20px}
+.diagram-box{background:#fff;border:1px solid #ced4da;border-radius:10px;padding:13px 17px;text-align:center;font-weight:600;min-width:145px}
+.arrow{font-size:1.4rem;color:#6c757d}
+.step{display:flex;gap:14px;margin:15px 0}
+.num{min-width:35px;height:35px;border-radius:50%;background:#0d6efd;color:#fff;display:grid;place-items:center;font-weight:700}
+.interview{border-left:5px solid #198754;background:#eefaf3;padding:18px;border-radius:10px}
+.anchor-offset{scroll-margin-top:78px}
+.small-note{font-size:.92rem;color:#667085}
+.table th{white-space:nowrap}
+@media(max-width:768px){main{padding:16px}.diagram-box{min-width:125px}.navbar-brand{font-size:1rem}}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="#top"><i class="bi bi-envelope-paper me-2"></i>Class 47: Django Signals + Email</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#concept">Concept</a></li>
+        <li class="nav-item"><a class="nav-link" href="#setup">Setup</a></li>
+        <li class="nav-item"><a class="nav-link" href="#signals">Signals</a></li>
+        <li class="nav-item"><a class="nav-link" href="#code">Code</a></li>
+        <li class="nav-item"><a class="nav-link" href="#flow">Flow</a></li>
+        <li class="nav-item"><a class="nav-link" href="#mistakes">Mistakes</a></li>
+        <li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div id="top" class="page-wrap">
+<main>
+  <section class="mb-4">
+    <span class="badge badge-soft mb-2">Django Class 47</span>
+    <h1 class="fw-bold">Sending Mail with Django Signals</h1>
+    <p class="lead text-secondary">Automatically send a welcome email after a new Django super user is created.</p>
+    <div class="alert alert-primary">
+      <strong>Goal:</strong> Create a Django signal that listens for a newly created <code>User</code>. When the user is created, Django automatically sends an email to that user's email address.
+    </div>
+  </section>
+
+  <section id="concept" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-primary text-white p-3">1. What Are We Building?</div>
+      <div class="card-body">
+        <h5>Definition</h5>
+        <p>Django signals allow one part of a Django application to react automatically when something happens somewhere else. Here, we listen for the <code>post_save</code> event of Django's built-in <code>User</code> model.</p>
+        <div class="alert alert-info">
+          <strong>Layman example:</strong> Think of a shop counter. When a customer completes registration, a staff member automatically gets a notification to send a welcome message. The registration event triggers another action without the registration code having to call the email function directly.
+        </div>
+        <h5 class="mt-4">Our requirement</h5>
+        <ol>
+          <li>Use Django's predefined <code>User</code> model.</li>
+          <li>Create a super user.</li>
+          <li>Provide the email address of the person who should receive the message.</li>
+          <li>When the user is successfully created, the <code>post_save</code> signal detects it.</li>
+          <li>If the user is newly created, Django sends the welcome email automatically.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="setup" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-success text-white p-3">2. Django User Model and Database Setup</div>
+      <div class="card-body">
+        <h5>1. We are using Django's predefined User model</h5>
+        <p>The code imports:</p>
+        <div class="codebox"><pre><code>from django.contrib.auth.models import User</code></pre></div>
+        <p class="mt-3">We are <strong>not creating our own user model</strong> in this example. Django already provides the <code>User</code> model.</p>
+
+        <h5 class="mt-4">2. Do we need makemigrations?</h5>
+        <div class="alert alert-warning">
+          <strong>For this class:</strong> No. We have not created or changed our own model, so there is no new model migration to generate. Run the existing Django migrations with:
+        </div>
+        <div class="codebox"><pre><code>python manage.py migrate</code></pre></div>
+        <p class="small-note mt-3">The important idea is: <code>makemigrations</code> creates migration files for changes to your models. <code>migrate</code> applies available migrations to the database. Django's built-in authentication migrations are already provided by Django.</p>
+
+        <h5 class="mt-4">3. Create the super user</h5>
+        <div class="codebox"><pre><code>python manage.py createsuperuser</code></pre></div>
+        <p class="mt-3">Django asks for details such as username, email address, and password. Enter the email address of the person who should receive the welcome email.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="signals" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-info text-dark p-3">3. Understanding post_save Signal</div>
+      <div class="card-body">
+        <h5>What is post_save?</h5>
+        <p><code>post_save</code> is a Django model signal that runs after a model's <code>save()</code> operation completes.</p>
+        <div class="diagram">
+          <div class="diagram-box">User object</div><span class="arrow">→</span>
+          <div class="diagram-box">save()</div><span class="arrow">→</span>
+          <div class="diagram-box">post_save signal</div><span class="arrow">→</span>
+          <div class="diagram-box">Email function</div>
+        </div>
+        <h5 class="mt-4">Why do we use created?</h5>
+        <div class="codebox"><pre><code>if created:
+    # send email</code></pre></div>
+        <p class="mt-3">The <code>created</code> argument tells us whether this save created a new database row.</p>
+        <table class="table table-bordered mt-3 align-middle">
+          <thead><tr><th>Situation</th><th>created</th><th>Send welcome email?</th></tr></thead>
+          <tbody>
+            <tr><td>New user is created</td><td><code>True</code></td><td>Yes</td></tr>
+            <tr><td>Existing user is updated</td><td><code>False</code></td><td>No</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-success mb-0"><strong>Key idea:</strong> The <code>if created:</code> check prevents a welcome email from being sent every time the existing user is saved or updated.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="code" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-dark text-white p-3">4. Complete signals.py Code</div>
+      <div class="card-body">
+        <p>Create a new <code>signals.py</code> file inside your <code>blog_app</code> package.</p>
+        <div class="codebox"><pre><code>from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.core.mail import BadHeaderError
+import smtplib
+
+
+@receiver(post_save, sender=User)
+def send_welcome_email(sender, instance, created, **kwargs):
+    if created:
+        print(f"New user created: {instance.username}")
+
+        subject = 'welcome to mohit kumar'
+        message = f'Hi {instance.username}, thank you for registering'
+        from_email = 'sainathb308@gmail.com'
+        recipient_list = [instance.email]
+
+        try:
+            send_mail(
+                subject,
+                message,
+                from_email,
+                recipient_list,
+                fail_silently=False
+            )
+
+            print('Welcome email sent successfully.')
+
+        except BadHeaderError:
+            print('Invalid header found in email.')
+
+        except smtplib.SMTPAuthenticationError:
+            print(
+                'SMTP authentication failed. '
+                'Check EMAIL_HOST_USER and EMAIL_HOST_PASSWORD.'
+            )
+
+        except Exception as e:
+            print(f'Failed to send welcome email: {str(e)}')</code></pre></div>
+
+        <div class="alert alert-warning mt-4">
+          <strong>Important security note:</strong> Do not hard-code real email passwords or SMTP secrets inside <code>signals.py</code>. Keep credentials in environment variables or a secure settings mechanism.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="registration" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-secondary text-white p-3">5. Register the Signal in apps.py</div>
+      <div class="card-body">
+        <p>Creating <code>signals.py</code> is not enough. Django must import the signals when the application starts.</p>
+        <div class="codebox"><pre><code>from django.apps import AppConfig
+
+
+class BlogConfig(AppConfig):
+    name = 'blog'
+
+    def ready(self):
+        import blog.signals
+        # appname.signals</code></pre></div>
+        <div class="alert alert-info mt-4">
+          <strong>Why?</strong> The <code>ready()</code> method runs when Django initializes the application. Importing <code>blog.signals</code> registers the receiver with Django's signal system.
+        </div>
+        <h6 class="mt-4">Conceptual startup flow</h6>
+        <div class="diagram">
+          <div class="diagram-box">Django starts</div><span class="arrow">→</span>
+          <div class="diagram-box">BlogConfig.ready()</div><span class="arrow">→</span>
+          <div class="diagram-box">Import blog.signals</div><span class="arrow">→</span>
+          <div class="diagram-box">@receiver registered</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="flow" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-primary text-white p-3">6. Complete Execution Flow — Simple Visual</div>
+      <div class="card-body">
+        <div class="diagram">
+          <div class="diagram-box">Run<br><code>createsuperuser</code></div>
+          <span class="arrow">→</span>
+          <div class="diagram-box">Enter username<br>email + password</div>
+          <span class="arrow">→</span>
+          <div class="diagram-box">Django creates<br>User row</div>
+          <span class="arrow">→</span>
+          <div class="diagram-box">post_save fires</div>
+          <span class="arrow">→</span>
+          <div class="diagram-box"><code>created == True</code></div>
+          <span class="arrow">→</span>
+          <div class="diagram-box"><code>send_mail()</code></div>
+          <span class="arrow">→</span>
+          <div class="diagram-box">Recipient receives<br>welcome email</div>
+        </div>
+
+        <h5 class="mt-4">Step-by-step</h5>
+        <div class="step"><span class="num">1</span><div>Run <code>python manage.py migrate</code> to apply Django's existing database migrations.</div></div>
+        <div class="step"><span class="num">2</span><div>Run <code>python manage.py createsuperuser</code>.</div></div>
+        <div class="step"><span class="num">3</span><div>Enter the username and the email address of the person who should receive the message.</div></div>
+        <div class="step"><span class="num">4</span><div>Django saves the new <code>User</code> object.</div></div>
+        <div class="step"><span class="num">5</span><div>Django fires the <code>post_save</code> signal.</div></div>
+        <div class="step"><span class="num">6</span><div>The receiver checks <code>created</code>. For a newly created user it is <code>True</code>.</div></div>
+        <div class="step"><span class="num">7</span><div><code>send_mail()</code> sends the welcome message to <code>instance.email</code>.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="email-settings" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-warning p-3">7. Email Backend Configuration</div>
+      <div class="card-body">
+        <p>The signal calls <code>send_mail()</code>, but Django still needs an email backend configuration to know how to deliver the message.</p>
+        <p>A typical SMTP configuration looks like this conceptually:</p>
+        <div class="codebox"><pre><code>EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.example.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'your-email@example.com'
+EMAIL_HOST_PASSWORD = 'your-app-password-or-secret'</code></pre></div>
+        <div class="alert alert-danger mt-4">
+          <strong>Do not copy real credentials into source code.</strong> Use environment variables for production applications. Also, email providers may require an app password or another authenticated SMTP method.
+        </div>
+        <p class="small-note">The exact SMTP host, port, TLS settings, and authentication method depend on the email provider you configure.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="explain-code" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-success text-white p-3">8. Code Explained in Simple Words</div>
+      <div class="card-body">
+        <h6>Import post_save</h6>
+        <div class="codebox"><pre><code>from django.db.models.signals import post_save</code></pre></div>
+        <p class="mt-2">This gives us the signal that runs after a model is saved.</p>
+
+        <h6 class="mt-4">Connect the receiver to User</h6>
+        <div class="codebox"><pre><code>@receiver(post_save, sender=User)</code></pre></div>
+        <p class="mt-2">This says: "Whenever Django saves a <code>User</code>, call this function."</p>
+
+        <h6 class="mt-4">Receive signal information</h6>
+        <div class="codebox"><pre><code>def send_welcome_email(sender, instance, created, **kwargs):</code></pre></div>
+        <ul class="mt-2">
+          <li><code>sender</code> → the model that sent the signal.</li>
+          <li><code>instance</code> → the actual User object that was saved.</li>
+          <li><code>created</code> → whether this was a new database row.</li>
+          <li><code>**kwargs</code> → additional signal arguments.</li>
+        </ul>
+
+        <h6 class="mt-4">Get recipient email</h6>
+        <div class="codebox"><pre><code>recipient_list = [instance.email]</code></pre></div>
+        <p class="mt-2">The email entered for the user becomes the recipient.</p>
+
+        <h6 class="mt-4">Send email</h6>
+        <div class="codebox"><pre><code>send_mail(
+    subject,
+    message,
+    from_email,
+    recipient_list,
+    fail_silently=False
+)</code></pre></div>
+        <p class="mt-2">Django's <code>send_mail()</code> function sends the message through the configured email backend.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="mistakes" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-danger text-white p-3">9. Common Developer Mistakes</div>
+      <div class="card-body">
+        <div class="alert alert-danger"><strong>1. Wrong import for send_mail</strong><br>Use <code>from django.core.mail import send_mail</code>, not <code>django.core.email</code>.</div>
+        <div class="alert alert-danger"><strong>2. Typo in **kwargs</strong><br>Use <code>**kwargs</code>. A spelling such as <code>**kwars</code> is simply incorrect.</div>
+        <div class="alert alert-danger"><strong>3. Typo in message variable</strong><br>If the variable is named <code>message</code>, pass <code>message</code> to <code>send_mail()</code>.</div>
+        <div class="alert alert-danger"><strong>4. Wrong send_mail argument name</strong><br>The parameter is <code>fail_silently</code>, not <code>fail_silent</code>.</div>
+        <div class="alert alert-danger"><strong>5. Forgetting if created</strong><br>Without <code>if created:</code>, the email may be sent whenever an existing User is saved too.</div>
+        <div class="alert alert-danger"><strong>6. Forgetting to register/import signals</strong><br>If <code>blog.signals</code> is never imported during app startup, the receiver may not be registered.</div>
+        <div class="alert alert-danger"><strong>7. Expecting makemigrations for a signal file</strong><br>Adding <code>signals.py</code> does not create a database model migration. In this class, no custom model was created or changed, so use the existing migrations with <code>migrate</code>.</div>
+        <div class="alert alert-danger"><strong>8. No email backend configuration</strong><br>A correct signal alone does not guarantee delivery. Django must have a working email backend and SMTP/provider configuration.</div>
+        <div class="alert alert-danger"><strong>9. Hard-coding SMTP secrets</strong><br>Never put real passwords or API secrets directly in source code.</div>
+        <div class="alert alert-danger"><strong>10. Testing only by reading the code</strong><br>Actually create a new user and check the application console and recipient inbox. For development, a console email backend can also be useful.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="debug" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-secondary text-white p-3">10. If the Email Is Not Sent — Debug Checklist</div>
+      <div class="card-body">
+        <ol>
+          <li>Check that <code>signals.py</code> is inside the correct app.</li>
+          <li>Check that the signal is imported in <code>AppConfig.ready()</code>.</li>
+          <li>Check that the app configuration is actually being used by Django.</li>
+          <li>Check the user's email address is not empty or incorrect.</li>
+          <li>Check <code>EMAIL_HOST</code>, <code>EMAIL_PORT</code>, TLS/SSL settings, and credentials.</li>
+          <li>Check the provider's SMTP authentication requirements.</li>
+          <li>Look at the Django terminal for the printed success/error messages.</li>
+          <li>Confirm the signal uses <code>sender=User</code> and the receiver is spelled correctly.</li>
+        </ol>
+        <div class="alert alert-info mb-0"><strong>Development tip:</strong> You can use Django's console email backend during development so emails are printed to the terminal instead of being delivered to a real mailbox.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="interview" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-success text-white p-3">11. How I Would Explain This to the Interviewer</div>
+      <div class="card-body">
+        <div class="interview">
+          <p class="mb-0">"Here I am using Django's built-in User model, so I don't need to create a new model for this requirement. I first apply the existing database migrations using <code>python manage.py migrate</code>. Then I create a super user using <code>createsuperuser</code> and provide the recipient's email address. I created a separate <code>signals.py</code> file and connected Django's <code>post_save</code> signal to the User model. The receiver gets the saved User instance and the <code>created</code> flag. I check <code>if created</code> so the welcome email is sent only when a new user is created, not when an existing user is updated. Finally, I use Django's <code>send_mail()</code> function with the configured email backend. I also register the signal in the app's <code>ready()</code> method so Django loads the receiver when the application starts."</p>
+        </div>
+
+        <h5 class="mt-4">Whiteboard explanation</h5>
+        <div class="diagram">
+          <div class="diagram-box">Django User</div><span class="arrow">→</span>
+          <div class="diagram-box">User created</div><span class="arrow">→</span>
+          <div class="diagram-box">post_save</div><span class="arrow">→</span>
+          <div class="diagram-box">created=True</div><span class="arrow">→</span>
+          <div class="diagram-box">send_mail()</div><span class="arrow">→</span>
+          <div class="diagram-box">Recipient email</div>
+        </div>
+
+        <h5 class="mt-4">Interview tips</h5>
+        <ul>
+          <li>Explain <strong>why</strong> you use a signal, not only the syntax.</li>
+          <li>Explain the difference between <code>post_save</code> and the <code>created</code> flag.</li>
+          <li>Explain that the signal is registered during app startup.</li>
+          <li>Mention that no custom model was created for this example, so there is no new model migration to generate.</li>
+          <li>Mention email backend configuration and secure credential handling.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="summary" class="anchor-offset">
+    <div class="card">
+      <div class="card-header bg-primary text-white p-3">12. Interview Quick Recap</div>
+      <div class="card-body">
+        <table class="table table-striped align-middle">
+          <tbody>
+            <tr><th>Model</th><td>Django's predefined <code>User</code> model.</td></tr>
+            <tr><th>Migration</th><td>No new model was created/changed for this class; apply existing migrations with <code>python manage.py migrate</code>.</td></tr>
+            <tr><th>Signal</th><td><code>post_save</code></td></tr>
+            <tr><th>Receiver</th><td><code>send_welcome_email()</code></td></tr>
+            <tr><th>New user check</th><td><code>if created:</code></td></tr>
+            <tr><th>Recipient</th><td><code>instance.email</code></td></tr>
+            <tr><th>Email function</th><td><code>send_mail()</code></td></tr>
+            <tr><th>Registration</th><td>Import <code>blog.signals</code> from <code>AppConfig.ready()</code>.</td></tr>
+            <tr><th>Security</th><td>Keep SMTP credentials outside source code.</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-primary mb-0"><strong>Memory trick:</strong> <code>User created → post_save → created=True → send_mail()</code>.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-center text-secondary py-4">
+    Class 47 • Django Email Sending with Signals
+  </footer>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

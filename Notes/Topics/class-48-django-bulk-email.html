@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class 48 - Django Bulk Email Sending</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+:root{--nav:#182235;--soft:#f5f7fb;--border:#e3e7ef}
+html{scroll-behavior:smooth}
+body{background:var(--soft);color:#202633;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.65}
+.navbar{background:var(--nav);position:sticky;top:0;z-index:1050;box-shadow:0 2px 12px #0003}
+.navbar-brand{font-weight:700}
+.page-wrap{max-width:1500px;margin:auto}
+main{padding:28px}
+.card{border:0;border-radius:14px;box-shadow:0 5px 20px #17203314;margin-bottom:24px}
+.card-header{border:0;border-radius:14px 14px 0 0!important;font-weight:700}
+.codebox{background:#101827;color:#e8eef8;border-radius:12px;padding:18px;overflow:auto;font-size:.84rem;line-height:1.55}
+pre{margin:0}
+.badge-soft{background:#eaf3ff;color:#084298}
+.alert{border:0;border-radius:10px}
+.diagram{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;background:#f8f9fa;border-radius:12px;padding:20px}
+.diagram-box{background:#fff;border:1px solid #ced4da;border-radius:10px;padding:13px 17px;text-align:center;font-weight:600;min-width:145px}
+.arrow{font-size:1.4rem;color:#6c757d}
+.step{display:flex;gap:14px;margin:15px 0}
+.num{min-width:35px;height:35px;border-radius:50%;background:#0d6efd;color:#fff;display:grid;place-items:center;font-weight:700}
+.interview{border-left:5px solid #198754;background:#eefaf3;padding:18px;border-radius:10px}
+.anchor-offset{scroll-margin-top:78px}
+.small-note{font-size:.92rem;color:#667085}
+.table th{white-space:nowrap}
+.highlight{font-weight:700;color:#084298}
+@media(max-width:768px){main{padding:16px}.diagram-box{min-width:125px}.navbar-brand{font-size:1rem}}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="#top"><i class="bi bi-send me-2"></i>Class 48: Django Bulk Email</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#concept">Concept</a></li>
+        <li class="nav-item"><a class="nav-link" href="#comparison">Comparison</a></li>
+        <li class="nav-item"><a class="nav-link" href="#choice">When to Use</a></li>
+        <li class="nav-item"><a class="nav-link" href="#massmail">send_mass_mail</a></li>
+        <li class="nav-item"><a class="nav-link" href="#alternatives">Alternatives</a></li>
+        <li class="nav-item"><a class="nav-link" href="#code">Code</a></li>
+        <li class="nav-item"><a class="nav-link" href="#mistakes">Mistakes</a></li>
+        <li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div id="top" class="page-wrap">
+<main>
+
+<section class="mb-4">
+  <span class="badge badge-soft mb-2">Django Class 48</span>
+  <h1 class="fw-bold">Sending Bulk Email in Django</h1>
+  <p class="lead text-secondary">Learn how to send multiple emails with <code>send_mass_mail()</code> and how to send HTML content and attachments with <code>EmailMultiAlternatives</code>.</p>
+  <div class="alert alert-primary">
+    <strong>Class goal:</strong> Understand which Django email API to choose when sending one email, multiple emails, rich HTML email, or email with attachments.
+  </div>
+</section>
+
+<section id="concept" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-primary text-white p-3">1. What Is Bulk Email?</div>
+  <div class="card-body">
+    <h5>Definition</h5>
+    <p>Bulk email means sending email messages to multiple recipients instead of sending only one message to one recipient.</p>
+    <div class="alert alert-info">
+      <strong>Layman example:</strong> Imagine a teacher wants to send a welcome message to 500 students. Writing and sending 500 emails manually would be slow. A bulk-email process lets the application send the required messages programmatically.
+    </div>
+    <h5 class="mt-4">What we learn in this class</h5>
+    <ol>
+      <li>Send multiple messages using <code>send_mass_mail()</code>.</li>
+      <li>Send HTML email content using <code>EmailMultiAlternatives</code>.</li>
+      <li>Attach files to an email.</li>
+      <li>Understand when to use <code>send_mail()</code>, <code>send_mass_mail()</code>, and <code>EmailMultiAlternatives</code>.</li>
+    </ol>
+  </div>
+</div>
+</section>
+
+<section id="comparison" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-success text-white p-3">2. send_mail vs send_mass_mail vs EmailMultiAlternatives</div>
+  <div class="card-body">
+    <div class="table-responsive">
+    <table class="table table-bordered align-middle">
+      <thead>
+        <tr><th>Feature</th><th>send_mail()</th><th>send_mass_mail()</th><th>EmailMultiAlternatives</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>Main purpose</th>
+          <td>Send one email</td>
+          <td>Send multiple email messages</td>
+          <td>Build a more customizable email</td>
+        </tr>
+        <tr>
+          <th>Multiple messages</th>
+          <td>One call for one message</td>
+          <td>Yes</td>
+          <td>Yes, by creating/sending message objects as needed</td>
+        </tr>
+        <tr>
+          <th>HTML content</th>
+          <td>Basic API; plain-text oriented</td>
+          <td>Basic API; plain-text oriented</td>
+          <td>Yes, using <code>attach_alternative()</code></td>
+        </tr>
+        <tr>
+          <th>Attachments</th>
+          <td>Not its main purpose</td>
+          <td>Not its main purpose</td>
+          <td>Yes, e.g. <code>attach_file()</code></td>
+        </tr>
+        <tr>
+          <th>Customization</th>
+          <td>Simple</td>
+          <td>Simple</td>
+          <td>High</td>
+        </tr>
+        <tr>
+          <th>Learning curve</th>
+          <td>Easy</td>
+          <td>Easy</td>
+          <td>Moderate</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="alert alert-warning mb-0">
+      <strong>Simple rule:</strong> Use <code>send_mail()</code> for a straightforward email, <code>send_mass_mail()</code> for multiple straightforward messages, and <code>EmailMultiAlternatives</code> when you need HTML alternatives, attachments, headers, or more control.
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="choice" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-info text-dark p-3">3. When Should I Use Which One?</div>
+  <div class="card-body">
+    <div class="diagram">
+      <div class="diagram-box">Need one simple email?</div><span class="arrow">→</span><div class="diagram-box"><code>send_mail()</code></div>
+    </div>
+    <div class="diagram mt-3">
+      <div class="diagram-box">Need multiple simple emails?</div><span class="arrow">→</span><div class="diagram-box"><code>send_mass_mail()</code></div>
+    </div>
+    <div class="diagram mt-3">
+      <div class="diagram-box">Need HTML / attachment / richer control?</div><span class="arrow">→</span><div class="diagram-box"><code>EmailMultiAlternatives</code></div>
+    </div>
+
+    <table class="table table-striped mt-4 align-middle">
+      <thead><tr><th>Requirement</th><th>Recommended Django API</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td>Password reset / simple notification</td><td><code>send_mail()</code></td><td>Simple message is enough.</td></tr>
+        <tr><td>Different plain-text messages to several users</td><td><code>send_mass_mail()</code></td><td>Convenient for a batch of simple messages.</td></tr>
+        <tr><td>Welcome email with HTML design</td><td><code>EmailMultiAlternatives</code></td><td>Attach HTML as an alternative body.</td></tr>
+        <tr><td>Invoice PDF attachment</td><td><code>EmailMultiAlternatives</code></td><td>Supports attachments.</td></tr>
+        <tr><td>Custom headers / advanced email control</td><td><code>EmailMultiAlternatives</code></td><td>Message object provides more control.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+<section id="massmail" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-warning p-3">4. Sending Multiple Emails with send_mass_mail()</div>
+  <div class="card-body">
+    <h5>Definition</h5>
+    <p><code>send_mass_mail()</code> is Django's convenience function for sending a collection of email messages in one call.</p>
+    <div class="alert alert-info">
+      <strong>Layman example:</strong> Instead of saying "send this email" three separate times, you prepare three letters and give the batch to the mailroom together.
+    </div>
+
+    <h5 class="mt-4">Message format</h5>
+    <div class="codebox"><pre><code>message = (
+    subject,
+    message,
+    from_email,
+    recipient_list
+)</code></pre></div>
+
+    <p class="mt-3">Each message is represented by a tuple containing the subject, body, sender, and recipient list.</p>
+
+    <h5 class="mt-4">Example</h5>
+    <div class="codebox"><pre><code>message1 = (
+    'Welcome user1',
+    'Hello user1, welcome to our platform',
+    'sainathb308@gmail.com',
+    ['shivarajb308@gmail.com']
+)
+
+message2 = (
+    'Welcome user2',
+    'Hello user2, welcome to our platform',
+    'sainathb308@gmail.com',
+    ['shivaraj1b308@gmail.com']
+)
+
+message3 = (
+    'Welcome user3',
+    'Hello user3, welcome to our platform',
+    'sainathb308@gmail.com',
+    ['shivaraj2b308@gmail.com']
+)
+
+send_mass_mail(
+    (message1, message2, message3),
+    fail_silently=False
+)</code></pre></div>
+    <div class="alert alert-success mt-4 mb-0">
+      <strong>Important:</strong> The messages can have different subjects, bodies, and recipient lists. <code>send_mass_mail()</code> is useful when the messages are relatively simple.
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="multi" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-secondary text-white p-3">5. send_mass_mail() — Complete View Code</div>
+  <div class="card-body">
+    <div class="codebox"><pre><code>from django.core.mail import send_mass_mail
+from django.http import HttpResponse
+from django.core.mail import BadHeaderError
+import smtplib
+
+
+def send_bulk_email(request):
+
+    message1 = (
+        'Welcome user1',
+        'Hello user1, welcome to our platform',
+        'sainathb308@gmail.com',
+        ['shivarajb308@gmail.com']
+    )
+
+    message2 = (
+        'Welcome user2',
+        'Hello user2, welcome to our platform',
+        'sainathb308@gmail.com',
+        ['shivaraj1b308@gmail.com']
+    )
+
+    message3 = (
+        'Welcome user3',
+        'Hello user3, welcome to our platform',
+        'sainathb308@gmail.com',
+        ['shivaraj2b308@gmail.com']
+    )
+
+    try:
+        send_mass_mail(
+            (message1, message2, message3),
+            fail_silently=False
+        )
+
+        return HttpResponse(
+            'Bulk emails sent successfully!'
+        )
+
+    except BadHeaderError:
+        return HttpResponse(
+            'Invalid header found in email.',
+            status=400
+        )
+
+    except smtplib.SMTPAuthenticationError:
+        return HttpResponse(
+            'SMTP authentication failed. '
+            'Check EMAIL_HOST_USER and EMAIL_HOST_PASSWORD.',
+            status=500
+        )
+
+    except Exception as e:
+        return HttpResponse(
+            f'Failed to send bulk emails: {str(e)}',
+            status=500
+        )</code></pre></div>
+  </div>
+</div>
+</section>
+
+<section id="alternatives" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-primary text-white p-3">6. EmailMultiAlternatives — HTML, Attachments and Rich Email</div>
+  <div class="card-body">
+    <h5>Definition</h5>
+    <p><code>EmailMultiAlternatives</code> creates an email message object that gives you more control over the email body and attachments.</p>
+    <div class="alert alert-info">
+      <strong>Layman example:</strong> A simple email is like sending a plain letter. <code>EmailMultiAlternatives</code> is like preparing a designed brochure that can contain formatted HTML and an attached document.
+    </div>
+
+    <h5 class="mt-4">What can we do?</h5>
+    <ul>
+      <li>Send a plain-text fallback.</li>
+      <li>Attach an HTML version of the email.</li>
+      <li>Attach files.</li>
+      <li>Build a richer email message object.</li>
+    </ul>
+
+    <h5 class="mt-4">Basic structure</h5>
+    <div class="codebox"><pre><code>msg = EmailMultiAlternatives(
+    subject,
+    text_content,
+    from_email,
+    recipient_list
+)
+
+msg.attach_alternative(
+    html_content,
+    'text/html'
+)
+
+msg.send()</code></pre></div>
+  </div>
+</div>
+</section>
+
+<section id="template" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-success text-white p-3">7. HTML Email Template</div>
+  <div class="card-body">
+    <p>Create:</p>
+    <div class="codebox"><pre><code>blog_app/templates/welcome_email.html</code></pre></div>
+
+    <div class="codebox mt-3"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport"
+          content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Welcome&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;{{ username }}&lt;/h1&gt;
+    &lt;p&gt;Welcome to our platform.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+
+    <p class="mt-3">The Django template engine replaces <code>{{ username }}</code> with the value supplied by the view.</p>
+    <div class="alert alert-success mb-0">
+      <strong>Example:</strong> If the view sends <code>{'username': 'sainath'}</code>, the HTML template can display <strong>sainath</strong>.
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="emailcode" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-dark text-white p-3">8. EmailMultiAlternatives Complete Example</div>
+  <div class="card-body">
+    <div class="codebox"><pre><code>from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+
+
+def send_bulk_email(request):
+
+    subject = 'Welcome to our platform'
+
+    from_email = 'sainathb308@gmail.com'
+
+    recipient_list = [
+        'shivarajb308@gmail.com'
+    ]
+
+    html_content = render_to_string(
+        'welcome_email.html',
+        {'username': 'sainath'}
+    )
+
+    msg = EmailMultiAlternatives(
+        subject,
+        'Welcome to sainath platform',
+        from_email,
+        recipient_list
+    )
+
+    msg.attach_alternative(
+        html_content,
+        'text/html'
+    )
+
+    # Attach a file when required:
+    # msg.attach_file('/path/to/file.pdf')
+
+    msg.send()
+
+    return HttpResponse(
+        'Email sent successfully'
+    )</code></pre></div>
+
+    <div class="alert alert-primary mt-4">
+      <strong>What is happening?</strong> The plain-text body is supplied to <code>EmailMultiAlternatives</code>, then the HTML version is attached as an alternative. Email clients that support HTML can display the HTML version.
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="attachment" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-warning p-3">9. How to Send an Attachment</div>
+  <div class="card-body">
+    <h5>Attach a file from a path</h5>
+    <div class="codebox"><pre><code>msg.attach_file('/path/to/invoice.pdf')</code></pre></div>
+
+    <h5 class="mt-4">Visual flow</h5>
+    <div class="diagram">
+      <div class="diagram-box">Create EmailMultiAlternatives</div>
+      <span class="arrow">→</span>
+      <div class="diagram-box">Attach HTML</div>
+      <span class="arrow">→</span>
+      <div class="diagram-box">Attach PDF / Image / File</div>
+      <span class="arrow">→</span>
+      <div class="diagram-box">msg.send()</div>
+    </div>
+
+    <h5 class="mt-4">Attach file content manually</h5>
+    <p>For more control, Django's email message API can also work with attachment content. A common pattern is:</p>
+    <div class="codebox"><pre><code>msg.attach(
+    'invoice.pdf',
+    file_content,
+    'application/pdf'
+)</code></pre></div>
+    <p class="small-note mt-3">The MIME type should match the file being attached. For example, PDF uses <code>application/pdf</code>. For images, use the appropriate image MIME type.</p>
+
+    <div class="alert alert-danger mb-0">
+      <strong>Security and size reminder:</strong> Validate uploaded files and avoid sending unexpectedly large attachments. Email providers can enforce attachment-size and message-size limits.
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="urls" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-secondary text-white p-3">10. URL Configuration</div>
+  <div class="card-body">
+    <h6>innerproject/urls.py</h6>
+    <div class="codebox"><pre><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls')),
+]</code></pre></div>
+
+    <h6 class="mt-4">blog/urls.py</h6>
+    <div class="codebox"><pre><code>from . import views
+from django.urls import path
+
+urlpatterns = [
+    path(
+        'send_bulk_email/',
+        views.send_bulk_email,
+        name='send_bulk_email'
+    ),
+]</code></pre></div>
+
+    <div class="alert alert-info mt-4 mb-0">
+      <strong>Request flow:</strong> Browser requests <code>/send_bulk_email/</code> → Django URL routes to <code>views.send_bulk_email</code> → email code runs → response is returned.
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="flow" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-info text-dark p-3">11. Complete Execution Flow</div>
+  <div class="card-body">
+    <div class="diagram">
+      <div class="diagram-box">Browser</div><span class="arrow">→</span>
+      <div class="diagram-box">/send_bulk_email/</div><span class="arrow">→</span>
+      <div class="diagram-box">blog.urls</div><span class="arrow">→</span>
+      <div class="diagram-box">views.send_bulk_email</div><span class="arrow">→</span>
+      <div class="diagram-box">Django Mail API</div><span class="arrow">→</span>
+      <div class="diagram-box">SMTP Provider</div><span class="arrow">→</span>
+      <div class="diagram-box">Recipients</div>
+    </div>
+
+    <h5 class="mt-4">Simple steps</h5>
+    <div class="step"><span class="num">1</span><div>User opens the email URL.</div></div>
+    <div class="step"><span class="num">2</span><div>Django maps the URL to the view.</div></div>
+    <div class="step"><span class="num">3</span><div>The view creates one or more email messages.</div></div>
+    <div class="step"><span class="num">4</span><div>Django's mail API passes the messages to the configured email backend.</div></div>
+    <div class="step"><span class="num">5</span><div>The email provider processes the message and delivers it according to its policies and limits.</div></div>
+  </div>
+</div>
+</section>
+
+<section id="cost" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-danger text-white p-3">12. Sending to Around 500 Users — Will Google Charge?</div>
+  <div class="card-body">
+    <p>There is no universal answer that "500 emails always cost a fixed amount." The cost and sending limits depend on the email provider, account type, sending method, current provider policies, and whether you are using a personal mailbox, business email service, or dedicated transactional/bulk-email service.</p>
+    <div class="alert alert-warning">
+      <strong>Important:</strong> Django itself does not decide the provider's pricing. Django hands the email to the configured backend/provider. The provider determines quotas, limits, authentication requirements, and any charges.
+    </div>
+    <h5>For production bulk email</h5>
+    <ul>
+      <li>Check the provider's current sending limits and pricing.</li>
+      <li>Do not assume a normal Gmail/Google Workspace mailbox is designed for large-scale marketing campaigns.</li>
+      <li>For application-generated bulk or transactional mail, a dedicated email delivery provider may be more appropriate.</li>
+      <li>Respect provider policies, recipient consent, unsubscribe requirements where applicable, and rate limits.</li>
+    </ul>
+    <div class="alert alert-info mb-0"><strong>Interview answer:</strong> "The number 500 does not by itself determine the price. I would check the current provider quota and pricing for the specific account and service being used."</div>
+  </div>
+</div>
+</section>
+
+<section id="mistakes" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-danger text-white p-3">13. Common Developer Mistakes</div>
+  <div class="card-body">
+    <div class="alert alert-danger"><strong>1. Wrong import.</strong><br>Use <code>from django.core.mail import send_mass_mail</code>. There is no Django function named <code>send_bulk_email</code> to import from <code>django.core.mail</code>.</div>
+    <div class="alert alert-danger"><strong>2. Wrong HttpResponse import.</strong><br>Use <code>from django.http import HttpResponse</code>.</div>
+    <div class="alert alert-danger"><strong>3. Confusing send_mail and send_mass_mail.</strong><br><code>send_mail()</code> is convenient for a single message. <code>send_mass_mail()</code> accepts multiple message tuples.</div>
+    <div class="alert alert-danger"><strong>4. Using send_mass_mail for rich HTML/attachments.</strong><br>If the email needs HTML alternatives or attachments, use <code>EmailMultiAlternatives</code>.</div>
+    <div class="alert alert-danger"><strong>5. Forgetting attach_alternative().</strong><br>Rendering an HTML template does not automatically make it the email's HTML body. Attach it with <code>msg.attach_alternative(html_content, 'text/html')</code>.</div>
+    <div class="alert alert-danger"><strong>6. Forgetting to call msg.send().</strong><br>Creating an <code>EmailMultiAlternatives</code> object does not send it by itself.</div>
+    <div class="alert alert-danger"><strong>7. Hard-coding SMTP passwords.</strong><br>Keep secrets in environment variables or a secure secret-management system.</div>
+    <div class="alert alert-danger"><strong>8. Sending hundreds of messages inside a slow web request.</strong><br>For real production workloads, consider a background job/queue and a provider designed for bulk delivery.</div>
+    <div class="alert alert-danger"><strong>9. Ignoring provider limits.</strong><br>Large batches can hit rate limits, quotas, spam controls, or message-size limits.</div>
+    <div class="alert alert-danger"><strong>10. Not validating recipient data.</strong><br>Clean and validate email addresses before sending. Avoid sending to unintended recipients.</div>
+  </div>
+</div>
+</section>
+
+<section id="interview" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-success text-white p-3">14. How I Would Explain This to the Interviewer</div>
+  <div class="card-body">
+    <div class="interview">
+      <p class="mb-0">"In this class I learned three Django email approaches. <code>send_mail()</code> is suitable for a simple individual email. <code>send_mass_mail()</code> is useful when I need to send multiple simple messages in one call. When I need a richer email, such as an HTML body or attachments, I use <code>EmailMultiAlternatives</code>. For the bulk-email example, I prepare message tuples and pass them to <code>send_mass_mail()</code>. For the HTML email example, I render a Django template with <code>render_to_string()</code>, create an <code>EmailMultiAlternatives</code> object, attach the HTML version with <code>attach_alternative()</code>, optionally attach a file, and call <code>send()</code>. For production-scale sending, I would also consider provider quotas, rate limits, user consent, and background processing instead of blocking a web request."</p>
+    </div>
+
+    <h5 class="mt-4">Whiteboard comparison</h5>
+    <div class="diagram">
+      <div class="diagram-box"><code>send_mail()</code><br><small>One simple email</small></div>
+      <div class="diagram-box"><code>send_mass_mail()</code><br><small>Multiple simple emails</small></div>
+      <div class="diagram-box"><code>EmailMultiAlternatives</code><br><small>HTML + attachments + control</small></div>
+    </div>
+
+    <h5 class="mt-4">Interview tips</h5>
+    <ul>
+      <li>Do not just memorize method names; explain the requirement each method solves.</li>
+      <li>Remember the key difference: <code>send_mass_mail()</code> is a convenience API for multiple messages, while <code>EmailMultiAlternatives</code> is a richer message object.</li>
+      <li>Explain why HTML email needs <code>attach_alternative()</code>.</li>
+      <li>Mention <code>msg.send()</code> when using <code>EmailMultiAlternatives</code>.</li>
+      <li>For 500+ recipients, mention provider quotas and production architecture rather than promising a specific cost.</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<section id="summary" class="anchor-offset">
+<div class="card">
+  <div class="card-header bg-primary text-white p-3">15. Class 48 Quick Recap</div>
+  <div class="card-body">
+    <table class="table table-striped align-middle">
+      <tbody>
+        <tr><th>send_mail()</th><td>Simple email sending API.</td></tr>
+        <tr><th>send_mass_mail()</th><td>Send multiple simple email messages in one call.</td></tr>
+        <tr><th>EmailMultiAlternatives</th><td>Rich email message object for HTML alternatives, attachments, and more control.</td></tr>
+        <tr><th>HTML email</th><td><code>render_to_string()</code> → <code>attach_alternative()</code> → <code>send()</code>.</td></tr>
+        <tr><th>Attachment</th><td>Use methods such as <code>attach_file()</code> or attach file content with an appropriate MIME type.</td></tr>
+        <tr><th>500 users</th><td>Check the specific provider's current limits, pricing, policies, and account type.</td></tr>
+        <tr><th>Production</th><td>Consider a dedicated email service and background jobs for large-scale sending.</td></tr>
+      </tbody>
+    </table>
+    <div class="alert alert-primary mb-0"><strong>Memory trick:</strong> <code>One simple → send_mail | Many simple → send_mass_mail | Rich HTML/file → EmailMultiAlternatives</code></div>
+  </div>
+</div>
+</section>
+
+<footer class="text-center text-secondary py-4">
+  Class 48 • Django Bulk Email Sending
+</footer>
+
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

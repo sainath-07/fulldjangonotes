@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 46 - Django Email Sending</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; scroll-padding-top: 82px; }
+    body { background:#f5f7fb; color:#253047; line-height:1.7; }
+    .navbar { position:sticky; top:0; z-index:1030; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+    .hero { background:linear-gradient(135deg,#182848,#4b6cb7); color:#fff; border-radius:0 0 24px 24px; }
+    .section-card { border:0; border-radius:16px; overflow:hidden; }
+    .section-header { color:#fff; font-weight:700; padding:14px 20px; }
+    .header-blue { background:#0d6efd; } .header-green { background:#198754; }
+    .header-purple { background:#6f42c1; } .header-orange { background:#fd7e14; }
+    .header-dark { background:#343a40; } .header-red { background:#dc3545; }
+    .shadow-soft { box-shadow:0 8px 24px rgba(31,45,61,.09); }
+    .code-wrap { background:#17202a; border-radius:12px; padding:18px; overflow:auto; }
+    pre { margin:0; color:#e9f2ff; font-size:.88rem; white-space:pre-wrap; }
+    code { color:#cfe2ff; }
+    .step { display:flex; gap:14px; align-items:flex-start; margin-bottom:16px; }
+    .step-num { min-width:36px; height:36px; border-radius:50%; background:#0d6efd; color:white;
+                display:flex; align-items:center; justify-content:center; font-weight:700; }
+    .flow { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center; }
+    .flow-box { padding:13px 17px; border-radius:12px; background:#e9f2ff; border:1px solid #b6d4fe; font-weight:600; text-align:center; }
+    .arrow { font-size:1.5rem; color:#6c757d; }
+    .toc a { text-decoration:none; }
+    .tip { border-left:5px solid #0d6efd; }
+    .warning { border-left:5px solid #ffc107; }
+    .success { border-left:5px solid #198754; }
+    .table thead th { background:#eef3f9; }
+    .mini-title { font-weight:700; color:#344767; }
+    .badge-soft { background:#e9ecef; color:#343a40; }
+    .footer { background:#17202a; color:#dbe4ee; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#top"><i class="bi bi-envelope-paper me-2"></i>Django Email</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#types">Types</a></li>
+        <li class="nav-item"><a class="nav-link" href="#setup">Setup</a></li>
+        <li class="nav-item"><a class="nav-link" href="#textmail">Text Email</a></li>
+        <li class="nav-item"><a class="nav-link" href="#htmlmail">HTML Email</a></li>
+        <li class="nav-item"><a class="nav-link" href="#flow">Flow</a></li>
+        <li class="nav-item"><a class="nav-link" href="#mistakes">Mistakes</a></li>
+        <li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header id="top" class="hero py-5">
+  <div class="container py-3">
+    <span class="badge bg-light text-dark mb-3">Class - 46</span>
+    <h1 class="display-5 fw-bold">Django Email Sending</h1>
+    <p class="lead mb-0">Learn how Django can send manual, automatic, and bulk emails using SMTP and Django's email utilities.</p>
+  </div>
+</header>
+
+<main class="container py-4">
+
+  <section id="intro" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-blue"><i class="bi bi-book me-2"></i>1. What is Email Sending in Django?</div>
+      <div class="card-body p-4">
+        <h5 class="mini-title">Definition</h5>
+        <p>Django provides built-in email utilities such as <code>send_mail()</code> and <code>EmailMessage</code> to send emails from a Django application. Django normally uses an SMTP email server to deliver the message.</p>
+        <div class="alert alert-info">
+          <strong>Layman example:</strong> Imagine your Django application is a receptionist. The receptionist prepares a message, gives it to a delivery service (SMTP server), and the delivery service sends it to the customer's inbox.
+        </div>
+        <div class="flow">
+          <div class="flow-box">Django Application</div><div class="arrow">→</div>
+          <div class="flow-box">Django Email Utility</div><div class="arrow">→</div>
+          <div class="flow-box">SMTP Server</div><div class="arrow">→</div>
+          <div class="flow-box">Recipient Inbox</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="types" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-purple"><i class="bi bi-diagram-3 me-2"></i>2. Three Types of Email Sending</div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="card h-100 border-primary">
+              <div class="card-body">
+                <span class="badge bg-primary mb-2">1. Manual</span>
+                <h5>Manual Email Sending</h5>
+                <p class="mb-0">The email is triggered directly by a developer or a specific request/action.</p>
+                <small class="text-muted">Example: Click a URL and send a test email.</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100 border-success">
+              <div class="card-body">
+                <span class="badge bg-success mb-2">2. Automatic</span>
+                <h5>Automatic Email Sending</h5>
+                <p class="mb-0">Django sends an email when a predefined event happens.</p>
+                <small class="text-muted">Example: Send a welcome email after registration.</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100 border-warning">
+              <div class="card-body">
+                <span class="badge bg-warning text-dark mb-2">3. Bulk</span>
+                <h5>Bulk Email Sending</h5>
+                <p class="mb-0">One message or campaign is sent to many recipients.</p>
+                <small class="text-muted">Example: Send a newsletter to thousands of users.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-warning mt-4">
+          <strong>Important:</strong> Manual, automatic, and bulk describe <em>when/how the application triggers emails</em>. SMTP is the delivery mechanism used to communicate with the mail server.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="setup" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-green"><i class="bi bi-shield-lock me-2"></i>3. Gmail Setup for Manual Email Sending</div>
+      <div class="card-body p-4">
+        <p>When using Gmail SMTP, an app password is commonly used instead of putting your normal Gmail password into Django.</p>
+        <div class="step"><div class="step-num">1</div><div><strong>Enable 2-Step Verification.</strong><br>Make sure 2-Step Verification is enabled for the Google account.</div></div>
+        <div class="step"><div class="step-num">2</div><div><strong>Create an App Password.</strong><br>Open Google's App Passwords page: <a href="https://myaccount.google.com/apppasswords" target="_blank">https://myaccount.google.com/apppasswords</a></div></div>
+        <div class="step"><div class="step-num">3</div><div><strong>Use the generated app password.</strong><br>Store it securely. Do not hard-code it into your source code or commit it to Git.</div></div>
+
+        <h5 class="mini-title mt-4">Typical Django SMTP settings</h5>
+        <div class="code-wrap"><pre><code># settings.py
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-app-password'</code></pre></div>
+        <div class="alert alert-danger mt-3">
+          <strong>Security rule:</strong> Never expose your real app password in a public GitHub repository. Prefer environment variables or a secrets manager.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="urls" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-dark"><i class="bi bi-link-45deg me-2"></i>4. Register the View and URLs</div>
+      <div class="card-body p-4">
+        <p>After creating the email view, connect it to a URL in the app's <code>urls.py</code>. Then include the app's URLs in the project's main <code>urls.py</code>.</p>
+        <div class="row g-3">
+          <div class="col-lg-4"><div class="flow-box w-100">View<br><small>send_test_email()</small></div></div>
+          <div class="col-lg-4"><div class="flow-box w-100">App urls.py<br><small>path('send-email/', ...)</small></div></div>
+          <div class="col-lg-4"><div class="flow-box w-100">Project urls.py<br><small>include(app urls)</small></div></div>
+        </div>
+        <h6 class="mt-4 fw-bold">App urls.py</h6>
+        <div class="code-wrap"><pre><code>from django.urls import path
+from .views import send_test_email
+
+urlpatterns = [
+    path('send-email/', send_test_email, name='send_email'),
+]</code></pre></div>
+
+        <h6 class="mt-4 fw-bold">Inner project urls.py</h6>
+        <div class="code-wrap"><pre><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('your_app.urls')),
+]</code></pre></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="textmail" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-blue"><i class="bi bi-chat-left-text me-2"></i>5. Manual Email — Text Format</div>
+      <div class="card-body p-4">
+        <h5 class="mini-title">What?</h5>
+        <p><code>send_mail()</code> is a simple Django helper for sending a plain-text email.</p>
+        <h5 class="mini-title">Why?</h5>
+        <p>It is useful when the email only needs simple text and does not require a designed HTML template.</p>
+        <h5 class="mini-title">How?</h5>
+        <p>Pass the subject, message, sender, and recipient list to <code>send_mail()</code>.</p>
+        <div class="code-wrap"><pre><code># views.py
+
+from django.shortcuts import render
+from django.core.mail import send_mail, BadHeaderError
+from django.http import HttpResponse
+import smtplib
+
+def send_test_email(request):
+    subject = 'Welcome to My Blog'
+    message = 'Thank you for subscribing to My Blog'
+    from_email = 'your-email@gmail.com'
+    recipient_list = ['recipient@gmail.com']
+
+    try:
+        send_mail(
+            subject,
+            message,
+            from_email,
+            recipient_list
+        )
+        return HttpResponse('Test email sent successfully')
+
+    except BadHeaderError:
+        return HttpResponse(
+            'Invalid header found in email.',
+            status=400
+        )
+
+    except smtplib.SMTPAuthenticationError:
+        return HttpResponse(
+            'SMTP authentication failed. Check your email settings.',
+            status=500
+        )
+
+    except Exception as e:
+        return HttpResponse(
+            f'Failed to send email: {str(e)}',
+            status=500
+        )</code></pre></div>
+
+        <div class="alert alert-success mt-4">
+          <strong>Layman example:</strong> <code>subject</code> is the envelope title, <code>message</code> is the letter, <code>from_email</code> is the sender, and <code>recipient_list</code> contains the people receiving the letter.
+        </div>
+
+        <h5 class="mini-title mt-4">Important parameters</h5>
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead><tr><th>Parameter</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>subject</code></td><td>Email subject.</td></tr>
+              <tr><td><code>message</code></td><td>Plain-text email body.</td></tr>
+              <tr><td><code>from_email</code></td><td>Email address shown as the sender.</td></tr>
+              <tr><td><code>recipient_list</code></td><td>List of recipient email addresses.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="htmlmail" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-orange"><i class="bi bi-filetype-html me-2"></i>6. Manual Email — HTML Template</div>
+      <div class="card-body p-4">
+        <h5 class="mini-title">Definition</h5>
+        <p>Instead of putting all email content directly into the Python file, you can create an HTML email template and load it with <code>render_to_string()</code>.</p>
+        <div class="alert alert-info">
+          <strong>Layman example:</strong> Instead of writing a whole letter inside your Python code, create a nicely designed letter template separately and fill it with the user's name and course information.
+        </div>
+
+        <h5 class="mini-title">View code</h5>
+        <div class="code-wrap"><pre><code>from django.core.mail import EmailMessage
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+
+def send_test_email(request):
+    subject = 'Welcome to My Blog'
+
+    message = render_to_string(
+        'email/welcome_email.html',
+        {
+            'username': 'sainath',
+            'course': 'django course'
+        }
+    )
+
+    email = EmailMessage(
+        subject,
+        message,
+        'your-email@gmail.com',
+        ['recipient@gmail.com']
+    )
+
+    email.content_subtype = 'html'
+    email.send()
+
+    return HttpResponse('Test email sent successfully')</code></pre></div>
+
+        <h5 class="mini-title mt-4">Template: templates/email/welcome_email.html</h5>
+        <div class="code-wrap"><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+  &lt;h2&gt;Welcome {{ username }}!&lt;/h2&gt;
+  &lt;p&gt;Thank you for joining our {{ course }}.&lt;/p&gt;
+  &lt;p&gt;We are happy to have you with us.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+
+        <div class="alert alert-warning mt-4">
+          <strong>Key line:</strong> <code>email.content_subtype = 'html'</code> tells Django that the email body should be treated as HTML rather than plain text.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="flow" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-green"><i class="bi bi-signpost-split me-2"></i>7. How the Complete Email Flow Works</div>
+      <div class="card-body p-4">
+        <div class="step"><div class="step-num">1</div><div>User opens the email URL or an application event triggers the email function.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Django executes the email view or service.</div></div>
+        <div class="step"><div class="step-num">3</div><div>The application creates the subject, body, sender, and recipient information.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Django's email utility communicates with the configured SMTP server.</div></div>
+        <div class="step"><div class="step-num">5</div><div>The SMTP server processes the message and attempts delivery.</div></div>
+        <div class="step"><div class="step-num">6</div><div>The recipient receives the email in the inbox, subject to mail-server rules and delivery status.</div></div>
+
+        <div class="flow mt-4">
+          <div class="flow-box">Request / Event</div><div class="arrow">→</div>
+          <div class="flow-box">Django View</div><div class="arrow">→</div>
+          <div class="flow-box">EmailMessage / send_mail</div><div class="arrow">→</div>
+          <div class="flow-box">SMTP</div><div class="arrow">→</div>
+          <div class="flow-box">Inbox</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="comparison" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-purple"><i class="bi bi-table me-2"></i>8. send_mail() vs EmailMessage</div>
+      <div class="card-body p-4">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead><tr><th>Feature</th><th>send_mail()</th><th>EmailMessage</th></tr></thead>
+            <tbody>
+              <tr><td>Simple text email</td><td>Excellent</td><td>Supported</td></tr>
+              <tr><td>HTML email</td><td>Possible with additional options</td><td>Convenient</td></tr>
+              <tr><td>Attachments</td><td>Supported through arguments</td><td>Convenient API</td></tr>
+              <tr><td>Multiple messages / advanced control</td><td>Less direct</td><td>More flexible</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="alert alert-info">
+          <strong>Interview line:</strong> “I use <code>send_mail()</code> for straightforward emails and <code>EmailMessage</code> when I need more control over the message, such as HTML content or attachments.”
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="mistakes" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-red"><i class="bi bi-bug me-2"></i>9. Common Developer Mistakes</div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="alert alert-danger h-100">
+              <strong>1. Using the normal Gmail password</strong><br>
+              With an app-password based setup, use the generated app password rather than exposing the account password.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="alert alert-danger h-100">
+              <strong>2. Hard-coding secrets</strong><br>
+              Do not place real SMTP credentials directly in <code>settings.py</code> when the project is shared or deployed.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="alert alert-warning h-100">
+              <strong>3. Forgetting HTML subtype</strong><br>
+              If using <code>EmailMessage</code> with HTML content, set <code>content_subtype = 'html'</code>.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="alert alert-warning h-100">
+              <strong>4. Incorrect SMTP configuration</strong><br>
+              Check host, port, TLS/SSL configuration, username, and app password.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="alert alert-secondary h-100">
+              <strong>5. No error handling</strong><br>
+              SMTP authentication and email delivery can fail. Handle expected exceptions and log useful diagnostic information.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="alert alert-secondary h-100">
+              <strong>6. Sending bulk mail inside a web request</strong><br>
+              Large email jobs can make a request slow or time out. In production, background jobs such as Celery are commonly used.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="interview" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-dark"><i class="bi bi-person-workspace me-2"></i>10. How to Explain This in an Interview</div>
+      <div class="card-body p-4">
+        <div class="alert alert-primary tip">
+          <strong>30-second answer:</strong><br>
+          “Django provides built-in email utilities for sending emails through an SMTP backend. For a simple plain-text email, I can use <code>send_mail()</code>. For more control, such as HTML templates or attachments, I can use <code>EmailMessage</code>. With Gmail SMTP, I configure the SMTP host, port, TLS, username, and an app password. I keep credentials outside source control and handle SMTP errors properly.”
+        </div>
+
+        <h5 class="mini-title mt-4">Possible interview questions</h5>
+        <ol>
+          <li>What is SMTP and why does Django use it?</li>
+          <li>What is the difference between <code>send_mail()</code> and <code>EmailMessage</code>?</li>
+          <li>How do you send an HTML email in Django?</li>
+          <li>Why do you need an app password for some Gmail SMTP setups?</li>
+          <li>How do you protect email credentials in production?</li>
+          <li>How would you send an email automatically after user registration?</li>
+          <li>How would you handle bulk emails without blocking the HTTP request?</li>
+          <li>What happens if SMTP authentication fails?</li>
+        </ol>
+
+        <div class="alert alert-success success">
+          <strong>Interview tip:</strong> Explain the flow instead of only showing code:
+          <br><code>Event/Request → View/Service → Email Utility → SMTP Server → Recipient</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="production" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-blue"><i class="bi bi-cloud-check me-2"></i>11. Production Notes</div>
+      <div class="card-body p-4">
+        <ul>
+          <li>Keep SMTP credentials in environment variables or a secrets manager.</li>
+          <li>Do not expose email credentials in GitHub or frontend code.</li>
+          <li>For automatic emails, trigger the email from a well-defined application event.</li>
+          <li>For large bulk-email workloads, use a background task queue rather than keeping the HTTP request waiting.</li>
+          <li>Use an email provider suitable for production volume and delivery requirements.</li>
+          <li>Log failures without logging passwords, tokens, or other secrets.</li>
+        </ul>
+        <div class="alert alert-info">
+          <strong>Important:</strong> Gmail's account settings, authentication requirements, sending limits, and availability of app passwords can change. Always verify the current Google account requirements before configuring production email.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="recap" class="mb-4">
+    <div class="card section-card shadow-soft">
+      <div class="section-header header-green"><i class="bi bi-check2-circle me-2"></i>12. Quick Recap</div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-3"><div class="p-3 bg-light rounded h-100"><strong>Manual</strong><br><small>Developer/request explicitly triggers the email.</small></div></div>
+          <div class="col-md-3"><div class="p-3 bg-light rounded h-100"><strong>Automatic</strong><br><small>An application event triggers the email.</small></div></div>
+          <div class="col-md-3"><div class="p-3 bg-light rounded h-100"><strong>Bulk</strong><br><small>Email is sent to many recipients.</small></div></div>
+          <div class="col-md-3"><div class="p-3 bg-light rounded h-100"><strong>SMTP</strong><br><small>Mail-server protocol used for delivery.</small></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer py-4">
+  <div class="container text-center">
+    <strong>Django Class 46 — Email Sending</strong>
+    <div class="small mt-1">Documentation-style notes for learning and interview preparation.</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

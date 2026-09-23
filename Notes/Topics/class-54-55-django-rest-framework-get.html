@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 51 - Django REST Framework: Introduction and GET API</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #f2f5fa; color: #212529; }
+    .doc-section { scroll-margin-top: 84px; }
+    .hero { background: #14213d; color: #fff; }
+    .hero .lead { color: #cfd8ea; }
+    .card { border: 0; border-radius: .6rem; overflow: hidden; }
+    .card-header h2 { font-size: 1.25rem; margin: 0; }
+    .file-tag { font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: .9rem; }
+    .code-wrap { position: relative; }
+    pre.code-block {
+      background: #1b2033; color: #e8ecf8; border-radius: .5rem;
+      padding: 1rem 1rem 1rem 1.1rem; margin: 0; overflow-x: auto;
+      font-size: .9rem; line-height: 1.55;
+    }
+    .copy-btn { position: absolute; top: .5rem; right: .5rem; font-size: .75rem; }
+    .step-list li { padding: .75rem 1rem; }
+    .nav-link.active { font-weight: 600; }
+    .flow-chip { border-radius: 2rem; padding: .35rem .9rem; font-size: .9rem; }
+    .navbar .nav-link { font-size: .88rem; padding-left: .55rem; padding-right: .55rem; }
+    code.inline { background: #e9ecf5; color: #7a1f4d; padding: .1rem .35rem; border-radius: .25rem; }
+    footer { color: #6c757d; }
+  </style>
+</head>
+<body data-bs-spy="scroll" data-bs-target="#mainNav" data-bs-root-margin="-90px 0px -60% 0px" data-bs-smooth-scroll="true" tabindex="0">
+
+  <!-- Sticky navigation -->
+  <nav id="mainNav" class="navbar navbar-expand-xl navbar-dark bg-dark sticky-top shadow">
+    <div class="container-fluid px-3 px-xl-4">
+      <a class="navbar-brand fw-semibold" href="#top">Class 51 &middot; DRF GET API</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navLinks" aria-controls="navLinks" aria-expanded="false" aria-label="Open menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navLinks">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#rest-api">REST API</a></li>
+          <li class="nav-item"><a class="nav-link" href="#drf">DRF</a></li>
+          <li class="nav-item"><a class="nav-link" href="#why">Why DRF</a></li>
+          <li class="nav-item"><a class="nav-link" href="#setup">Setup</a></li>
+          <li class="nav-item"><a class="nav-link" href="#where">Where it lies</a></li>
+          <li class="nav-item"><a class="nav-link" href="#diff">REST vs REST API</a></li>
+          <li class="nav-item"><a class="nav-link" href="#code">Code</a></li>
+          <li class="nav-item"><a class="nav-link" href="#test">Test</a></li>
+          <li class="nav-item"><a class="nav-link" href="#cheat">Cheat sheet</a></li>
+          <li class="nav-item"><a class="nav-link" href="#mistakes">Mistakes</a></li>
+          <li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+          <li class="nav-item"><a class="nav-link" href="#summary">Summary</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header id="top" class="hero py-5">
+    <div class="container">
+      <span class="badge text-bg-info mb-3">Django</span>
+      <span class="badge text-bg-warning mb-3">REST API</span>
+      <span class="badge text-bg-light mb-3">Class 51</span>
+      <h1 class="display-5 fw-bold">Django REST Framework: Introduction and GET API</h1>
+      <p class="lead mb-0 col-lg-8">Simple notes with definitions, everyday examples, step by step setup, full working code, diagrams and interview tips.</p>
+    </div>
+  </header>
+
+  <main class="container py-5">
+
+    <!-- Quick overview -->
+    <section class="mb-5" aria-label="Topics in this class">
+      <div class="row g-3">
+        <div class="col-sm-6 col-lg-3">
+          <div class="card shadow-sm h-100 border-top border-4 border-primary">
+            <div class="card-body">
+              <h2 class="h5">What is a REST API?</h2>
+              <p class="mb-2">How apps talk to a server using URLs.</p>
+              <a href="#rest-api" class="stretched-link">Go to section</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card shadow-sm h-100 border-top border-4 border-success">
+            <div class="card-body">
+              <h2 class="h5">What is DRF?</h2>
+              <p class="mb-2">A toolkit to build APIs in Django, and why we use it.</p>
+              <a href="#drf" class="stretched-link">Go to section</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card shadow-sm h-100 border-top border-4 border-warning">
+            <div class="card-body">
+              <h2 class="h5">Setup steps</h2>
+              <p class="mb-2">Install and set up DRF, step by step.</p>
+              <a href="#setup" class="stretched-link">Go to section</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card shadow-sm h-100 border-top border-4 border-danger">
+            <div class="card-body">
+              <h2 class="h5">Build a GET API</h2>
+              <p class="mb-2">Model, serializer, view and URLs, with full code.</p>
+              <a href="#code" class="stretched-link">Go to section</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. WHAT IS REST API -->
+    <section id="rest-api" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white"><h2>1. What is a REST API?</h2></div>
+        <div class="card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Definition</h3>
+                <p class="mb-2">An <strong>API</strong> (Application Programming Interface) is a way for two programs to talk to each other.</p>
+                <p class="mb-0">A <strong>REST API</strong> is an API that works over the web using <strong>URLs</strong> and standard <strong>HTTP methods</strong> such as GET, POST, PUT, PATCH and DELETE. The server usually replies with data in <strong>JSON</strong> format.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-2">Think of a restaurant. You (the <strong>client</strong>) sit at the table and read the <strong>menu</strong>. You do not go into the kitchen. You tell the <strong>waiter</strong> what you want, and the waiter brings your food from the kitchen (the <strong>server</strong>).</p>
+                <p class="mb-0">The waiter is the <strong>API</strong>. The menu is the list of <strong>URLs</strong> you can ask for. The food that comes back is the <strong>JSON data</strong>.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="h6">Parts of one API call</h3>
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+              <thead class="table-light">
+                <tr><th>Part</th><th>Meaning</th><th>Example</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Client</strong></td><td>The app or website that asks for data.</td><td>A mobile app, a React app, a browser</td></tr>
+                <tr><td><strong>Request</strong></td><td>The question the client sends. It has an HTTP method and a URL.</td><td><code class="inline">GET /api/students/</code></td></tr>
+                <tr><td><strong>Server</strong></td><td>The program that receives the request and finds the data.</td><td>Our Django project</td></tr>
+                <tr><td><strong>Response</strong></td><td>The answer. It has data (JSON) and a status code.</td><td>A list of students, with status <code class="inline">200 OK</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="alert alert-info h-100 mb-0">
+                <h3 class="h6 alert-heading">What is JSON?</h3>
+                <p class="mb-0">JSON is a simple text format to write data as <strong>name and value pairs</strong>. It is easy for people to read and easy for programs to understand. Almost every language can read it.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="code-wrap h-100">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block h-100"><code>{
+  "id": 1,
+  "name": "Asha",
+  "age": 21,
+  "city": "Pune"
+}</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warning mb-0" role="alert">
+            <strong>Interview tip:</strong> Say it in one line: "A REST API lets a client ask a server for data using URLs and HTTP methods, and the server replies with JSON."
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. WHAT IS DRF -->
+    <section id="drf" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white"><h2>2. What is Django REST Framework (DRF)?</h2></div>
+        <div class="card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Definition</h3>
+                <p class="mb-0"><strong>Django REST Framework</strong> is an add-on toolkit for Django. It helps us build web APIs quickly and in a clean way. It gives ready-made tools to turn database data into JSON, to handle requests, to check permissions, and more.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-0">Normal Django is like a restaurant that serves food only to guests sitting inside (web pages in a browser). DRF adds a <strong>takeaway counter</strong> with a ready-made packing system. Now delivery apps and other programs can also order and get their food in a standard box (JSON).</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="h6">What does DRF give us?</h3>
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+              <thead class="table-dark">
+                <tr><th>Feature</th><th>What it does</th><th>Used in this class?</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Serializers</strong></td><td>Convert model data to JSON, and JSON back to data.</td><td><span class="badge text-bg-success">Yes</span></td></tr>
+                <tr><td><strong>API views</strong> (<code class="inline">@api_view</code>)</td><td>Handle requests and send proper responses.</td><td><span class="badge text-bg-success">Yes</span></td></tr>
+                <tr><td><strong>Browsable API</strong></td><td>A web page to test your API in the browser.</td><td><span class="badge text-bg-success">Yes (automatic)</span></td></tr>
+                <tr><td>Authentication and permissions</td><td>Control who can use the API.</td><td><span class="badge text-bg-secondary">Later</span></td></tr>
+                <tr><td>Pagination and filtering</td><td>Send data in small pages, and search inside it.</td><td><span class="badge text-bg-secondary">Later</span></td></tr>
+                <tr><td>Viewsets and routers</td><td>Write less code for full create, read, update, delete APIs.</td><td><span class="badge text-bg-secondary">Later</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alert alert-warning mb-0" role="alert">
+            <strong>Interview tip:</strong> DRF is <em>not</em> a separate framework. It is a package that works on top of Django, so we still use Django models, URLs and admin.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. WHY DRF -->
+    <section id="why" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-warning text-dark"><h2>3. Why Use DRF?</h2></div>
+        <div class="card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Definition</h3>
+                <p class="mb-0">We use DRF because it saves time and gives a standard way to build APIs. Many common jobs, like data conversion, checking input, security and testing, are already done for us.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-0">You can write every address on a hundred envelopes by hand. Or you can use a <strong>printer</strong> that does it in seconds and never makes a spelling mistake. DRF is the printer for API data.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="h6">Benefits</h3>
+          <ul class="list-group mb-3">
+            <li class="list-group-item"><strong>Less code:</strong> A serializer turns model data into JSON with just a few lines.</li>
+            <li class="list-group-item"><strong>Browsable API:</strong> You can test your API in the browser without extra tools.</li>
+            <li class="list-group-item"><strong>Built-in security tools:</strong> Ready-made authentication and permissions.</li>
+            <li class="list-group-item"><strong>Input checking:</strong> Serializers can validate data sent by the client.</li>
+            <li class="list-group-item"><strong>Grows with your project:</strong> Pagination, filtering and viewsets are ready when you need them.</li>
+            <li class="list-group-item"><strong>Popular and well documented:</strong> Many companies use it, so help is easy to find.</li>
+          </ul>
+
+          <h3 class="h6">Plain Django vs DRF</h3>
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+              <thead class="table-light">
+                <tr><th>Job</th><th>Plain Django</th><th>With DRF</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Convert data to JSON</td><td>Done by hand (dictionaries, <code class="inline">JsonResponse</code>)</td><td>Serializer</td></tr>
+                <tr><td>Allow only some HTTP methods</td><td>Check <code class="inline">request.method</code> yourself</td><td><code class="inline">@api_view(['GET'])</code></td></tr>
+                <tr><td>Check incoming data</td><td>Write your own checks</td><td>Serializer validation</td></tr>
+                <tr><td>Login and permissions for the API</td><td>Write your own</td><td>Built-in classes</td></tr>
+                <tr><td>Test page in the browser</td><td>None</td><td>Browsable API</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alert alert-info mb-0" role="alert">
+            <strong>Honest note:</strong> For a very small read-only API, plain Django can also be short. DRF gives the most value as your API grows and needs create, update, delete, security and validation.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. SETUP -->
+    <section id="setup" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-info text-dark"><h2>4. Installation and Setup: Step by Step</h2></div>
+        <div class="card-body">
+          <p>Follow these steps in order. The full code for each file is in the <a href="#code">Code section</a>.</p>
+
+          <h3 class="h6">Step 1: (Optional but good) Create a virtual environment</h3>
+          <p>A virtual environment keeps this project's packages separate from other projects.</p>
+          <div class="code-wrap mb-3">
+            <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# Mac or Linux
+source venv/bin/activate</code></pre>
+          </div>
+
+          <h3 class="h6">Step 2: Install Django and DRF</h3>
+          <div class="code-wrap mb-3">
+            <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>pip install Django djangorestframework</code></pre>
+          </div>
+
+          <h3 class="h6">Step 3: Create the project and the app</h3>
+          <div class="code-wrap mb-3">
+            <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>django-admin startproject innerproject
+cd innerproject
+python manage.py startapp api_app</code></pre>
+          </div>
+          <div class="alert alert-danger" role="alert">
+            <strong>App name:</strong> Your notes use two names for the same app: <code class="inline">api</code> and <code class="inline">api_app</code>. The name you give to <code class="inline">startapp</code> must be the same in <code class="inline">INSTALLED_APPS</code> and in <code class="inline">include()</code>. See the alert at the top of the <a href="#code">Code section</a>.
+          </div>
+
+          <h3 class="h6">Step 4: Register DRF and your app in INSTALLED_APPS</h3>
+          <p>Open <code class="inline">innerproject/settings.py</code> and add <code class="inline">'rest_framework'</code> and your app name to the list.</p>
+          <div class="code-wrap mb-3">
+            <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>#make sure to register rest framework in installed apps list
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'api',              # use your real app folder name here
+    'rest_framework'
+]</code></pre>
+          </div>
+
+          <h3 class="h6">Step 5: Create the model, then the tables</h3>
+          <p>Write the <code class="inline">StudentModel</code> (see the Code section). Then run:</p>
+          <div class="code-wrap mb-3">
+            <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>python manage.py makemigrations
+python manage.py migrate</code></pre>
+          </div>
+
+          <h3 class="h6">Step 6: Register the model in admin and add data</h3>
+          <div class="code-wrap mb-3">
+            <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>python manage.py createsuperuser</code></pre>
+          </div>
+          <p>Later, open <code class="inline">http://127.0.0.1:8000/admin/</code> and add a few students.</p>
+
+          <h3 class="h6">Step 7: Create the serializer, the view and the URLs</h3>
+          <p>Write <code class="inline">serializers.py</code>, the <code class="inline">student_list</code> view, and the two <code class="inline">urls.py</code> files (see the Code section).</p>
+
+          <h3 class="h6">Step 8: Run the server and test</h3>
+          <div class="code-wrap mb-3">
+            <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>python manage.py runserver</code></pre>
+          </div>
+          <p class="mb-3">Open <code class="inline">http://127.0.0.1:8000/api/students/</code> in your browser.</p>
+
+          <div class="alert alert-warning mb-0" role="alert">
+            <strong>Interview tip:</strong> Two things are always needed for DRF: install the package, and add <code class="inline">'rest_framework'</code> to <code class="inline">INSTALLED_APPS</code>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. WHERE -->
+    <section id="where" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-danger text-white"><h2>5. Where Does a REST API Lie?</h2></div>
+        <div class="card-body">
+          <div class="alert alert-primary" role="alert">
+            <strong>Short answer:</strong> A REST API lies <strong>between the client and the server</strong>. It is the front door of the server. The server (our Django code) then talks to the database. The client never talks to the database directly.
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Definition</h3>
+                <p class="mb-0">The client sends a request to the API. The API passes the request to the server code. The server code reads or changes the database, and the API sends the result back to the client as a response.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-0">In a restaurant, the <strong>waiter</strong> stands between the customer and the kitchen. The customer never enters the <strong>store room</strong> (the database). The waiter and the kitchen handle it. The waiter (API) is the only way in.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="h6">Diagram: where the API sits</h3>
+          <div class="border rounded p-2 bg-white mb-2">
+            <svg viewBox="0 0 900 250" class="img-fluid" role="img" aria-label="The client talks to the REST API, which is the front door of the server. The server code talks to the database. The client cannot reach the database directly." font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+              <defs>
+                <marker id="w1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+                </marker>
+                <marker id="w2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#dc3545"/>
+                </marker>
+              </defs>
+
+              <rect x="240" y="88" width="655" height="140" rx="10" fill="#f8f9fa" stroke="#6c757d" stroke-width="2" stroke-dasharray="8 5"/>
+              <text x="256" y="110" font-size="14" font-weight="700" fill="#495057">Server side</text>
+
+              <rect x="10" y="130" width="160" height="70" rx="8" fill="#e7f1ff" stroke="#0d6efd" stroke-width="2"/>
+              <text x="90" y="158" text-anchor="middle" font-size="16" font-weight="700" fill="#0a58ca">Client</text>
+              <text x="90" y="178" text-anchor="middle" font-size="12" fill="#495057">Browser or mobile app</text>
+
+              <line x1="172" y1="165" x2="268" y2="165" stroke="#495057" stroke-width="2" marker-start="url(#w1)" marker-end="url(#w1)"/>
+              <text x="220" y="154" text-anchor="middle" font-size="12" fill="#495057">HTTP + JSON</text>
+
+              <rect x="270" y="125" width="180" height="80" rx="8" fill="#d1e7dd" stroke="#198754" stroke-width="3"/>
+              <text x="360" y="153" text-anchor="middle" font-size="16" font-weight="700" fill="#0f5132">REST API</text>
+              <text x="360" y="173" text-anchor="middle" font-size="12" fill="#212529">Front door of the server</text>
+              <text x="360" y="191" text-anchor="middle" font-size="12" fill="#212529">(built with DRF)</text>
+
+              <line x1="452" y1="165" x2="508" y2="165" stroke="#495057" stroke-width="2" marker-start="url(#w1)" marker-end="url(#w1)"/>
+
+              <rect x="510" y="130" width="170" height="70" rx="8" fill="#e2e3e5" stroke="#6c757d" stroke-width="2"/>
+              <text x="595" y="158" text-anchor="middle" font-size="16" font-weight="700" fill="#212529">Django code</text>
+              <text x="595" y="178" text-anchor="middle" font-size="12" fill="#495057">views and models</text>
+
+              <line x1="682" y1="165" x2="738" y2="165" stroke="#495057" stroke-width="2" marker-start="url(#w1)" marker-end="url(#w1)"/>
+
+              <rect x="740" y="130" width="145" height="70" rx="8" fill="#cff4fc" stroke="#0dcaf0" stroke-width="2"/>
+              <text x="812" y="158" text-anchor="middle" font-size="16" font-weight="700" fill="#055160">Database</text>
+              <text x="812" y="178" text-anchor="middle" font-size="12" fill="#495057">stores the data</text>
+
+              <path d="M90,130 C90,5 812,5 812,130" fill="none" stroke="#dc3545" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#w2)"/>
+              <text x="450" y="62" text-anchor="middle" font-size="14" font-weight="700" fill="#dc3545">Not allowed: the client cannot reach the database directly</text>
+            </svg>
+          </div>
+
+          <h3 class="h6 mt-3">Why not let the client talk to the database directly?</h3>
+          <ul class="list-group mb-3">
+            <li class="list-group-item"><strong>Safety:</strong> Database passwords and rules stay hidden on the server.</li>
+            <li class="list-group-item"><strong>Control:</strong> The API can check who is asking and what they may see or change.</li>
+            <li class="list-group-item"><strong>Freedom to change:</strong> You can change the database later, and the client apps do not need to change.</li>
+            <li class="list-group-item"><strong>One server, many clients:</strong> A website, an Android app and an iPhone app can all use the same API.</li>
+          </ul>
+
+          <div class="alert alert-warning mb-0" role="alert">
+            <strong>Interview tip:</strong> If asked "client and database, or client and server?", answer "client and server". Then add: "The server talks to the database on behalf of the client."
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. REST vs REST API -->
+    <section id="diff" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white"><h2>6. Difference: REST vs REST API</h2></div>
+        <div class="card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="alert alert-primary h-100 mb-0">
+                <h3 class="h6 alert-heading">Definition</h3>
+                <p class="mb-2"><strong>REST</strong> (Representational State Transfer) is a <strong>style of design</strong>, a set of rules for how web services should work. It was described by Roy Fielding in his PhD paper in the year 2000.</p>
+                <p class="mb-0">A <strong>REST API</strong> is a <strong>real API</strong> that follows those rules. It is also called a <strong>RESTful API</strong>.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="alert alert-success h-100 mb-0">
+                <h3 class="h6 alert-heading">Layman example</h3>
+                <p class="mb-0"><strong>REST</strong> is like the <strong>rulebook of good restaurant service</strong>: greet the guest, show the menu, take the order, bring the food. A <strong>REST API</strong> is a <strong>real restaurant</strong> that follows this rulebook. You can walk in and order from it.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+              <thead class="table-dark">
+                <tr><th>Point</th><th>REST</th><th>REST API</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>What is it?</td><td>An idea, a style, a set of rules</td><td>A working API built using those rules</td></tr>
+                <tr><td>Can you run it?</td><td>No. It is not a tool or a program.</td><td>Yes. It has real URLs you can call.</td></tr>
+                <tr><td>Who creates it?</td><td>It is a concept, not made by a project</td><td>Developers build it (with Django and DRF)</td></tr>
+                <tr><td>Example</td><td>"Use URLs for things, and GET to read them"</td><td><code class="inline">GET /api/students/</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6">The main REST rules</h3>
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+              <thead class="table-light">
+                <tr><th>Rule</th><th>Meaning</th><th>Layman example</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Client and server are separate</strong></td><td>The app and the server work on their own. Many apps can use one server.</td><td>Many customers, one kitchen.</td></tr>
+                <tr><td><strong>Stateless</strong></td><td>Each request has all the information the server needs. The server does not remember the last request.</td><td>You give your full order every time you call.</td></tr>
+                <tr><td><strong>Uniform interface</strong></td><td>Things (resources) have URLs and use standard HTTP methods.</td><td>Every restaurant uses a menu and a bill.</td></tr>
+                <tr><td><strong>Cacheable</strong></td><td>A response can say if it may be saved and reused.</td><td>The daily special can be printed once.</td></tr>
+                <tr><td><strong>Layered system</strong></td><td>The client does not need to know how many servers are behind the API.</td><td>You do not know how many cooks are in the kitchen.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alert alert-info" role="alert">
+            <strong>Good to know:</strong> DRF gives you the tools to build a REST API, but it does not force you to follow every rule. Following the rules is the developer's job.
+          </div>
+
+          <div class="alert alert-warning mb-0" role="alert">
+            <strong>Interview tip:</strong> "REST is the architecture style. A REST API is an API built by following that style."
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. CODE -->
+    <section id="code" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white"><h2>7. Full Code: Build the GET API</h2></div>
+        <div class="card-body">
+
+          <div class="alert alert-info" role="alert">
+            <strong>Project layout used in this class:</strong>
+<pre class="mb-0 mt-2 bg-white border rounded p-2 small"><code>innerproject/
+├── innerproject/
+│   ├── settings.py
+│   └── urls.py
+├── api_app/
+│   ├── admin.py
+│   ├── models.py
+│   ├── serializers.py
+│   ├── urls.py
+│   └── views.py
+└── manage.py</code></pre>
+          </div>
+
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Two names to check before you run the project</h3>
+            <ul class="mb-0">
+              <li><strong>App name:</strong> Your notes use <code class="inline">'api'</code> in <code class="inline">INSTALLED_APPS</code> and <code class="inline">include('api.urls')</code>, but the file headings say <code class="inline">api_app</code>. Pick the real folder name and use it in all places. If your folder is <code class="inline">api_app</code>, write <code class="inline">'api_app'</code> in <code class="inline">INSTALLED_APPS</code> and <code class="inline">include('api_app.urls')</code>. If it is <code class="inline">api</code>, then use <code class="inline">api</code> everywhere.</li>
+              <li><strong>Serializer file name:</strong> The notes spell it <code class="inline">serlizers.py</code>. The file must be named <code class="inline">serializers.py</code>, because the view imports <code class="inline">from .serializers import ...</code>.</li>
+            </ul>
+          </div>
+
+          <!-- models -->
+          <div class="card mb-4 border">
+            <div class="card-header bg-warning-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">api_app/models.py</span>
+              <span class="badge text-bg-warning">Model</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from django.db import models
+
+# Create your models here.
+class StudentModel(models.Model):
+    name=models.CharField(max_length=100)
+    age=models.IntegerField()
+    city=models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name</code></pre>
+              </div>
+              <ul class="mb-0">
+                <li>Each object of this model is one row in the student table.</li>
+                <li><code class="inline">name</code> and <code class="inline">city</code> store text (up to 100 characters). <code class="inline">age</code> stores a whole number and must be filled in.</li>
+                <li>Django also adds an <code class="inline">id</code> field by itself. It is the unique number of each student.</li>
+                <li><code class="inline">__str__</code> shows the student's name in the admin site.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- admin -->
+          <div class="card mb-4 border">
+            <div class="card-header bg-secondary-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">api_app/admin.py</span>
+              <span class="badge text-bg-secondary">Admin</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from django.contrib import admin
+from .models import StudentModel
+
+# Register your models here.
+@admin.register(StudentModel)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('id','name','age','city')</code></pre>
+              </div>
+              <ul class="mb-0">
+                <li><code class="inline">@admin.register</code> shows the model in the admin site, so we can add test students easily.</li>
+                <li><code class="inline">list_display</code> shows id, name, age and city as columns in the admin list.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- serializers -->
+          <div class="card mb-4 border border-primary">
+            <div class="card-header bg-primary-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">api_app/serializers.py</span>
+              <span class="badge text-bg-primary">Serializer</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from rest_framework import serializers
+from .models  import StudentModel
+
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=StudentModel
+        fields='__all__'  # include all fields</code></pre>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="alert alert-primary h-100 mb-0">
+                    <h3 class="h6 alert-heading">Definition</h3>
+                    <p class="mb-0">A <strong>serializer</strong> converts Django model data into simple data (like JSON) that can be sent to the client. A <strong>ModelSerializer</strong> builds itself from the model, so we do not write each field again.</p>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="alert alert-success h-100 mb-0">
+                    <h3 class="h6 alert-heading">Layman example</h3>
+                    <p class="mb-0">A serializer is a <strong>translator</strong>. The database speaks "Python objects" and the client speaks "JSON". The translator changes one language into the other.</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="mt-3 mb-0">
+                <li><code class="inline">model = StudentModel</code> tells the serializer which model to use.</li>
+                <li><code class="inline">fields = '__all__'</code> includes every field: <em>id, name, age, city</em>. To pick only some, write a list, for example <code class="inline">fields = ['id', 'name']</code>.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- views -->
+          <div class="card mb-4 border border-danger">
+            <div class="card-header bg-danger-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">api_app/views.py</span>
+              <span class="badge text-bg-danger">Most important file</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from django.shortcuts import render
+from rest_framework.decorators import api_view
+from .models import StudentModel
+from .serializers import StudentSerializer
+from rest_framework.response import Response
+
+# Create your views here.
+#GET view
+@api_view(['GET'])
+def student_list(request):
+    students= StudentModel.objects.all()
+    serializer = StudentSerializer(students, many=True)
+    #many=True means we are giving a list of objects (many students), not just one.
+    return Response(serializer.data)</code></pre>
+              </div>
+
+              <div class="alert alert-warning" role="alert">
+                <h3 class="h6 alert-heading">A small correction to the class note</h3>
+                <p class="mb-2">The original note says <code class="inline">many=True</code> means "many fields". That is not correct, so I changed the comment in the code above.</p>
+                <p class="mb-0"><code class="inline">many=True</code> means we are giving the serializer <strong>many objects</strong> (a list or a queryset), not <strong>one object</strong>. Fields are handled by <code class="inline">fields = '__all__'</code>. If you serialize a single student, for example <code class="inline">StudentSerializer(student)</code>, you do not need <code class="inline">many=True</code>.</p>
+              </div>
+
+              <h3 class="h6">Line by line in simple words</h3>
+              <div class="table-responsive">
+                <table class="table table-bordered align-middle mb-3">
+                  <thead class="table-light"><tr><th style="width:38%">Code</th><th>Meaning</th></tr></thead>
+                  <tbody>
+                    <tr><td><code class="inline">@api_view(['GET'])</code></td><td>Turns a normal function into a DRF API view, and allows <strong>only GET</strong> requests. Other methods, like POST, get a "405 Method Not Allowed" reply.</td></tr>
+                    <tr><td><code class="inline">StudentModel.objects.all()</code></td><td>Gets all students from the database.</td></tr>
+                    <tr><td><code class="inline">StudentSerializer(students, many=True)</code></td><td>Prepares to convert the list of students. <code class="inline">many=True</code> says it is a list.</td></tr>
+                    <tr><td><code class="inline">serializer.data</code></td><td>The converted result: a list of simple dictionaries, one for each student.</td></tr>
+                    <tr><td><code class="inline">Response(serializer.data)</code></td><td>Sends the data back to the client. DRF changes it to JSON, or to the browsable page in a browser. The default status is 200 OK.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="alert alert-success mb-0" role="alert">
+                <strong>Layman example:</strong> <code class="inline">many=True</code> is the difference between packing <strong>one gift</strong> and packing a <strong>box of gifts</strong>. Tell the packer it is a box, or it will not know how to pack them.
+              </div>
+            </div>
+          </div>
+
+          <!-- app urls -->
+          <div class="card mb-4 border">
+            <div class="card-header bg-info-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">api_app/urls.py</span>
+              <span class="badge text-bg-info">App URLs</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from . import views
+from django.urls import  path
+
+urlpatterns=[
+    path('students/',views.student_list,name='student_list')
+]</code></pre>
+              </div>
+              <ul class="mb-0">
+                <li><code class="inline">'students/'</code> is the address of this API. It runs the <code class="inline">student_list</code> view.</li>
+                <li>The full address is <code class="inline">/api/students/</code>, because the project <code class="inline">urls.py</code> adds the <code class="inline">api/</code> part in front.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- project urls -->
+          <div class="card mb-4 border">
+            <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center">
+              <span class="file-tag fw-semibold">innerproject/urls.py</span>
+              <span class="badge text-bg-success">Project URLs</span>
+            </div>
+            <div class="card-body">
+              <div class="code-wrap mb-3">
+                <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>from django.contrib import admin
+from django.urls import path,include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/',include('api.urls'))
+]</code></pre>
+              </div>
+              <ul class="mb-0">
+                <li><code class="inline">admin/</code> opens the Django admin site.</li>
+                <li><code class="inline">api/</code> sends every URL that starts with <em>api/</em> to the app's own <code class="inline">urls.py</code>.</li>
+                <li>Layman example: <code class="inline">api/</code> is the <strong>street name</strong> and <code class="inline">students/</code> is the <strong>house number</strong>. Together they give the full address.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- diagram -->
+          <h3 class="h6">Diagram: the journey of one GET request</h3>
+          <div class="border rounded p-2 bg-white mb-3">
+            <svg viewBox="0 0 900 280" class="img-fluid" role="img" aria-label="A GET request goes from the client through urls, the view and the model to the database. The data comes back through the serializer as a JSON response." font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+              <defs>
+                <marker id="j1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#495057"/>
+                </marker>
+              </defs>
+
+              <text x="10" y="20" font-size="13" font-weight="700" fill="#495057">Step A: the request goes in</text>
+
+              <rect x="10" y="30" width="130" height="60" rx="8" fill="#e7f1ff" stroke="#0d6efd" stroke-width="2"/>
+              <text x="75" y="56" text-anchor="middle" font-size="15" font-weight="700" fill="#0a58ca">Client</text>
+              <text x="75" y="76" text-anchor="middle" font-size="12" fill="#495057">GET /api/students/</text>
+
+              <line x1="140" y1="60" x2="178" y2="60" stroke="#495057" stroke-width="2" marker-end="url(#j1)"/>
+
+              <rect x="180" y="30" width="130" height="60" rx="8" fill="#e2e3e5" stroke="#6c757d" stroke-width="2"/>
+              <text x="245" y="56" text-anchor="middle" font-size="15" font-weight="700" fill="#212529">urls.py</text>
+              <text x="245" y="76" text-anchor="middle" font-size="12" fill="#495057">finds the view</text>
+
+              <line x1="310" y1="60" x2="348" y2="60" stroke="#495057" stroke-width="2" marker-end="url(#j1)"/>
+
+              <rect x="350" y="30" width="150" height="60" rx="8" fill="#d1e7dd" stroke="#198754" stroke-width="2"/>
+              <text x="425" y="56" text-anchor="middle" font-size="15" font-weight="700" fill="#0f5132">student_list()</text>
+              <text x="425" y="76" text-anchor="middle" font-size="12" fill="#212529">@api_view(['GET'])</text>
+
+              <line x1="500" y1="60" x2="538" y2="60" stroke="#495057" stroke-width="2" marker-end="url(#j1)"/>
+
+              <rect x="540" y="30" width="130" height="60" rx="8" fill="#e2e3e5" stroke="#6c757d" stroke-width="2"/>
+              <text x="605" y="56" text-anchor="middle" font-size="15" font-weight="700" fill="#212529">Model</text>
+              <text x="605" y="76" text-anchor="middle" font-size="12" fill="#495057">objects.all()</text>
+
+              <line x1="670" y1="60" x2="708" y2="60" stroke="#495057" stroke-width="2" marker-end="url(#j1)"/>
+
+              <rect x="710" y="30" width="130" height="60" rx="8" fill="#cff4fc" stroke="#0dcaf0" stroke-width="2"/>
+              <text x="775" y="56" text-anchor="middle" font-size="15" font-weight="700" fill="#055160">Database</text>
+              <text x="775" y="76" text-anchor="middle" font-size="12" fill="#495057">student table</text>
+
+              <line x1="775" y1="90" x2="775" y2="198" stroke="#495057" stroke-width="2" marker-end="url(#j1)"/>
+
+              <text x="10" y="190" font-size="13" font-weight="700" fill="#495057">Step B: the data comes back as JSON</text>
+
+              <rect x="710" y="200" width="130" height="60" rx="8" fill="#cff4fc" stroke="#0dcaf0" stroke-width="2"/>
+              <text x="775" y="226" text-anchor="middle" font-size="15" font-weight="700" fill="#055160">Rows</text>
+              <text x="775" y="246" text-anchor="middle" font-size="12" fill="#495057">from the table</text>
+
+              <line x1="708" y1="230" x2="672" y2="230" stroke="#495057" stroke-width="2" marker-end="url(#j1)"/>
+
+              <rect x="540" y="200" width="130" height="60" rx="8" fill="#e2e3e5" stroke="#6c757d" stroke-width="2"/>
+              <text x="605" y="226" text-anchor="middle" font-size="15" font-weight="700" fill="#212529">Queryset</text>
+              <text x="605" y="246" text-anchor="middle" font-size="12" fill="#495057">Python objects</text>
+
+              <line x1="538" y1="230" x2="502" y2="230" stroke="#495057" stroke-width="2" marker-end="url(#j1)"/>
+
+              <rect x="350" y="200" width="150" height="60" rx="8" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+              <text x="425" y="226" text-anchor="middle" font-size="14" font-weight="700" fill="#664d03">StudentSerializer</text>
+              <text x="425" y="246" text-anchor="middle" font-size="12" fill="#212529">many=True</text>
+
+              <line x1="348" y1="230" x2="312" y2="230" stroke="#495057" stroke-width="2" marker-end="url(#j1)"/>
+
+              <rect x="180" y="200" width="130" height="60" rx="8" fill="#d1e7dd" stroke="#198754" stroke-width="2"/>
+              <text x="245" y="226" text-anchor="middle" font-size="15" font-weight="700" fill="#0f5132">Response</text>
+              <text x="245" y="246" text-anchor="middle" font-size="12" fill="#212529">JSON, status 200</text>
+
+              <line x1="178" y1="230" x2="142" y2="230" stroke="#495057" stroke-width="2" marker-end="url(#j1)"/>
+
+              <rect x="10" y="200" width="130" height="60" rx="8" fill="#e7f1ff" stroke="#0d6efd" stroke-width="2"/>
+              <text x="75" y="226" text-anchor="middle" font-size="15" font-weight="700" fill="#0a58ca">Client</text>
+              <text x="75" y="246" text-anchor="middle" font-size="12" fill="#495057">shows the data</text>
+            </svg>
+          </div>
+
+          <div class="alert alert-secondary mb-0" role="alert">
+            <strong>Note:</strong> The line <code class="inline">from django.shortcuts import render</code> in the view is not used in this class. It does no harm, and you can remove it.
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. TEST -->
+    <section id="test" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white"><h2>8. Test Your API</h2></div>
+        <div class="card-body">
+          <p>Start the server with <code class="inline">python manage.py runserver</code>, add a few students in the admin site, and then try these tests.</p>
+
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+              <thead class="table-dark">
+                <tr><th>#</th><th>What you do</th><th>What you see</th><th>What it means</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>Open <code class="inline">http://127.0.0.1:8000/api/students/</code> in the browser</td><td>A DRF page with the list of students <span class="badge text-bg-success">200 OK</span></td><td>This is the browsable API. Django REST framework made this page for you.</td></tr>
+                <tr><td>2</td><td>Open <code class="inline">/api/students/?format=json</code></td><td>Plain JSON text</td><td>This is the raw data that an app would receive.</td></tr>
+                <tr><td>3</td><td>Open the URL when there are no students</td><td><code class="inline">[]</code> <span class="badge text-bg-success">200 OK</span></td><td>An empty list. It is not an error.</td></tr>
+                <tr><td>4</td><td>Send a POST request to <code class="inline">/api/students/</code></td><td><code class="inline">Method "POST" not allowed</code> <span class="badge text-bg-warning text-dark">405</span></td><td>The view allows only GET.</td></tr>
+                <tr><td>5</td><td>Open a wrong URL like <code class="inline">/api/student/</code></td><td>Page not found <span class="badge text-bg-danger">404</span></td><td>No URL matches this address.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6">Example response (your data will be different)</h3>
+          <div class="code-wrap mb-3">
+            <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>[
+    {
+        "id": 1,
+        "name": "Asha",
+        "age": 21,
+        "city": "Pune"
+    },
+    {
+        "id": 2,
+        "name": "Ravi",
+        "age": 23,
+        "city": "Chennai"
+    }
+]</code></pre>
+          </div>
+
+          <h3 class="h6">Test from the terminal (optional)</h3>
+          <p>If <code class="inline">curl</code> is installed on your computer, you can call the API like a real client:</p>
+          <div class="code-wrap mb-3">
+            <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>curl http://127.0.0.1:8000/api/students/</code></pre>
+          </div>
+          <p>You can also use tools like Postman for testing.</p>
+
+          <div class="alert alert-info mb-0" role="alert">
+            <strong>Layman example:</strong> The browsable API is like the <strong>tasting counter</strong> in a shop. You can try the product before a real customer (a mobile app) uses it. The <code class="inline">?format=json</code> page is what the real customer receives.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. CHEAT SHEET -->
+    <section id="cheat" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-info text-dark"><h2>9. Quick Cheat Sheet</h2></div>
+        <div class="card-body">
+          <h3 class="h6">HTTP methods</h3>
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+              <thead class="table-light">
+                <tr><th>Method</th><th>What it does</th><th>Simple meaning</th><th>Used in class?</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="inline">GET</code></td><td>Reads data</td><td>"Show me the list"</td><td><span class="badge text-bg-success">Yes</span></td></tr>
+                <tr><td><code class="inline">POST</code></td><td>Creates new data</td><td>"Add a new student"</td><td><span class="badge text-bg-secondary">Next</span></td></tr>
+                <tr><td><code class="inline">PUT</code></td><td>Replaces the full record</td><td>"Rewrite this student's record"</td><td><span class="badge text-bg-secondary">Next</span></td></tr>
+                <tr><td><code class="inline">PATCH</code></td><td>Changes part of a record</td><td>"Only change the city"</td><td><span class="badge text-bg-secondary">Next</span></td></tr>
+                <tr><td><code class="inline">DELETE</code></td><td>Removes a record</td><td>"Remove this student"</td><td><span class="badge text-bg-secondary">Next</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 mt-4">Common status codes</h3>
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+              <thead class="table-light">
+                <tr><th>Code</th><th>Name</th><th>Meaning</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="badge text-bg-success">200</span></td><td>OK</td><td>The request worked (our GET reply).</td></tr>
+                <tr><td><span class="badge text-bg-success">201</span></td><td>Created</td><td>A new record was made.</td></tr>
+                <tr><td><span class="badge text-bg-warning text-dark">400</span></td><td>Bad Request</td><td>The client sent wrong data.</td></tr>
+                <tr><td><span class="badge text-bg-warning text-dark">401 / 403</span></td><td>Unauthorized / Forbidden</td><td>Not logged in, or not allowed.</td></tr>
+                <tr><td><span class="badge text-bg-danger">404</span></td><td>Not Found</td><td>The URL or record does not exist.</td></tr>
+                <tr><td><span class="badge text-bg-warning text-dark">405</span></td><td>Method Not Allowed</td><td>The URL does not accept this method.</td></tr>
+                <tr><td><span class="badge text-bg-danger">500</span></td><td>Server Error</td><td>Something broke in the server code.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="h6 mt-4">DRF pieces used in this class</h3>
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0">
+              <thead class="table-light">
+                <tr><th>Piece</th><th>Import from</th><th>Job</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="inline">api_view</code></td><td><code class="inline">rest_framework.decorators</code></td><td>Makes a function an API view and limits the methods.</td></tr>
+                <tr><td><code class="inline">Response</code></td><td><code class="inline">rest_framework.response</code></td><td>Sends data back to the client.</td></tr>
+                <tr><td><code class="inline">serializers.ModelSerializer</code></td><td><code class="inline">rest_framework</code></td><td>Converts model data to JSON.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. MISTAKES -->
+    <section id="mistakes" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-warning text-dark"><h2>10. Common Mistakes and Good Habits</h2></div>
+        <div class="card-body">
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Mistake 1: Forgetting 'rest_framework' in INSTALLED_APPS</h3>
+            <p class="mb-0">Without it, the browsable page cannot find its template, and Django shows a <em>TemplateDoesNotExist</em> error for <code class="inline">rest_framework/api.html</code>.</p>
+          </div>
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Mistake 2: Wrong app name</h3>
+            <p class="mb-0">If the name in <code class="inline">INSTALLED_APPS</code> or <code class="inline">include()</code> does not match the real folder, you get <em>ModuleNotFoundError</em>.</p>
+          </div>
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Mistake 3: Misspelled file name</h3>
+            <p class="mb-0">A file named <code class="inline">serlizers.py</code> will not be found by <code class="inline">from .serializers import ...</code>. Name it <code class="inline">serializers.py</code>.</p>
+          </div>
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Mistake 4: Forgetting many=True for a list</h3>
+            <p class="mb-0">If you pass a queryset without <code class="inline">many=True</code>, Django shows an AttributeError about a field on the QuerySet.</p>
+          </div>
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Mistake 5: Forgetting migrations</h3>
+            <p class="mb-0">If you skip <code class="inline">makemigrations</code> and <code class="inline">migrate</code>, the student table does not exist, and you will see a "no such table" error.</p>
+          </div>
+          <div class="alert alert-danger" role="alert">
+            <h3 class="h6 alert-heading">Mistake 6: Forgetting the api/ part of the URL</h3>
+            <p class="mb-0">The correct address is <code class="inline">/api/students/</code>, not <code class="inline">/students/</code>. The <code class="inline">api/</code> part comes from the project <code class="inline">urls.py</code>.</p>
+          </div>
+          <div class="alert alert-warning" role="alert">
+            <h3 class="h6 alert-heading">Watch out: fields = '__all__' shows everything</h3>
+            <p class="mb-0">It is quick for learning. In real projects, list the fields you want to show, so private fields are not sent by mistake.</p>
+          </div>
+          <div class="alert alert-warning" role="alert">
+            <h3 class="h6 alert-heading">Watch out: this API is open to everyone</h3>
+            <p class="mb-0">We have not added login or permissions yet. Anyone who knows the URL can read the list. Authentication and permissions are the next things to learn.</p>
+          </div>
+          <div class="alert alert-success mb-0" role="alert">
+            <h3 class="h6 alert-heading">Good habits</h3>
+            <ul class="mb-0">
+              <li>Use plural names in URLs, like <code class="inline">students/</code>.</li>
+              <li>Keep serializers in their own file, <code class="inline">serializers.py</code>.</li>
+              <li>Test in the browsable API first, then in Postman or curl.</li>
+              <li>Read the error message. It usually names the exact file or field that is wrong.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. INTERVIEW -->
+    <section id="interview" class="doc-section mb-5">
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white"><h2>11. Interview Questions and Answers</h2></div>
+        <div class="card-body">
+          <div class="alert alert-warning" role="alert">
+            <strong>How to answer well:</strong> Give the definition first, then a small example, then one point about why it matters. Keep each answer to three or four sentences.
+          </div>
+
+          <div class="accordion" id="interviewAccordion">
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1" aria-expanded="true" aria-controls="q1">Q1. What is an API?</button>
+              </h3>
+              <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">An API (Application Programming Interface) is a way for two programs to talk to each other. One program sends a request, and the other sends back a response.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2" aria-expanded="false" aria-controls="q2">Q2. What is a REST API?</button>
+              </h3>
+              <div id="q2" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">It is a web API that follows REST rules. The client uses URLs and HTTP methods (GET, POST, PUT, PATCH, DELETE) to work with data, and the server usually replies in JSON.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3" aria-expanded="false" aria-controls="q3">Q3. What is the difference between REST and a REST API?</button>
+              </h3>
+              <div id="q3" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">REST is an architecture style, a set of rules. A REST API is a real API that follows those rules.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4" aria-expanded="false" aria-controls="q4">Q4. Where does a REST API sit?</button>
+              </h3>
+              <div id="q4" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">Between the client and the server. It is the front door of the server. The server code talks to the database, so the client never reaches the database directly. This keeps the data safe and lets many kinds of clients use one backend.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5" aria-expanded="false" aria-controls="q5">Q5. What is Django REST Framework, and why use it?</button>
+              </h3>
+              <div id="q5" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">It is a toolkit built on top of Django for creating web APIs. It gives serializers, API views, authentication, permissions, pagination and a browsable API, so we write less code and follow a standard way.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q6" aria-expanded="false" aria-controls="q6">Q6. What is a serializer? Why do we need it?</button>
+              </h3>
+              <div id="q6" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">A serializer converts Django model data (Python objects) into simple data like JSON, and it can also convert incoming JSON back into data and check it. We need it because a client cannot understand Python objects.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q7" aria-expanded="false" aria-controls="q7">Q7. What does @api_view(['GET']) do?</button>
+              </h3>
+              <div id="q7" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">It makes a function-based view work as a DRF API view and allows only the listed HTTP methods. Any other method, such as POST, gets a 405 Method Not Allowed response.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q8" aria-expanded="false" aria-controls="q8">Q8. What does many=True mean?</button>
+              </h3>
+              <div id="q8" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">It tells the serializer that we are giving it many objects (a queryset or a list), not just one. Without it, the serializer expects a single object and shows an error when it gets a queryset.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q9" aria-expanded="false" aria-controls="q9">Q9. What does fields = '__all__' do in a ModelSerializer?</button>
+              </h3>
+              <div id="q9" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">It includes every field of the model in the output. In real projects, we often list only the needed fields, for example <code class="inline">fields = ['id', 'name']</code>, so private data is not exposed.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q10" aria-expanded="false" aria-controls="q10">Q10. What must you do after installing DRF?</button>
+              </h3>
+              <div id="q10" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                <div class="accordion-body">Add <code class="inline">'rest_framework'</code> to <code class="inline">INSTALLED_APPS</code> in <code class="inline">settings.py</code>. Then create serializers and views, and add URLs for them.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. SUMMARY -->
+    <section id="summary" class="doc-section mb-4">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white"><h2>12. Quick Summary</h2></div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card h-100 border border-success">
+                <div class="card-header bg-success-subtle text-success-emphasis fw-semibold">Key points to remember</div>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">A REST API lets a client ask a server for data using URLs and HTTP methods. The reply is usually JSON.</li>
+                  <li class="list-group-item">REST is the style (rules). A REST API is a real API that follows the rules.</li>
+                  <li class="list-group-item">The API lies between the client and the server. The server talks to the database.</li>
+                  <li class="list-group-item">DRF is a toolkit on top of Django. Install it, and add <code class="inline">'rest_framework'</code> to <code class="inline">INSTALLED_APPS</code>.</li>
+                  <li class="list-group-item">Build order: model, serializer, view, app URLs, project URLs.</li>
+                  <li class="list-group-item"><code class="inline">many=True</code> means "many objects", not "many fields".</li>
+                  <li class="list-group-item">Test at <code class="inline">/api/students/</code>. A GET reply is 200 OK.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card h-100 border border-primary">
+                <div class="card-header bg-primary-subtle text-primary-emphasis fw-semibold">GET API pattern recap</div>
+                <div class="card-body">
+                  <div class="code-wrap">
+                    <button class="btn btn-sm btn-outline-light copy-btn" type="button">Copy</button>
+<pre class="code-block"><code>@api_view(['GET'])
+def student_list(request):
+    students = StudentModel.objects.all()
+    serializer = StudentSerializer(students, many=True)
+    return Response(serializer.data)</code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center pb-5 small">
+    Class 51 &middot; Django REST Framework: Introduction and GET API &middot; Study notes
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Copy buttons for code blocks
+    document.querySelectorAll('.copy-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var code = btn.parentElement.querySelector('pre').innerText;
+        var done = function () {
+          var old = btn.textContent;
+          btn.textContent = 'Copied';
+          setTimeout(function () { btn.textContent = old; }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(done);
+        } else {
+          var t = document.createElement('textarea');
+          t.value = code;
+          document.body.appendChild(t);
+          t.select();
+          document.execCommand('copy');
+          document.body.removeChild(t);
+          done();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

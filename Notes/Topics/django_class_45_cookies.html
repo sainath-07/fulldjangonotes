@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Class 45 — Django Cookies</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{background:#f5f7fb;color:#263238;font-family:Arial,sans-serif;line-height:1.65}
+.navbar{position:sticky;top:0;z-index:1000;box-shadow:0 3px 14px rgba(0,0,0,.18)}
+.hero{background:linear-gradient(135deg,#172554,#2563eb);color:#fff;padding:52px 0}
+.card{border:0;border-radius:16px;overflow:hidden}.shadow-card{box-shadow:0 8px 25px rgba(15,23,42,.09)}
+.section-card{margin-bottom:28px}.section-header{color:#fff;font-weight:700;padding:14px 20px;font-size:1.08rem}
+.blue{background:#2563eb}.green{background:#198754}.orange{background:#fd7e14}.purple{background:#6f42c1}.red{background:#dc3545}.dark{background:#212529}
+.mini{background:#fff;border-radius:14px;padding:20px;height:100%;box-shadow:0 5px 18px rgba(15,23,42,.07)}
+.code{background:#111827;color:#e5e7eb;border-radius:12px;padding:18px;overflow:auto}.code pre{margin:0;font-size:.88rem;line-height:1.55}
+code{color:#c026d3}.code code{color:#e5e7eb}
+.flow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px}.flow-box{background:#eef4ff;border:2px solid #b9d0ff;border-radius:12px;padding:14px;min-width:155px;text-align:center;font-weight:700}.arrow{font-size:27px;color:#2563eb}
+.term{color:#1d4ed8;font-weight:700}.tip{border-left:5px solid #198754;background:#edf9f2}.warn{border-left:5px solid #ffc107;background:#fff8dc}.mistake{border-left:5px solid #dc3545;background:#fff0f0}.interview{border-left:5px solid #6f42c1;background:#f4efff}
+table th{background:#eef2f7!important}.nav-link{font-size:.87rem}.small-note{font-size:.9rem;color:#64748b}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<div class="container">
+<a class="navbar-brand fw-bold" href="#top">Django Class 45</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#cookies">Cookies</a></li>
+<li class="nav-item"><a class="nav-link" href="#storage">Storage</a></li>
+<li class="nav-item"><a class="nav-link" href="#working">Working</a></li>
+<li class="nav-item"><a class="nav-link" href="#security">Security</a></li>
+<li class="nav-item"><a class="nav-link" href="#compare">Compare</a></li>
+<li class="nav-item"><a class="nav-link" href="#code">Code</a></li>
+<li class="nav-item"><a class="nav-link" href="#mistakes">Mistakes</a></li>
+<li class="nav-item"><a class="nav-link" href="#interview">Interview</a></li>
+</ul>
+</div></div></nav>
+
+<header class="hero" id="top">
+<div class="container">
+<span class="badge bg-light text-primary mb-3">Django • Class 45</span>
+<h1 class="display-5 fw-bold">Django Cookies</h1>
+<p class="lead mb-0">A simple, interview-ready guide to cookies, sessions, storage, security, and Django implementation.</p>
+</div>
+</header>
+
+<main class="container py-5">
+
+<section id="cookies" class="section-card">
+<div class="card shadow-card">
+<div class="section-header blue">1. What Are Cookies?</div>
+<div class="card-body p-4">
+<h4>Definition</h4>
+<p>A <span class="term">cookie</span> is a small piece of data that a website asks the browser to store. The browser can send that cookie back to the same website with later requests.</p>
+<div class="alert alert-primary"><strong>In simple words:</strong> A cookie helps a website remember small pieces of information between requests.</div>
+<h5>Layman example</h5>
+<p>Imagine a shop gives you a small identification card. When you visit the shop again, you show the card and the shop can recognize you. A browser cookie works in a similar way.</p>
+<div class="alert warn"><strong>Important:</strong> Cookies are stored on the client side, so the user can inspect them. Do not store passwords or other sensitive secrets directly in an ordinary cookie.</div>
+</div></div></section>
+
+<section id="storage" class="section-card">
+<div class="card shadow-card">
+<div class="section-header green">2. Where Are Cookies and Sessions Stored?</div>
+<div class="card-body p-4">
+<div class="row g-4">
+<div class="col-md-6"><div class="mini">
+<h4>🍪 Cookies</h4><p><strong>Stored:</strong> Client side, mainly in the browser.</p>
+<p>The browser manages the cookie and sends eligible cookies with requests to the related website.</p>
+<div class="alert alert-success mb-0"><strong>Remember:</strong> Cookie → Browser / Client</div>
+</div></div>
+<div class="col-md-6"><div class="mini">
+<h4>🗄️ Django Session</h4><p><strong>Session data:</strong> Stored according to Django's configured session backend. With the common database-backed session engine, the session data is stored in the database.</p>
+<p>The browser normally stores a session ID in a cookie.</p>
+<div class="alert alert-info mb-0"><strong>Remember:</strong> Session data → Server-side storage; Session ID → Browser</div>
+</div></div>
+</div>
+<div class="alert alert-secondary mt-4"><strong>Interview clarification:</strong> Saying “sessions are stored on the server” is a useful basic explanation. Technically, Django supports different session backends, so the exact storage location depends on configuration.</div>
+</div></div></section>
+
+<section id="working" class="section-card">
+<div class="card shadow-card">
+<div class="section-header orange">3. How Cookies Work</div>
+<div class="card-body p-4">
+<h4>Step-by-step flow</h4>
+<div class="flow my-4">
+<div class="flow-box">1. Browser<br>requests page</div><div class="arrow">→</div>
+<div class="flow-box">2. Django<br>creates response</div><div class="arrow">→</div>
+<div class="flow-box">3. Response<br>sets cookie</div><div class="arrow">→</div>
+<div class="flow-box">4. Browser<br>stores cookie</div><div class="arrow">→</div>
+<div class="flow-box">5. Future request<br>sends cookie</div>
+</div>
+<div class="code"><pre>Browser → GET /set_cookies/
+Django  → Response + Set-Cookie
+Browser → stores cookie
+Browser → GET /get_cookies/ + Cookie header
+Django  → request.COOKIES → reads values</pre></div>
+<h5 class="mt-4">Layman example</h5>
+<p>You select a language on a website. The site can save that preference in a cookie. On your next visit, the browser sends the cookie and the application can use the saved preference.</p>
+<div class="alert alert-info"><strong>Key idea:</strong> The server sends a <code>Set-Cookie</code> instruction in a response. The browser stores it and can later send it in a <code>Cookie</code> request header.</div>
+</div></div></section>
+
+<section id="security" class="section-card">
+<div class="card shadow-card">
+<div class="section-header red">4. Are Sessions More Secure Than Cookies?</div>
+<div class="card-body p-4">
+<p>The answer depends on the implementation. A server-backed session can keep sensitive application state on the server, while the browser mainly holds a session identifier. However, the session identifier itself is sensitive and must be protected.</p>
+<div class="row g-4">
+<div class="col-md-6"><div class="mini">
+<h5>🍪 Cookie security concerns</h5>
+<ul>
+<li>The browser can inspect cookie values.</li>
+<li>Without <code>HttpOnly</code>, JavaScript can normally access the cookie.</li>
+<li>Without <code>Secure</code>, a cookie can be sent over HTTP.</li>
+<li>Incorrect <code>SameSite</code> settings can increase cross-site request risks.</li>
+</ul></div></div>
+<div class="col-md-6"><div class="mini">
+<h5>🛡️ Session security</h5>
+<ul>
+<li>The actual server-side session state need not be exposed to the browser.</li>
+<li>The browser normally stores a session identifier.</li>
+<li>The session ID must be protected from theft and fixation.</li>
+<li>HTTPS and secure cookie settings are important for authentication sessions.</li>
+</ul></div></div>
+</div>
+<div class="alert tip mt-4"><strong>Interview-ready answer:</strong> For sensitive server-managed state, a server-backed session can reduce exposure of the actual state because the browser mainly stores an identifier. But sessions are not automatically secure; the session ID and the complete authentication flow must also be protected.</div>
+</div></div></section>
+
+<section class="section-card">
+<div class="card shadow-card">
+<div class="section-header purple">5. Why Do We Use Cookies?</div>
+<div class="card-body p-4">
+<div class="row g-3">
+<div class="col-md-4"><div class="mini"><h5>👤 Preferences</h5><p>Remember language, theme, or other small preferences.</p></div></div>
+<div class="col-md-4"><div class="mini"><h5>🛒 Shopping State</h5><p>Maintain small client-side state such as a cart identifier.</p></div></div>
+<div class="col-md-4"><div class="mini"><h5>🔐 Login Sessions</h5><p>Browsers commonly store a session identifier in a cookie.</p></div></div>
+<div class="col-md-4"><div class="mini"><h5>📊 Analytics</h5><p>Websites may use cookies to recognize returning browsers, subject to applicable privacy requirements.</p></div></div>
+<div class="col-md-4"><div class="mini"><h5>⚙️ Application State</h5><p>Store small pieces of non-sensitive state that the browser needs to send back.</p></div></div>
+<div class="col-md-4"><div class="mini"><h5>⏳ Expiring Data</h5><p>Use expiration settings when information should remain only for a limited period.</p></div></div>
+</div>
+</div></div></section>
+
+<section id="compare" class="section-card">
+<div class="card shadow-card">
+<div class="section-header dark">6. Cookies vs Sessions — Difference</div>
+<div class="card-body p-4">
+<div class="table-responsive">
+<table class="table table-bordered align-middle">
+<thead><tr><th>Feature</th><th>Cookie</th><th>Django Session</th></tr></thead>
+<tbody>
+<tr><td>Typical storage</td><td>Browser / client</td><td>Depends on session backend; commonly database/server-side</td></tr>
+<tr><td>Browser sends</td><td>Cookie value</td><td>Usually a session ID cookie</td></tr>
+<tr><td>Actual state</td><td>Can be stored in cookie itself</td><td>Usually stored outside the browser with server-backed sessions</td></tr>
+<tr><td>Client visibility</td><td>Cookie value can be inspected by the user</td><td>Session data is generally not in the session ID cookie</td></tr>
+<tr><td>Good for</td><td>Small, non-sensitive preferences/state</td><td>Login and server-managed user/session state</td></tr>
+<tr><td>Security</td><td>Use appropriate Secure, HttpOnly and SameSite settings</td><td>Protect session IDs and use HTTPS and suitable session settings</td></tr>
+<tr><td>Lifetime</td><td>max_age / expires and browser rules</td><td>Django session configuration and backend behavior</td></tr>
+</tbody></table></div>
+<div class="alert alert-primary"><strong>Easy memory trick:</strong> Cookie = small data kept by the browser. Session = server-managed state, usually identified to the browser by a session ID.</div>
+</div></div></section>
+
+<section class="section-card">
+<div class="card shadow-card">
+<div class="section-header blue">7. Which One Should I Use?</div>
+<div class="card-body p-4">
+<div class="row g-4">
+<div class="col-md-6"><div class="mini"><h5>Choose a cookie when...</h5><ul><li>The data is small.</li><li>The browser needs the data on future requests.</li><li>The information is suitable for client-side storage.</li><li>You are storing a preference such as theme or language.</li></ul></div></div>
+<div class="col-md-6"><div class="mini"><h5>Choose a session when...</h5><ul><li>The server should control the state.</li><li>You need login/session state.</li><li>You do not want the actual state exposed to the browser.</li><li>The state is better managed centrally by the server.</li></ul></div></div>
+</div>
+<div class="alert alert-success mt-4"><strong>Practical rule:</strong> Keep sensitive application state server-side when appropriate. Keep cookies small and avoid putting sensitive secrets directly into them.</div>
+</div></div></section>
+
+<section id="code" class="section-card">
+<div class="card shadow-card">
+<div class="section-header green">8. Django Example — Set, Get and Delete Cookies</div>
+<div class="card-body p-4">
+<h5>Project URL configuration — innerproject/urls.py</h5>
+<div class="code"><pre>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls'))
+]</pre></div>
+
+<h5 class="mt-4">Views — blog_app/views.py</h5>
+<div class="code"><pre>from django.shortcuts import render
+from django.http import HttpResponse
+
+# Create your views here.
+
+def set_cookies(request):
+    response = HttpResponse('Cookie set successfully')
+
+    # max_age is in seconds
+    response.set_cookie(
+        'username',
+        'sainath biradar',
+        max_age=60 * 60 * 24
+    )
+
+    response.set_cookie(
+        'course',
+        'django full course',
+        max_age=60 * 60 * 24
+    )
+
+    return response
+
+
+# get cookies
+def get_cookies(request):
+    username = request.COOKIES.get('username', 'Guest')
+    course = request.COOKIES.get(
+        'course',
+        'No Course Selected'
+    )
+
+    if 'username' in request.COOKIES:
+        return HttpResponse(
+            f'username: {username}, course: {course}'
+        )
+    else:
+        return HttpResponse('No cookies found')
+
+
+# delete cookies
+def delete_cookies(request):
+    response = HttpResponse(
+        'cookie deleted successfully'
+    )
+
+    response.delete_cookie('username')
+    response.delete_cookie('course')
+
+    return response</pre></div>
+
+<h5 class="mt-4">URLs — blog_app/urls.py</h5>
+<div class="code"><pre>from . import views
+from django.urls import path
+
+urlpatterns = [
+    path(
+        'set_cookies/',
+        views.set_cookies,
+        name='set_cookies'
+    ),
+    path(
+        'get_cookies/',
+        views.get_cookies,
+        name='get_cookies'
+    ),
+    path(
+        'delete_cookies/',
+        views.delete_cookies,
+        name='delete_cookies'
+    ),
+]</pre></div>
+
+<div class="alert alert-info mt-4"><strong>Project structure note:</strong> Your example uses <code>include('blog.urls')</code> but names the app folder <code>blog_app</code>. Ensure your real Django URL module is actually called <code>blog.urls</code>, or change the include path to match your project.</div>
+</div></div></section>
+
+<section class="section-card">
+<div class="card shadow-card">
+<div class="section-header orange">9. Understanding set_cookie() Options</div>
+<div class="card-body p-4">
+<p>Django provides several options when calling <code>response.set_cookie()</code>.</p>
+<div class="table-responsive">
+<table class="table table-bordered align-middle">
+<thead><tr><th>Option</th><th>Meaning</th><th>Example / Use</th></tr></thead>
+<tbody>
+<tr><td><code>key</code></td><td>Name of the cookie.</td><td><code>'username'</code></td></tr>
+<tr><td><code>value</code></td><td>Value stored in the cookie.</td><td><code>'sainath'</code></td></tr>
+<tr><td><code>max_age</code></td><td>Maximum lifetime in seconds.</td><td><code>60*60*24</code> = 1 day</td></tr>
+<tr><td><code>expires</code></td><td>Specific expiration date/time.</td><td>Useful for an exact expiry.</td></tr>
+<tr><td><code>path</code></td><td>URL path for which the cookie is sent.</td><td><code>'/'</code> for the whole site</td></tr>
+<tr><td><code>domain</code></td><td>Domain for which the cookie is valid.</td><td>Use carefully with subdomains.</td></tr>
+<tr><td><code>secure</code></td><td>Cookie is sent only over HTTPS.</td><td><code>True</code> for HTTPS deployments</td></tr>
+<tr><td><code>httponly</code></td><td>Blocks normal JavaScript access through <code>document.cookie</code>.</td><td>Useful for cookies that JS does not need</td></tr>
+<tr><td><code>samesite</code></td><td>Controls cross-site sending behavior.</td><td><code>'Lax'</code>, <code>'Strict'</code>, or <code>'None'</code></td></tr>
+</tbody></table></div>
+<div class="code"><pre># Example of stronger settings for a sensitive cookie
+response.set_cookie(
+    'session_token',
+    token,
+    max_age=60 * 60,
+    secure=True,
+    httponly=True,
+    samesite='Lax'
+)</pre></div>
+<div class="alert warn"><strong>Note:</strong> The exact cookie settings should match your application's requirements. For sensitive authentication cookies, HTTPS and appropriate Secure, HttpOnly, and SameSite settings are important.</div>
+</div></div></section>
+
+<section class="section-card">
+<div class="card shadow-card">
+<div class="section-header purple">10. How the Given Code Works</div>
+<div class="card-body p-4">
+<div class="row g-4">
+<div class="col-md-4"><div class="mini"><h5>① set_cookies()</h5><p>Create an <code>HttpResponse</code>.</p><p>Call <code>response.set_cookie()</code>.</p><p>Return the response.</p><div class="alert alert-light mb-0">Django → Set-Cookie → Browser</div></div></div>
+<div class="col-md-4"><div class="mini"><h5>② get_cookies()</h5><p>Read values from <code>request.COOKIES</code>.</p><p><code>.get()</code> supplies a default if a cookie is missing.</p><div class="alert alert-light mb-0">Browser → Cookie → Django</div></div></div>
+<div class="col-md-4"><div class="mini"><h5>③ delete_cookies()</h5><p>Create a response.</p><p>Call <code>delete_cookie()</code> for each cookie.</p><div class="alert alert-light mb-0">Django → Delete instruction → Browser</div></div></div>
+</div>
+<h5 class="mt-4">Request flow</h5>
+<div class="flow">
+<div class="flow-box">/set_cookies/</div><div class="arrow">→</div>
+<div class="flow-box">Browser stores cookies</div><div class="arrow">→</div>
+<div class="flow-box">/get_cookies/</div><div class="arrow">→</div>
+<div class="flow-box">Django reads request.COOKIES</div><div class="arrow">→</div>
+<div class="flow-box">/delete_cookies/</div>
+</div>
+</div></div></section>
+
+<section id="mistakes" class="section-card">
+<div class="card shadow-card">
+<div class="section-header red">11. Common Developer Mistakes</div>
+<div class="card-body p-4">
+<div class="alert mistake"><strong>1. Storing passwords in cookies</strong><br>Never store plain passwords or private keys in cookies.</div>
+<div class="alert mistake"><strong>2. Forgetting HTTPS</strong><br>For sensitive cookies, use HTTPS and the <code>Secure</code> attribute as appropriate.</div>
+<div class="alert mistake"><strong>3. Making sensitive cookies readable by JavaScript</strong><br>If JavaScript does not need access, use <code>HttpOnly=True</code>.</div>
+<div class="alert mistake"><strong>4. Confusing cookie data with a session ID</strong><br>A server-backed session usually keeps application state outside the browser while the browser stores an identifier.</div>
+<div class="alert mistake"><strong>5. Using a cookie for large data</strong><br>Cookies are intended for small pieces of data and are sent with requests, so unnecessarily large cookies can hurt performance.</div>
+<div class="alert mistake mb-0"><strong>6. Assuming cookies are automatically secure</strong><br>Cookie security depends on configuration and application design. Use suitable attributes and protect the overall authentication flow.</div>
+</div></div></section>
+
+<section id="interview" class="section-card">
+<div class="card shadow-card">
+<div class="section-header dark">12. Interview Questions & Ready Answers</div>
+<div class="card-body p-4">
+<div class="alert interview">
+<strong>Q1. What is a cookie?</strong><br>
+A cookie is a small piece of data stored by the browser for a website. The browser can send it with later requests.
+</div>
+<div class="alert interview">
+<strong>Q2. Where are cookies stored?</strong><br>
+Cookies are stored on the client side, inside the browser.
+</div>
+<div class="alert interview">
+<strong>Q3. Where is a Django session stored?</strong><br>
+Django session data is stored according to the configured session backend. With the common database-backed backend, the data is stored in the database, while the browser normally stores a session ID.
+</div>
+<div class="alert interview">
+<strong>Q4. How does a cookie work?</strong><br>
+The server sends a Set-Cookie response header. The browser stores the cookie. On later matching requests, the browser sends the cookie back to the server.
+</div>
+<div class="alert interview">
+<strong>Q5. Cookie or session — which is more secure?</strong><br>
+A server-backed session can keep sensitive state away from the browser, but the session ID must be protected. Neither option is automatically secure without correct configuration.
+</div>
+<div class="alert interview">
+<strong>Q6. How do you set a cookie in Django?</strong><br>
+Use <code>response.set_cookie(key, value, ...)</code>.
+</div>
+<div class="alert interview">
+<strong>Q7. How do you read a cookie?</strong><br>
+Use <code>request.COOKIES.get('cookie_name')</code>.
+</div>
+<div class="alert interview">
+<strong>Q8. How do you delete a cookie?</strong><br>
+Use <code>response.delete_cookie('cookie_name')</code>.
+</div>
+<div class="alert interview">
+<strong>Q9. What is max_age?</strong><br>
+It defines the cookie lifetime in seconds.
+</div>
+<div class="alert interview mb-0">
+<strong>Q10. What are Secure, HttpOnly and SameSite?</strong><br>
+<code>Secure</code> restricts sending to HTTPS. <code>HttpOnly</code> prevents normal JavaScript access. <code>SameSite</code> controls when cookies are sent in cross-site requests.
+</div>
+</div></div></section>
+
+<section class="section-card">
+<div class="card shadow-card">
+<div class="section-header green">13. Quick Revision</div>
+<div class="card-body p-4">
+<div class="row g-3">
+<div class="col-md-3"><div class="mini text-center"><h5>🍪 Cookie</h5><p class="mb-0">Browser-side data</p></div></div>
+<div class="col-md-3"><div class="mini text-center"><h5>🗄️ Session</h5><p class="mb-0">Server-managed state</p></div></div>
+<div class="col-md-3"><div class="mini text-center"><h5>📥 Read</h5><p class="mb-0"><code>request.COOKIES</code></p></div></div>
+<div class="col-md-3"><div class="mini text-center"><h5>📤 Set</h5><p class="mb-0"><code>response.set_cookie()</code></p></div></div>
+</div>
+<div class="alert alert-primary mt-4 mb-0"><strong>One-line interview summary:</strong> “Cookies are small browser-stored values, while Django sessions provide server-managed state and commonly use a browser cookie containing a session identifier.”</div>
+</div></div></section>
+
+<footer class="text-center text-secondary py-4">
+<p class="mb-1"><strong>Django Class 45 — Cookies</strong></p>
+<p class="small-note mb-0">Designed as an interview-ready Bootstrap 5 documentation page.</p>
+</footer>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
