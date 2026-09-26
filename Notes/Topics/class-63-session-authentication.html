@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 63 - Session Authentication | DRF Notes</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<style>
+  body {
+    background: linear-gradient(180deg, #f4f6fb 0%, #eef1f8 100%);
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    color: #22293b;
+  }
+  .hero-header {
+    background: linear-gradient(135deg, #0d9488 0%, #164e63 100%);
+    color: #fff;
+    padding: 48px 0 40px 0;
+    border-radius: 0 0 30px 30px;
+    box-shadow: 0 10px 30px rgba(22,78,99,0.25);
+  }
+  .hero-header h1 { font-weight: 700; }
+  .badge-class {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+  }
+  .card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(30,40,90,0.08);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .card-header-custom {
+    padding: 16px 24px;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hdr-teal    { background: linear-gradient(90deg,#0d9488,#14b8a6); }
+  .hdr-purple  { background: linear-gradient(90deg,#7209b7,#b5179e); }
+  .hdr-orange  { background: linear-gradient(90deg,#f77f00,#fcbf49); color:#2b2b2b; }
+  .hdr-green   { background: linear-gradient(90deg,#2b9348,#55a630); }
+  .hdr-blue    { background: linear-gradient(90deg,#4361ee,#4895ef); }
+  .hdr-red     { background: linear-gradient(90deg,#e63946,#ff6b6b); }
+  .hdr-dark    { background: linear-gradient(90deg,#22293b,#3a4258); }
+  .card-body-custom { padding: 26px; background: #fff; }
+  pre.code-block {
+    background: #1e1e2e;
+    color: #e6e6e6;
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 0.88rem;
+    overflow-x: auto;
+    border-left: 4px solid #0d9488;
+  }
+  .file-tag {
+    display: inline-block;
+    background: #22293b;
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.82rem;
+    font-family: monospace;
+    margin-bottom: -1px;
+  }
+  .alert-custom {
+    border-radius: 12px;
+    border: none;
+    padding: 16px 20px;
+  }
+  .qa-question {
+    font-weight: 600;
+    color: #164e63;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .qa-question i { margin-top: 3px; }
+  .qa-answer {
+    background: #f2fbfa;
+    border-left: 4px solid #0d9488;
+    padding: 14px 18px;
+    border-radius: 0 10px 10px 0;
+    margin-top: 8px;
+    margin-bottom: 20px;
+  }
+  .diagram-box {
+    background: #fff;
+    border: 2px dashed #b7e4df;
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .flow-step {
+    background: #fff;
+    border: 2px solid #0d9488;
+    border-radius: 12px;
+    padding: 12px 18px;
+    text-align: center;
+    font-weight: 600;
+    color: #22293b;
+    min-width: 160px;
+    box-shadow: 0 4px 10px rgba(13,148,136,0.15);
+  }
+  .flow-step.fail { border-color: #e63946; color: #e63946; }
+  .flow-step.pass { border-color: #2b9348; color: #2b9348; }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #0d9488;
+    align-self: center;
+  }
+  .comparison-table th { background: #22293b; color: #fff; }
+  .interview-tip {
+    background: linear-gradient(135deg,#fff8e6,#fff3d6);
+    border: 1px solid #ffe1a8;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+  }
+  .interview-tip .tip-num {
+    background: #f77f00;
+    color: #fff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 10px;
+    font-size: 0.85rem;
+  }
+  footer {
+    padding: 30px 0;
+    text-align: center;
+    color: #6c7291;
+    font-size: 0.9rem;
+  }
+  .toc a { text-decoration: none; color: #164e63; font-weight: 500; }
+  .toc a:hover { text-decoration: underline; }
+  code.inline { background: #eef1f8; color: #164e63; padding: 2px 6px; border-radius: 6px; }
+  .cookie-flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero-header text-center mb-5">
+  <div class="container">
+    <span class="badge-class"><i class="fa-solid fa-graduation-cap"></i> Class 63 &nbsp;|&nbsp; Django REST Framework</span>
+    <h1 class="mt-3">Session Authentication</h1>
+    <p class="mb-0 fs-5">Cookies • Login Sessions • IsAuthenticatedOrReadOnly</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <section id="toc">
+  <div class="card">
+    <div class="card-header-custom hdr-dark"><i class="fa-solid fa-list"></i> Table of Contents</div>
+    <div class="card-body-custom">
+      <div class="row toc">
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#session-auth">1. What is Session Authentication?</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#how-it-works">2. How It Works Behind Login Sessions (Cookies)</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#permission">3. IsAuthenticatedOrReadOnly</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#qa">4. Key Q&amp;A</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#when-use">5. When to Use Session Authentication</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#diagram">6. Cookie / Session Flow Diagram</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#code">7. Demo Code</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#interview">8. Interview Tips</a></div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Session Authentication -->
+  <section id="session-auth">
+  <div class="card">
+    <div class="card-header-custom hdr-teal"><i class="fa-solid fa-cookie-bite"></i> 1. What is Session Authentication?</div>
+    <div class="card-body-custom">
+      <p><strong>Session Authentication</strong> uses Django's built-in session framework to authenticate requests. When a user logs in (e.g. through the browsable API login page or Django's admin), Django creates a <strong>session</strong> on the server and sends the client a <code class="inline">sessionid</code> cookie.</p>
+      <p>On every subsequent request, the browser automatically sends this cookie back. DRF's <code class="inline">rest_framework.authentication.SessionAuthentication</code> reads the session ID, looks up the session on the server, and identifies the logged-in user — attaching it to <code class="inline">request.user</code>.</p>
+      <div class="alert alert-info alert-custom">
+        <i class="fa-solid fa-circle-info"></i>
+        Session Authentication is tightly coupled with Django's session middleware and is mainly designed for <strong>browser-based clients</strong> that share cookies with the API (e.g. the DRF browsable API, or a web app on the same domain).
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how-it-works">
+  <div class="card">
+    <div class="card-header-custom hdr-purple"><i class="fa-solid fa-gears"></i> 2. How It Works Behind Login Sessions (Cookies)</div>
+    <div class="card-body-custom">
+      <ol class="mb-3">
+        <li class="mb-2"><strong>Login:</strong> User submits credentials (username/password) to a login view.</li>
+        <li class="mb-2"><strong>Session Created:</strong> Django creates a session record on the server (in DB/cache) and generates a unique session key.</li>
+        <li class="mb-2"><strong>Cookie Set:</strong> The server responds with a <code class="inline">Set-Cookie: sessionid=&lt;key&gt;</code> header. The browser stores this cookie.</li>
+        <li class="mb-2"><strong>Subsequent Requests:</strong> The browser automatically attaches the <code class="inline">sessionid</code> cookie to every request to that domain.</li>
+        <li class="mb-2"><strong>Server Lookup:</strong> <code class="inline">SessionAuthentication</code> reads the cookie, fetches the matching session, and resolves the logged-in <code class="inline">User</code> object.</li>
+        <li class="mb-2"><strong>CSRF Protection:</strong> Since cookies are sent automatically by the browser, unsafe methods (POST, PUT, DELETE) require a valid <code class="inline">CSRF token</code> to prevent Cross-Site Request Forgery.</li>
+      </ol>
+      <div class="alert alert-warning alert-custom">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Because cookies are sent automatically by browsers, Session Authentication needs <strong>CSRF protection</strong> for unsafe HTTP methods — this is different from token-based schemes where CSRF isn't a concern.
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Permission -->
+  <section id="permission">
+  <div class="card">
+    <div class="card-header-custom hdr-orange"><i class="fa-solid fa-user-shield"></i> 3. What is IsAuthenticatedOrReadOnly?</div>
+    <div class="card-body-custom">
+      <p><code class="inline">IsAuthenticatedOrReadOnly</code> is a DRF permission class that:</p>
+      <div class="table-responsive">
+        <table class="table table-bordered comparison-table">
+          <thead>
+            <tr><th>Request Type</th><th>Who can access?</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Safe / read-only methods — <code class="inline">GET, HEAD, OPTIONS</code></td>
+              <td>Anyone — authenticated or anonymous</td>
+            </tr>
+            <tr>
+              <td>Unsafe / write methods — <code class="inline">POST, PUT, PATCH, DELETE</code></td>
+              <td>Only authenticated users</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-info alert-custom">
+        <i class="fa-solid fa-circle-info"></i>
+        It's a hybrid of <code class="inline">AllowAny</code> (for reads) and <code class="inline">IsAuthenticated</code> (for writes) — perfect for public-read, authenticated-write APIs like blogs.
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Q&A -->
+  <section id="qa">
+  <div class="card">
+    <div class="card-header-custom hdr-green"><i class="fa-solid fa-circle-question"></i> 4. Key Questions Answered</div>
+    <div class="card-body-custom">
+
+      <div class="qa-question"><i class="fa-solid fa-arrow-right"></i> Does IsAuthenticatedOrReadOnly provide access to use the GET method without any authentication?</div>
+      <div class="qa-answer">
+        <strong>Yes.</strong> GET (along with HEAD and OPTIONS) is treated as a "safe" method, so <code class="inline">IsAuthenticatedOrReadOnly</code> allows <strong>any user — authenticated or not — to perform GET requests freely</strong>. Only write operations (POST, PUT, PATCH, DELETE) require the user to be logged in.
+      </div>
+
+    </div>
+  </div>
+  </section>
+
+  <!-- When to use -->
+  <section id="when-use">
+  <div class="card">
+    <div class="card-header-custom hdr-blue"><i class="fa-solid fa-lightbulb"></i> 5. When to Use Session Authentication</div>
+    <div class="card-body-custom">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Web applications where the frontend and API share the same domain/session (server-rendered or same-origin SPA)</li>
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> When using Django's browsable API or Django Admin alongside DRF</li>
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Applications that already rely on Django's login system and session middleware</li>
+        <li class="list-group-item"><i class="fa-solid fa-xmark text-danger"></i> <strong>Avoid</strong> for mobile apps or cross-domain/third-party clients — prefer Token or JWT Authentication there, since cookies don't transfer well across native clients/domains</li>
+      </ul>
+    </div>
+  </div>
+  </section>
+
+  <!-- Diagram -->
+  <section id="diagram">
+  <div class="card">
+    <div class="card-header-custom hdr-dark"><i class="fa-solid fa-diagram-project"></i> 6. Cookie / Session Flow Diagram</div>
+    <div class="card-body-custom">
+      <div class="diagram-box">
+        <p class="text-center text-muted mb-4">Login &rarr; Session Cookie &rarr; Authenticated Request Flow</p>
+        <div class="cookie-flow">
+          <div class="flow-step"><i class="fa-solid fa-right-to-bracket"></i><br>User Login<br><small>(username/password)</small></div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step"><i class="fa-solid fa-server"></i><br>Django creates<br>Session on Server</div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step"><i class="fa-solid fa-cookie"></i><br>sessionid Cookie<br>sent to Browser</div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step"><i class="fa-solid fa-repeat"></i><br>Cookie auto-sent<br>on every request</div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step pass"><i class="fa-solid fa-circle-check"></i><br>SessionAuthentication<br>resolves request.user</div>
+        </div>
+        <div class="text-center mt-4">
+          <div class="flow-step fail d-inline-block"><i class="fa-solid fa-circle-xmark"></i> Invalid/expired session &rarr; 403 Forbidden (write) or anonymous (read)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Code -->
+  <section id="code">
+  <div class="card">
+    <div class="card-header-custom hdr-teal"><i class="fa-solid fa-code"></i> 7. Demo Code</div>
+    <div class="card-body-custom">
+
+      <div class="file-tag"><i class="fa-solid fa-file-code"></i> innerproject/settings.py</div>
+      <pre class="code-block">REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication'
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+    ],
+}
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'blog',
+    'rest_framework'
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> innerproject/urls.py</div>
+      <pre class="code-block">from django.contrib import admin
+from django.urls import path,include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/',include('blog.urls'))
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/urls.py</div>
+      <pre class="code-block">from django.urls import path
+from . import views
+
+urlpatterns=[
+    path('blogs/',views.blog_list,name="blog_list"),
+    
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/views.py</div>
+      <pre class="code-block">from rest_framework.decorators  import api_view
+from rest_framework.response import Response
+from .models import BlogModel
+from .serializers  import Blogserializers
+from  rest_framework import status
+
+@api_view(['GET','POST'])
+def blog_list(request):
+    if request.method == 'GET':
+        blog = BlogModel.objects.all()
+        serailzer = Blogserializers(blog, many=True)   # GET: serialize queryset with many=True, no data=
+        return Response(serailzer.data)
+
+    if request.method == 'POST':
+        serailzer = Blogserializers(data=request.data)
+        if serailzer.is_valid():
+            serailzer.save()
+            return Response(serailzer.data, status=status.HTTP_201_CREATED)   # 201 for created
+        return Response(serailzer.errors, status=status.HTTP_400_BAD_REQUEST)  # 400 for invalid data</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/serializers.py</div>
+      <pre class="code-block">from .models import BlogModel
+from rest_framework import serializers
+
+class Blogserializers(serializers.ModelSerializer):
+    class Meta:
+        model = BlogModel
+        fields = "__all__"</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/models.py</div>
+      <pre class="code-block">from django.db import models
+
+# Create your models here.
+class BlogModel(models.Model):
+    title=models.CharField(max_length=100)
+    content=models.TextField()
+
+
+    def __str__(self):
+        return self.title</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/admin.py</div>
+      <pre class="code-block">from django.contrib import admin
+from .models import BlogModel
+
+# Register your models here.
+@admin.register(BlogModel)
+class BlogAdmin(admin.ModelAdmin):
+   list_display=('title','content')</pre>
+
+      <div class="alert alert-secondary alert-custom mt-3">
+        <i class="fa-solid fa-note-sticky"></i>
+        Note: Variable names like <code class="inline">serailzer</code> are kept exactly as in the original source (a common typo for <code class="inline">serializer</code>) — functionally it still works fine in Python since it's just a variable name.
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Interview Tips -->
+  <section id="interview">
+  <div class="card">
+    <div class="card-header-custom hdr-red"><i class="fa-solid fa-comments"></i> 8. Interview Tips</div>
+    <div class="card-body-custom">
+
+      <div class="interview-tip">
+        <span class="tip-num">1</span><strong>Explain the cookie lifecycle clearly.</strong>
+        <p class="mb-0 mt-2">Login &rarr; server creates session &rarr; sessionid cookie sent &rarr; browser auto-attaches it on future requests &rarr; server resolves the user from the session store.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">2</span><strong>Know why CSRF matters here.</strong>
+        <p class="mb-0 mt-2">Because the browser sends cookies automatically (even for requests it didn't intend), Session Authentication needs CSRF tokens on unsafe methods to prevent forged requests from other sites.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">3</span><strong>Compare with Token/JWT Authentication.</strong>
+        <p class="mb-0 mt-2">Session auth is stateful (server stores session data) and cookie-based; Token/JWT auth is typically stateless and header-based — better suited for mobile apps and cross-domain APIs.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">4</span><strong>Common trick question:</strong>
+        <p class="mb-0 mt-2">"Can an anonymous user fetch data from an endpoint using <code class="inline">IsAuthenticatedOrReadOnly</code>?" — Answer confidently: <strong>Yes</strong>, for safe methods like GET; write methods still need authentication.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">5</span><strong>Be ready to explain scalability trade-offs.</strong>
+        <p class="mb-0 mt-2">Session Authentication requires server-side session storage, which can complicate horizontal scaling compared to stateless token-based schemes.</p>
+      </div>
+
+    </div>
+  </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <hr>
+    <i class="fa-solid fa-code-branch"></i> Class 63 — Django REST Framework Notes | Session Authentication
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

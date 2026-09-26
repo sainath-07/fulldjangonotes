@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 61 - ModelViewSet & Router | DRF Notes</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#4f46e5;
+    --primary-dark:#3730a3;
+    --accent:#0ea5e9;
+    --success:#16a34a;
+    --warning:#d97706;
+    --danger:#dc2626;
+    --bg:#f4f6fb;
+  }
+  body{
+    font-family:'Poppins', sans-serif;
+    background:var(--bg);
+    color:#1f2937;
+  }
+  code, pre, .code-font{
+    font-family:'Fira Code', monospace;
+  }
+  .hero-banner{
+    background:linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color:#fff;
+    padding:3rem 1rem;
+    border-radius:0 0 2rem 2rem;
+    box-shadow:0 10px 30px rgba(79,70,229,.3);
+  }
+  .hero-banner h1{
+    font-weight:700;
+  }
+  .badge-pill{
+    background:rgba(255,255,255,.2);
+    border:1px solid rgba(255,255,255,.4);
+    padding:.4rem .9rem;
+    border-radius:50px;
+    font-size:.85rem;
+  }
+  .section-card{
+    border:none;
+    border-radius:16px;
+    box-shadow:0 6px 20px rgba(31,41,55,.08);
+    margin-bottom:2rem;
+    overflow:hidden;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .section-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 28px rgba(31,41,55,.14);
+  }
+  .card-header-custom{
+    color:#fff;
+    padding:1rem 1.5rem;
+    font-weight:600;
+    font-size:1.15rem;
+    display:flex;
+    align-items:center;
+    gap:.6rem;
+  }
+  .header-indigo{ background:linear-gradient(90deg,#4f46e5,#6366f1); }
+  .header-blue{ background:linear-gradient(90deg,#0284c7,#0ea5e9); }
+  .header-green{ background:linear-gradient(90deg,#15803d,#22c55e); }
+  .header-orange{ background:linear-gradient(90deg,#c2410c,#f97316); }
+  .header-purple{ background:linear-gradient(90deg,#7e22ce,#a855f7); }
+  .header-dark{ background:linear-gradient(90deg,#1f2937,#374151); }
+  .header-teal{ background:linear-gradient(90deg,#0f766e,#14b8a6); }
+
+  .card-body-custom{
+    background:#fff;
+    padding:1.5rem;
+  }
+  pre.code-block{
+    background:#1e1e2e;
+    color:#e5e7eb;
+    padding:1rem 1.2rem;
+    border-radius:10px;
+    overflow-x:auto;
+    font-size:.88rem;
+    line-height:1.5;
+    margin-bottom:0;
+  }
+  .file-tag{
+    display:inline-block;
+    background:#eef2ff;
+    color:var(--primary-dark);
+    font-family:'Fira Code', monospace;
+    font-size:.8rem;
+    font-weight:600;
+    padding:.25rem .7rem;
+    border-radius:6px;
+    margin-bottom:.6rem;
+  }
+  .diagram-box{
+    background:#f8fafc;
+    border:1px dashed #94a3b8;
+    border-radius:12px;
+    padding:1.5rem;
+    text-align:center;
+    overflow-x:auto;
+  }
+  .flow-step{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    background:#fff;
+    border:2px solid var(--primary);
+    border-radius:10px;
+    padding:.6rem 1rem;
+    font-size:.85rem;
+    font-weight:600;
+    color:var(--primary-dark);
+    min-width:120px;
+    box-shadow:0 2px 6px rgba(0,0,0,.06);
+  }
+  .flow-arrow{
+    font-size:1.4rem;
+    color:var(--accent);
+    margin:0 .4rem;
+    align-self:center;
+  }
+  .table-diff th{
+    background:var(--primary);
+    color:#fff;
+  }
+  .table-diff td, .table-diff th{
+    vertical-align:middle;
+  }
+  .interview-q{
+    background:#fff7ed;
+    border-left:4px solid var(--warning);
+    border-radius:8px;
+    padding:1rem 1.2rem;
+    margin-bottom:1rem;
+  }
+  .interview-q .q{
+    font-weight:600;
+    color:#9a3412;
+  }
+  .toc-link{
+    text-decoration:none;
+    color:var(--primary-dark);
+    font-weight:500;
+  }
+  .toc-link:hover{ color:var(--primary); text-decoration:underline; }
+  .sticky-toc{
+    position:sticky;
+    top:1rem;
+  }
+  footer{
+    background:#1f2937;
+    color:#cbd5e1;
+    padding:2rem 1rem;
+    margin-top:3rem;
+  }
+  .accordion-button:not(.collapsed){
+    background:#eef2ff;
+    color:var(--primary-dark);
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero-banner text-center mb-5">
+  <span class="badge-pill mb-3 d-inline-block"><i class="fa-solid fa-code"></i>&nbsp; Django REST Framework</span>
+  <h1 class="display-6">Class 61 — ModelViewSet & Router</h1>
+  <p class="lead mb-0">GenericAPIView + Mixins vs ModelViewSet, DefaultRouter internals, and a working Student API project</p>
+</div>
+
+<div class="container">
+  <div class="row">
+    <!-- TOC -->
+    <div class="col-lg-3 mb-4">
+      <div class="sticky-toc section-card">
+        <div class="card-header-custom header-dark"><i class="fa-solid fa-list"></i> Contents</div>
+        <div class="card-body-custom">
+          <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
+            <li><a class="toc-link" href="#concepts"><i class="fa-solid fa-book"></i> Core Concepts</a></li>
+            <li><a class="toc-link" href="#diagram"><i class="fa-solid fa-diagram-project"></i> Request Flow Diagram</a></li>
+            <li><a class="toc-link" href="#diff"><i class="fa-solid fa-code-compare"></i> Mixins vs ModelViewSet</a></li>
+            <li><a class="toc-link" href="#project"><i class="fa-solid fa-folder-tree"></i> Project Code</a></li>
+            <li><a class="toc-link" href="#router-actions"><i class="fa-solid fa-route"></i> Router URL Mapping</a></li>
+            <li><a class="toc-link" href="#interview"><i class="fa-solid fa-comments"></i> Interview Tips</a></li>
+            <li><a class="toc-link" href="#summary"><i class="fa-solid fa-flag-checkered"></i> Summary</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="col-lg-9">
+
+      <!-- CONCEPTS -->
+      <section id="concepts">
+        <div class="section-card">
+          <div class="card-header-custom header-indigo"><i class="fa-solid fa-lightbulb"></i> What is ModelViewSet?</div>
+          <div class="card-body-custom">
+            <div class="alert alert-primary" role="alert">
+              <i class="fa-solid fa-circle-info"></i>
+              <strong>ModelViewSet</strong> is a DRF class that combines the logic of <code>ListModelMixin</code>, <code>CreateModelMixin</code>, <code>RetrieveModelMixin</code>, <code>UpdateModelMixin</code> and <code>DestroyModelMixin</code> into a single class — giving you full CRUD with almost no code.
+            </div>
+            <p>Instead of writing separate views for list, create, retrieve, update, and delete, you just define:</p>
+            <ul>
+              <li><code>queryset</code> — which records to work with</li>
+              <li><code>serializer_class</code> — how to convert model ↔ JSON</li>
+            </ul>
+            <p class="mb-0">All CRUD endpoints (GET list, GET detail, POST, PUT/PATCH, DELETE) are generated automatically.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="card-header-custom header-blue"><i class="fa-solid fa-route"></i> What is a Router?</div>
+          <div class="card-body-custom">
+            <div class="alert alert-info" role="alert">
+              <i class="fa-solid fa-circle-info"></i>
+              A <strong>Router</strong> automatically generates the URL patterns for a ViewSet, so you don't have to manually write a <code>path()</code> for every action (list, detail, create, update, delete).
+            </div>
+            <p>DRF provides two built-in routers:</p>
+            <ul>
+              <li><code>SimpleRouter</code> — generates standard CRUD routes only</li>
+              <li><code>DefaultRouter</code> — same as SimpleRouter, plus an auto-generated <strong>API root view</strong> (a browsable landing page listing all registered routes)</li>
+            </ul>
+            <p class="mb-0">Usage pattern: <code>router.register('students', StudentViewSet, basename='student')</code> then <code>path('', include(router.urls))</code>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- DIAGRAM -->
+      <section id="diagram">
+        <div class="section-card">
+          <div class="card-header-custom header-purple"><i class="fa-solid fa-diagram-project"></i> Request Flow Diagram</div>
+          <div class="card-body-custom">
+            <div class="diagram-box">
+              <div class="d-flex flex-wrap justify-content-center align-items-center">
+                <div class="flow-step"><i class="fa-solid fa-globe fa-lg mb-1"></i>Client Request<br><small>GET /students/</small></div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-step"><i class="fa-solid fa-signs-post fa-lg mb-1"></i>urls.py<br><small>include(router.urls)</small></div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-step"><i class="fa-solid fa-route fa-lg mb-1"></i>DefaultRouter<br><small>maps URL → action</small></div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-step"><i class="fa-solid fa-cubes fa-lg mb-1"></i>StudentViewSet<br><small>ModelViewSet</small></div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-step"><i class="fa-solid fa-database fa-lg mb-1"></i>StudentModel<br><small>ORM Query</small></div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-step"><i class="fa-solid fa-file-code fa-lg mb-1"></i>StudentSerializer<br><small>Model ↔ JSON</small></div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-step"><i class="fa-solid fa-reply fa-lg mb-1"></i>JSON Response</div>
+              </div>
+              <p class="text-muted mt-3 mb-0"><small>The Router decides which ViewSet action (list/create/retrieve/update/destroy) handles the incoming HTTP method + URL.</small></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DIFF TABLE -->
+      <section id="diff">
+        <div class="section-card">
+          <div class="card-header-custom header-orange"><i class="fa-solid fa-code-compare"></i> GenericAPIView + Mixins vs ModelViewSet</div>
+          <div class="card-body-custom">
+            <div class="table-responsive">
+              <table class="table table-diff table-bordered align-middle">
+                <thead>
+                  <tr>
+                    <th>Aspect</th>
+                    <th>GenericAPIView + Mixins</th>
+                    <th>ModelViewSet</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Class structure</strong></td>
+                    <td>You manually combine <code>GenericAPIView</code> with mixins like <code>ListModelMixin</code>, <code>CreateModelMixin</code>, etc.</td>
+                    <td>Everything (list, create, retrieve, update, destroy) already combined into one class.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Number of view classes</strong></td>
+                    <td>Usually 2 classes needed — one for List/Create, one for Retrieve/Update/Destroy.</td>
+                    <td>Only 1 class handles all operations.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>URLs</strong></td>
+                    <td>You write each <code>path()</code> manually in <code>urls.py</code>.</td>
+                    <td>URLs are auto-generated using a <code>Router</code> (<code>SimpleRouter</code>/<code>DefaultRouter</code>).</td>
+                  </tr>
+                  <tr>
+                    <td><strong>HTTP method mapping</strong></td>
+                    <td>You explicitly define <code>get()</code>, <code>post()</code> etc. calling mixin methods.</td>
+                    <td>Handled internally — router maps HTTP verb + URL to the right action.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Flexibility / control</strong></td>
+                    <td>High — pick exactly which mixins/operations you want to expose.</td>
+                    <td>Lower by default, but customizable using <code>@action</code> decorator for extra endpoints.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Code amount</strong></td>
+                    <td>More boilerplate.</td>
+                    <td>Minimal — fastest way to build a full CRUD API.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Best used when</strong></td>
+                    <td>You need partial CRUD (e.g., only List + Create) or custom behavior per operation.</td>
+                    <td>You need standard, full CRUD for a model quickly.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="alert alert-warning mt-3 mb-0">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <strong>Quick rule of thumb:</strong> If you need every CRUD operation with no special logic → use <code>ModelViewSet</code> + <code>Router</code>. If you need only some operations, or custom logic per method → use <code>GenericAPIView</code> + specific mixins.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROJECT CODE -->
+      <section id="project">
+        <div class="section-card">
+          <div class="card-header-custom header-green"><i class="fa-solid fa-folder-tree"></i> Full Project Code — Student API</div>
+          <div class="card-body-custom">
+
+            <div class="accordion" id="codeAccordion">
+
+              <div class="accordion-item mb-2">
+                <h2 class="accordion-header">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c1">
+                    <i class="fa-solid fa-file-code me-2"></i>&nbsp;innerproject/urls.py
+                  </button>
+                </h2>
+                <div id="c1" class="accordion-collapse collapse show" data-bs-parent="#codeAccordion">
+                  <div class="accordion-body">
+                    <span class="file-tag">innerproject/urls.py</span>
+                    <pre class="code-block"><code>from django.contrib import admin
+from django.urls import path,include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('',include('blog.urls'))
+]</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item mb-2">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2">
+                    <i class="fa-solid fa-gear me-2"></i>&nbsp;innerproject/settings.py
+                  </button>
+                </h2>
+                <div id="c2" class="accordion-collapse collapse" data-bs-parent="#codeAccordion">
+                  <div class="accordion-body">
+                    <span class="file-tag">innerproject/settins.py</span>
+                    <pre class="code-block"><code>INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'blog',
+    'rest_framework'
+]</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item mb-2">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c3">
+                    <i class="fa-solid fa-route me-2"></i>&nbsp;blog/urls.py
+                  </button>
+                </h2>
+                <div id="c3" class="accordion-collapse collapse" data-bs-parent="#codeAccordion">
+                  <div class="accordion-body">
+                    <span class="file-tag">blog/urls.py</span>
+                    <pre class="code-block"><code>from . import views
+from django.urls import path,include
+from rest_framework.routers import DefaultRouter
+from .views  import StudentViewSet
+
+router = DefaultRouter()
+router.register('students',StudentViewSet, basename='student')
+
+
+urlpatterns=[
+    path('',include(router.urls))
+]</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item mb-2">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c4">
+                    <i class="fa-solid fa-eye me-2"></i>&nbsp;blog/views.py
+                  </button>
+                </h2>
+                <div id="c4" class="accordion-collapse collapse" data-bs-parent="#codeAccordion">
+                  <div class="accordion-body">
+                    <span class="file-tag">blog/views.py</span>
+                    <pre class="code-block"><code>from django.shortcuts import render
+
+# Create your views here.
+from .serializer import StudentSerializer
+from .models import StudentModel
+from rest_framework import viewsets
+
+class StudentViewSet(viewsets.ModelViewSet):
+    queryset = StudentModel.objects.all()
+    serializer_class  = StudentSerializer</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item mb-2">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c5">
+                    <i class="fa-solid fa-file-code me-2"></i>&nbsp;blog/serializer.py
+                  </button>
+                </h2>
+                <div id="c5" class="accordion-collapse collapse" data-bs-parent="#codeAccordion">
+                  <div class="accordion-body">
+                    <span class="file-tag">blog/serializer.py</span>
+                    <pre class="code-block"><code>from .models import StudentModel
+from rest_framework import serializers
+
+
+class  StudentSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model=StudentModel
+        fields='__all__'</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item mb-2">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c6">
+                    <i class="fa-solid fa-database me-2"></i>&nbsp;blog/models.py
+                  </button>
+                </h2>
+                <div id="c6" class="accordion-collapse collapse" data-bs-parent="#codeAccordion">
+                  <div class="accordion-body">
+                    <span class="file-tag">blog/models.py</span>
+                    <pre class="code-block"><code>from django.db import models
+
+# Create your models here.
+class StudentModel(models.Model):
+    name=models.CharField(max_length=100)
+    age=models.IntegerField(default=0)
+    email=models.EmailField(unique=True)
+
+    def __str__(self):
+        return self.name</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item mb-2">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c7">
+                    <i class="fa-solid fa-user-shield me-2"></i>&nbsp;blog/admin.py
+                  </button>
+                </h2>
+                <div id="c7" class="accordion-collapse collapse" data-bs-parent="#codeAccordion">
+                  <div class="accordion-body">
+                    <span class="file-tag">blog/admin.py</span>
+                    <pre class="code-block"><code>from django.contrib import admin
+from .models import StudentModel
+
+# Register your models here.
+@admin.register(StudentModel)
+class StudentAdmin(admin.ModelAdmin):
+    list_display=['id','name','age','email']</code></pre>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="alert alert-success mt-3 mb-0">
+              <i class="fa-solid fa-circle-check"></i>
+              This is a complete, working setup — <code>DefaultRouter</code> auto-registers <code>StudentViewSet</code> under <code>/students/</code> and exposes full CRUD without writing a single extra URL pattern.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ROUTER URL MAPPING -->
+      <section id="router-actions">
+        <div class="section-card">
+          <div class="card-header-custom header-teal"><i class="fa-solid fa-table"></i> Auto-Generated URLs from Router</div>
+          <div class="card-body-custom">
+            <p>When you call <code>router.register('students', StudentViewSet, basename='student')</code>, the <code>DefaultRouter</code> auto-generates the following URLs and maps them to ModelViewSet actions:</p>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                  <tr>
+                    <th>URL</th>
+                    <th>HTTP Method</th>
+                    <th>ViewSet Action</th>
+                    <th>Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>/students/</code></td><td><span class="badge bg-success">GET</span></td><td><code>list()</code></td><td>Get all students</td></tr>
+                  <tr><td><code>/students/</code></td><td><span class="badge bg-primary">POST</span></td><td><code>create()</code></td><td>Add a new student</td></tr>
+                  <tr><td><code>/students/{id}/</code></td><td><span class="badge bg-success">GET</span></td><td><code>retrieve()</code></td><td>Get one student</td></tr>
+                  <tr><td><code>/students/{id}/</code></td><td><span class="badge bg-warning text-dark">PUT</span></td><td><code>update()</code></td><td>Full update of a student</td></tr>
+                  <tr><td><code>/students/{id}/</code></td><td><span class="badge bg-warning text-dark">PATCH</span></td><td><code>partial_update()</code></td><td>Partial update of a student</td></tr>
+                  <tr><td><code>/students/{id}/</code></td><td><span class="badge bg-danger">DELETE</span></td><td><code>destroy()</code></td><td>Delete a student</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="alert alert-info mb-0">
+              <i class="fa-solid fa-circle-info"></i>
+              <code>basename='student'</code> is used to build internal URL names like <code>student-list</code> and <code>student-detail</code> — required especially when the ViewSet has no <code>queryset</code> attribute set directly, but good practice to always include.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- INTERVIEW TIPS -->
+      <section id="interview">
+        <div class="section-card">
+          <div class="card-header-custom header-dark"><i class="fa-solid fa-comments"></i> Interview Tips</div>
+          <div class="card-body-custom">
+
+            <div class="interview-q">
+              <div class="q">Q1. What is the difference between APIView, GenericAPIView, and ModelViewSet?</div>
+              <p class="mb-0"><strong>APIView</strong> = plain, you write all logic yourself. <strong>GenericAPIView</strong> = adds queryset/serializer + generic behavior, combined with mixins for CRUD. <strong>ModelViewSet</strong> = GenericAPIView + all mixins bundled + designed to be used with a Router.</p>
+            </div>
+
+            <div class="interview-q">
+              <div class="q">Q2. Why do we need a Router if we can write path() manually?</div>
+              <p class="mb-0">A Router saves boilerplate — one <code>register()</code> call generates all list/detail URL patterns and names automatically, keeping <code>urls.py</code> clean and consistent, especially useful as the number of ViewSets grows.</p>
+            </div>
+
+            <div class="interview-q">
+              <div class="q">Q3. What's the purpose of basename in router.register()?</div>
+              <p class="mb-0">It's used to generate the internal URL pattern names (e.g. <code>student-list</code>, <code>student-detail</code>). Django can usually infer it from the queryset, but it's required if the ViewSet doesn't define a <code>queryset</code> attribute.</p>
+            </div>
+
+            <div class="interview-q">
+              <div class="q">Q4. When would you NOT use ModelViewSet?</div>
+              <p class="mb-0">When you need fine-grained control — e.g., only allow List + Retrieve (read-only API), or need custom logic on just one operation. In that case, <code>GenericAPIView</code> + specific mixins (or <code>ReadOnlyModelViewSet</code>) is a better fit.</p>
+            </div>
+
+            <div class="interview-q mb-0">
+              <div class="q">Q5. Difference between SimpleRouter and DefaultRouter?</div>
+              <p class="mb-0"><code>DefaultRouter</code> adds an automatic, browsable API root view listing all registered routes, and supports <code>.json</code> format suffixes. <code>SimpleRouter</code> generates only the standard CRUD routes without the root view.</p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- SUMMARY -->
+      <section id="summary">
+        <div class="section-card">
+          <div class="card-header-custom header-indigo"><i class="fa-solid fa-flag-checkered"></i> Summary</div>
+          <div class="card-body-custom">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="alert alert-primary h-100 mb-0">
+                  <i class="fa-solid fa-cubes"></i> <strong>ModelViewSet</strong><br>
+                  Combines all CRUD mixins into one class. Use with a Router for zero manual URL writing.
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="alert alert-info h-100 mb-0">
+                  <i class="fa-solid fa-route"></i> <strong>Router</strong><br>
+                  Auto-generates URL patterns for a registered ViewSet (<code>SimpleRouter</code> / <code>DefaultRouter</code>).
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="alert alert-warning h-100 mb-0">
+                  <i class="fa-solid fa-puzzle-piece"></i> <strong>GenericAPIView + Mixins</strong><br>
+                  More manual, more control — good for partial or custom CRUD behavior.
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="alert alert-success h-100 mb-0">
+                  <i class="fa-solid fa-bolt"></i> <strong>Fastest full CRUD API</strong><br>
+                  <code>ModelViewSet</code> + <code>DefaultRouter</code> is the quickest way to expose a model as a REST API.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<footer class="text-center">
+  <p class="mb-0"><i class="fa-solid fa-code"></i> Class 61 — Django REST Framework Notes &middot; ModelViewSet & Router</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

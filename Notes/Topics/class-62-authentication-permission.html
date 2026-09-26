@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 62 - Authentication & Permission | DRF Notes</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<style>
+  body {
+    background: linear-gradient(180deg, #f4f6fb 0%, #eef1f8 100%);
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    color: #22293b;
+  }
+  .hero-header {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: #fff;
+    padding: 48px 0 40px 0;
+    border-radius: 0 0 30px 30px;
+    box-shadow: 0 10px 30px rgba(58,12,163,0.25);
+  }
+  .hero-header h1 { font-weight: 700; }
+  .badge-class {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+  }
+  .card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(30,40,90,0.08);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .card-header-custom {
+    padding: 16px 24px;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hdr-blue   { background: linear-gradient(90deg,#4361ee,#4895ef); }
+  .hdr-purple { background: linear-gradient(90deg,#7209b7,#b5179e); }
+  .hdr-green  { background: linear-gradient(90deg,#0d9488,#14b8a6); }
+  .hdr-orange { background: linear-gradient(90deg,#f77f00,#fcbf49); color:#2b2b2b; }
+  .hdr-red    { background: linear-gradient(90deg,#e63946,#ff6b6b); }
+  .hdr-dark   { background: linear-gradient(90deg,#22293b,#3a4258); }
+  .card-body-custom { padding: 26px; background: #fff; }
+  pre.code-block {
+    background: #1e1e2e;
+    color: #e6e6e6;
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 0.88rem;
+    overflow-x: auto;
+    border-left: 4px solid #4361ee;
+  }
+  .file-tag {
+    display: inline-block;
+    background: #22293b;
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.82rem;
+    font-family: monospace;
+    margin-bottom: -1px;
+  }
+  .alert-custom {
+    border-radius: 12px;
+    border: none;
+    padding: 16px 20px;
+  }
+  .qa-question {
+    font-weight: 600;
+    color: #3a0ca3;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .qa-question i { margin-top: 3px; }
+  .qa-answer {
+    background: #f8f9ff;
+    border-left: 4px solid #4895ef;
+    padding: 14px 18px;
+    border-radius: 0 10px 10px 0;
+    margin-top: 8px;
+    margin-bottom: 20px;
+  }
+  .diagram-box {
+    background: #fff;
+    border: 2px dashed #c9cfe8;
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .flow-step {
+    background: #fff;
+    border: 2px solid #4361ee;
+    border-radius: 12px;
+    padding: 12px 18px;
+    text-align: center;
+    font-weight: 600;
+    color: #22293b;
+    min-width: 160px;
+    box-shadow: 0 4px 10px rgba(67,97,238,0.15);
+  }
+  .flow-step.fail { border-color: #e63946; color: #e63946; }
+  .flow-step.pass { border-color: #0d9488; color: #0d9488; }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #4361ee;
+    align-self: center;
+  }
+  .comparison-table th { background: #22293b; color: #fff; }
+  .interview-tip {
+    background: linear-gradient(135deg,#fff8e6,#fff3d6);
+    border: 1px solid #ffe1a8;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+  }
+  .interview-tip .tip-num {
+    background: #f77f00;
+    color: #fff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 10px;
+    font-size: 0.85rem;
+  }
+  footer {
+    padding: 30px 0;
+    text-align: center;
+    color: #6c7291;
+    font-size: 0.9rem;
+  }
+  .toc a { text-decoration: none; color: #3a0ca3; font-weight: 500; }
+  .toc a:hover { text-decoration: underline; }
+  code.inline { background: #eef1f8; color: #3a0ca3; padding: 2px 6px; border-radius: 6px; }
+</style>
+</head>
+<body>
+
+<div class="hero-header text-center mb-5">
+  <div class="container">
+    <span class="badge-class"><i class="fa-solid fa-graduation-cap"></i> Class 62 &nbsp;|&nbsp; Django REST Framework</span>
+    <h1 class="mt-3">Authentication &amp; Permissions</h1>
+    <p class="mb-0 fs-5">Basic Authentication • AllowAny • IsAuthenticated</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="card">
+    <div class="card-header-custom hdr-dark"><i class="fa-solid fa-list"></i> Table of Contents</div>
+    <div class="card-body-custom">
+      <div class="row toc">
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#basic-auth">1. What is Basic Authentication?</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#perm-classes">2. AllowAny vs IsAuthenticated</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#qa">3. Key Q&amp;A</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#when-use">4. When to Use Basic Authentication</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#diagram">5. Request Flow Diagram</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#code">6. Project Code</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#interview">7. Interview Tips</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Basic Authentication -->
+  <div class="card" id="basic-auth">
+    <div class="card-header-custom hdr-blue"><i class="fa-solid fa-key"></i> 1. What is Basic Authentication?</div>
+    <div class="card-body-custom">
+      <p><strong>Basic Authentication</strong> is a simple authentication scheme built into the HTTP protocol. The client sends the username and password with every request, encoded (Base64) inside the <code class="inline">Authorization</code> header:</p>
+      <pre class="code-block">Authorization: Basic base64(username:password)</pre>
+      <p>DRF's <code class="inline">rest_framework.authentication.BasicAuthentication</code> class decodes this header, verifies the credentials against Django's user database, and attaches the authenticated user to <code class="inline">request.user</code>.</p>
+      <div class="alert alert-warning alert-custom">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <strong>Important:</strong> Basic Authentication sends credentials on every single request. It must always be used with <strong>HTTPS</strong>, otherwise the username/password can be intercepted in plain text (Base64 is encoding, not encryption).
+      </div>
+    </div>
+  </div>
+
+  <!-- AllowAny / IsAuthenticated -->
+  <div class="card" id="perm-classes">
+    <div class="card-header-custom hdr-purple"><i class="fa-solid fa-user-shield"></i> 2. What are AllowAny and IsAuthenticated?</div>
+    <div class="card-body-custom">
+      <div class="table-responsive">
+        <table class="table table-bordered comparison-table">
+          <thead>
+            <tr>
+              <th>Permission Class</th>
+              <th>Meaning</th>
+              <th>Who can access?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">AllowAny</code></td>
+              <td>Removes all access restrictions</td>
+              <td>Anyone — authenticated or not</td>
+            </tr>
+            <tr>
+              <td><code class="inline">IsAuthenticated</code></td>
+              <td>Requires a valid logged-in / verified user</td>
+              <td>Only users who pass authentication</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-info alert-custom">
+        <i class="fa-solid fa-circle-info"></i>
+        Permission classes decide <strong>who</strong> can access a view. Authentication classes decide <strong>how</strong> DRF identifies who the requester is. They work together: Authentication runs first (identifies the user), then Permission checks if that identified user is allowed in.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q&A -->
+  <div class="card" id="qa">
+    <div class="card-header-custom hdr-orange"><i class="fa-solid fa-circle-question"></i> 3. Key Questions Answered</div>
+    <div class="card-body-custom">
+
+      <div class="qa-question"><i class="fa-solid fa-arrow-right"></i> Does IsAuthenticated allow only the GET method without authentication?</div>
+      <div class="qa-answer">
+        <strong>No.</strong> <code class="inline">IsAuthenticated</code> does not give a free pass to any HTTP method — not even GET. It blocks <strong>every</strong> method (GET, POST, PUT, DELETE, etc.) for unauthenticated requests. A request without valid credentials receives an <strong>HTTP 401 Unauthorized</strong> response regardless of the method used.
+      </div>
+
+      <div class="qa-question"><i class="fa-solid fa-arrow-right"></i> Does AllowAny allow all methods or views to be accessed without any authentication?</div>
+      <div class="qa-answer">
+        <strong>Yes.</strong> <code class="inline">AllowAny</code> permits <strong>all HTTP methods</strong> on the view it is attached to, with <strong>no authentication required at all</strong>. It is typically used for public endpoints like a homepage, public listings, or a health-check API.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- When to use -->
+  <div class="card" id="when-use">
+    <div class="card-header-custom hdr-green"><i class="fa-solid fa-lightbulb"></i> 4. When to Use Basic Authentication</div>
+    <div class="card-body-custom">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Quick internal testing or development environments</li>
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Server-to-server communication over a secured HTTPS connection</li>
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Simple APIs where token/session based auth is not yet set up</li>
+        <li class="list-group-item"><i class="fa-solid fa-xmark text-danger"></i> <strong>Avoid</strong> in production public-facing apps — prefer Token, Session, or JWT authentication for better security and scalability</li>
+      </ul>
+      <div class="alert alert-danger alert-custom mt-3">
+        <i class="fa-solid fa-shield-halved"></i>
+        Basic Authentication sends credentials on <strong>every request</strong> — always pair it with HTTPS in real deployments.
+      </div>
+    </div>
+  </div>
+
+  <!-- Diagram -->
+  <div class="card" id="diagram">
+    <div class="card-header-custom hdr-dark"><i class="fa-solid fa-diagram-project"></i> 5. Request Flow Diagram</div>
+    <div class="card-body-custom">
+      <div class="diagram-box">
+        <p class="text-center text-muted mb-4">How a request passes through Authentication &amp; Permission layers</p>
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-3">
+          <div class="flow-step"><i class="fa-solid fa-globe"></i><br>Client Request</div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step"><i class="fa-solid fa-lock"></i><br>Authentication Class<br><small>(BasicAuthentication)</small></div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step"><i class="fa-solid fa-user-shield"></i><br>Permission Class<br><small>(AllowAny / IsAuthenticated)</small></div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step pass"><i class="fa-solid fa-circle-check"></i><br>View Executes<br>200 OK</div>
+        </div>
+        <div class="text-center mt-3">
+          <div class="flow-step fail d-inline-block"><i class="fa-solid fa-circle-xmark"></i> Fails Auth/Permission &rarr; 401 / 403 Response</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code -->
+  <div class="card" id="code">
+    <div class="card-header-custom hdr-blue"><i class="fa-solid fa-code"></i> 6. Project Code</div>
+    <div class="card-body-custom">
+
+      <div class="file-tag"><i class="fa-solid fa-file-code"></i> innerproject/settings.py</div>
+      <pre class="code-block">REST_FRAMEWORK={
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAUTL_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticated'
+    ]
+}
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'blog',
+    'rest_framework'
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> innerproject/urls.py</div>
+      <pre class="code-block">from django.contrib import admin
+from django.urls import path,include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/',include('blog.urls'))
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/urls.py</div>
+      <pre class="code-block">from django.urls import path
+from . import views
+
+urlpatterns=[
+    path('public/',views.PublicView,name='public_view'),
+    path('private/',views.PrivateView,name='private_view')
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/views.py</div>
+      <pre class="code-block">from rest_framework.decorators import api_view,permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated,AllowAny
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def PublicView(request):
+    return Response({'messasge': 'This is a public view accessible to everyone.'})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def PrivateView(request):
+    return Response({'message' : f'hello, {request.user.username}. This is a private view accessible  only to authentication users'})</pre>
+
+      <div class="alert alert-secondary alert-custom mt-3">
+        <i class="fa-solid fa-note-sticky"></i>
+        Note: <code class="inline">'DEFAUTL_PERMISSION_CLASSES'</code> in <code class="inline">settings.py</code> has a typo (should be <code class="inline">DEFAULT_PERMISSION_CLASSES</code>) — kept here exactly as in the original source, but worth fixing in real code so the global default permission actually applies.
+      </div>
+    </div>
+  </div>
+
+  <!-- Interview Tips -->
+  <div class="card" id="interview">
+    <div class="card-header-custom hdr-red"><i class="fa-solid fa-comments"></i> 7. Interview Tips</div>
+    <div class="card-body-custom">
+
+      <div class="interview-tip">
+        <span class="tip-num">1</span><strong>Explain the difference between Authentication and Permission.</strong>
+        <p class="mb-0 mt-2">Authentication = identifying <em>who</em> the user is. Permission = deciding <em>what</em> that identified (or anonymous) user is allowed to do.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">2</span><strong>Be ready to explain why Basic Authentication needs HTTPS.</strong>
+        <p class="mb-0 mt-2">Base64 is reversible encoding, not encryption — credentials can be decoded instantly if intercepted over plain HTTP.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">3</span><strong>Know the default DRF behavior.</strong>
+        <p class="mb-0 mt-2">If no permission class is set on a view, DRF falls back to the project-wide default in <code class="inline">DEFAULT_PERMISSION_CLASSES</code>. A typo in the setting key (as seen above) means DRF silently uses its built-in default (<code class="inline">AllowAny</code>) instead.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">4</span><strong>Common trick question:</strong>
+        <p class="mb-0 mt-2">"Does <code class="inline">IsAuthenticated</code> allow anonymous GET requests?" — Interviewers ask this to check if you know permission classes apply per-method, not selectively. Answer confidently: <strong>No</strong>, all methods are blocked equally.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">5</span><strong>Mention alternatives.</strong>
+        <p class="mb-0 mt-2">Be ready to compare Basic Authentication with Token Authentication, Session Authentication, and JWT — and when each is preferred in production.</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <hr>
+    <i class="fa-solid fa-code-branch"></i> Class 62 — Django REST Framework Notes | Authentication &amp; Permissions
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

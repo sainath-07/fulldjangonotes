@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 64 - Token Authentication | DRF Notes</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<style>
+  body {
+    background: linear-gradient(180deg, #f4f6fb 0%, #eef1f8 100%);
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    color: #22293b;
+  }
+  .hero-header {
+    background: linear-gradient(135deg, #d00000 0%, #6a040f 100%);
+    color: #fff;
+    padding: 48px 0 40px 0;
+    border-radius: 0 0 30px 30px;
+    box-shadow: 0 10px 30px rgba(106,4,15,0.25);
+  }
+  .hero-header h1 { font-weight: 700; }
+  .badge-class {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+  }
+  .card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(30,40,90,0.08);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .card-header-custom {
+    padding: 16px 24px;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hdr-red     { background: linear-gradient(90deg,#d00000,#e85d04); }
+  .hdr-purple  { background: linear-gradient(90deg,#7209b7,#b5179e); }
+  .hdr-orange  { background: linear-gradient(90deg,#f77f00,#fcbf49); color:#2b2b2b; }
+  .hdr-green   { background: linear-gradient(90deg,#2b9348,#55a630); }
+  .hdr-blue    { background: linear-gradient(90deg,#4361ee,#4895ef); }
+  .hdr-teal    { background: linear-gradient(90deg,#0d9488,#14b8a6); }
+  .hdr-dark    { background: linear-gradient(90deg,#22293b,#3a4258); }
+  .card-body-custom { padding: 26px; background: #fff; }
+  pre.code-block {
+    background: #1e1e2e;
+    color: #e6e6e6;
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 0.88rem;
+    overflow-x: auto;
+    border-left: 4px solid #d00000;
+  }
+  .file-tag {
+    display: inline-block;
+    background: #22293b;
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.82rem;
+    font-family: monospace;
+    margin-bottom: -1px;
+  }
+  .alert-custom {
+    border-radius: 12px;
+    border: none;
+    padding: 16px 20px;
+  }
+  .qa-question {
+    font-weight: 600;
+    color: #6a040f;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .qa-question i { margin-top: 3px; }
+  .qa-answer {
+    background: #fff5f0;
+    border-left: 4px solid #e85d04;
+    padding: 14px 18px;
+    border-radius: 0 10px 10px 0;
+    margin-top: 8px;
+    margin-bottom: 20px;
+  }
+  .diagram-box {
+    background: #fff;
+    border: 2px dashed #f0c9c9;
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .flow-step {
+    background: #fff;
+    border: 2px solid #d00000;
+    border-radius: 12px;
+    padding: 12px 18px;
+    text-align: center;
+    font-weight: 600;
+    color: #22293b;
+    min-width: 160px;
+    box-shadow: 0 4px 10px rgba(208,0,0,0.15);
+  }
+  .flow-step.fail { border-color: #6a040f; color: #6a040f; }
+  .flow-step.pass { border-color: #2b9348; color: #2b9348; }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #d00000;
+    align-self: center;
+  }
+  .comparison-table th { background: #22293b; color: #fff; }
+  .interview-tip {
+    background: linear-gradient(135deg,#fff8e6,#fff3d6);
+    border: 1px solid #ffe1a8;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+  }
+  .interview-tip .tip-num {
+    background: #f77f00;
+    color: #fff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 10px;
+    font-size: 0.85rem;
+  }
+  footer {
+    padding: 30px 0;
+    text-align: center;
+    color: #6c7291;
+    font-size: 0.9rem;
+  }
+  .toc a { text-decoration: none; color: #6a040f; font-weight: 500; }
+  .toc a:hover { text-decoration: underline; }
+  code.inline { background: #eef1f8; color: #6a040f; padding: 2px 6px; border-radius: 6px; }
+  .role-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .role-admin { background: #d00000; color: #fff; }
+  .role-user  { background: #2b9348; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="hero-header text-center mb-5">
+  <div class="container">
+    <span class="badge-class"><i class="fa-solid fa-graduation-cap"></i> Class 64 &nbsp;|&nbsp; Django REST Framework</span>
+    <h1 class="mt-3">Token Authentication</h1>
+    <p class="mb-0 fs-5">with IsAdminUser &amp; IsAuthenticated</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <section id="toc">
+  <div class="card">
+    <div class="card-header-custom hdr-dark"><i class="fa-solid fa-list"></i> Table of Contents</div>
+    <div class="card-body-custom">
+      <div class="row toc">
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#token-auth">1. What is Token Authentication?</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#permissions">2. IsAdminUser &amp; IsAuthenticated</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#qa">3. Key Q&amp;A</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#when-use">4. When to Use Token Authentication</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#diagram">5. Token Flow Diagram</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#code">6. Full Code</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#interview">7. Interview Tips</a></div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Token Authentication -->
+  <section id="token-auth">
+  <div class="card">
+    <div class="card-header-custom hdr-red"><i class="fa-solid fa-key"></i> 1. What is Token Authentication in DRF?</div>
+    <div class="card-body-custom">
+      <p><strong>Token Authentication</strong> is a simple, stateless authentication scheme provided by DRF's <code class="inline">rest_framework.authtoken</code> app. Each user is issued a unique, permanent token string. The client sends this token in the <code class="inline">Authorization</code> header on every request:</p>
+      <pre class="code-block">Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4</pre>
+      <p>DRF's <code class="inline">TokenAuthentication</code> class looks up the token in the database (<code class="inline">rest_framework.authtoken.models.Token</code>), finds the associated user, and attaches it to <code class="inline">request.user</code> — no server-side session or cookies involved.</p>
+      <div class="alert alert-info alert-custom">
+        <i class="fa-solid fa-circle-info"></i>
+        Unlike Session Authentication, Token Authentication is <strong>stateless from the cookie perspective</strong> and works great for mobile apps, SPAs, and third-party API clients since there's no CSRF concern — but the token itself must still be transmitted over HTTPS and stored securely on the client.
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Permissions -->
+  <section id="permissions">
+  <div class="card">
+    <div class="card-header-custom hdr-purple"><i class="fa-solid fa-user-shield"></i> 2. What are IsAdminUser and IsAuthenticated?</div>
+    <div class="card-body-custom">
+      <div class="table-responsive">
+        <table class="table table-bordered comparison-table">
+          <thead>
+            <tr>
+              <th>Permission Class</th>
+              <th>Meaning</th>
+              <th>Who can access?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">IsAuthenticated</code></td>
+              <td>Requires a valid authenticated user (any user)</td>
+              <td><span class="role-badge role-user">Any logged-in user</span></td>
+            </tr>
+            <tr>
+              <td><code class="inline">IsAdminUser</code></td>
+              <td>Requires the user's <code class="inline">is_staff</code> flag to be <code class="inline">True</code></td>
+              <td><span class="role-badge role-admin">Staff / Admin users only</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-info alert-custom">
+        <i class="fa-solid fa-circle-info"></i>
+        <code class="inline">IsAdminUser</code> checks <code class="inline">request.user.is_staff</code> — it does <strong>not</strong> require the Django <code class="inline">is_superuser</code> flag, just staff status.
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Q&A -->
+  <section id="qa">
+  <div class="card">
+    <div class="card-header-custom hdr-orange"><i class="fa-solid fa-circle-question"></i> 3. Key Questions Answered</div>
+    <div class="card-body-custom">
+
+      <div class="qa-question"><i class="fa-solid fa-arrow-right"></i> Does IsAdminUser mean only the Django superuser has access, or can other users access it too?</div>
+      <div class="qa-answer">
+        <strong>Not only the superuser.</strong> <code class="inline">IsAdminUser</code> grants access to <strong>any user with <code class="inline">is_staff=True</code></strong>. A superuser automatically has <code class="inline">is_staff=True</code>, but so can regular staff accounts created via Django Admin without full superuser privileges. So it's "staff-level access", not strictly "superuser-only".
+      </div>
+
+      <div class="qa-question"><i class="fa-solid fa-arrow-right"></i> Does IsAuthenticated allow access only with a token — without a token can the user not access the view?</div>
+      <div class="qa-answer">
+        <strong>Correct.</strong> With <code class="inline">TokenAuthentication</code> + <code class="inline">IsAuthenticated</code> combined, a request <strong>must include a valid token</strong> in the <code class="inline">Authorization</code> header. Without it (or with an invalid one), DRF cannot resolve <code class="inline">request.user</code> to a real user, so the permission check fails and the view returns <strong>HTTP 401 Unauthorized</strong>.
+      </div>
+
+      <div class="qa-question"><i class="fa-solid fa-arrow-right"></i> Is is_staff=True returned when an admin user logs in, and is_staff=False for a non-admin user?</div>
+      <div class="qa-answer">
+        <strong>Yes, exactly.</strong> As shown in <code class="inline">user_profile</code> view, the response includes <code class="inline">"is_staff": user.is_staff</code>. An admin/staff account returns <code class="inline">true</code>; a regular (non-staff) account returns <code class="inline">false</code>. This field directly reflects the <code class="inline">is_staff</code> column on the Django <code class="inline">User</code> model.
+      </div>
+
+      <div class="qa-question"><i class="fa-solid fa-arrow-right"></i> If a non-admin user tries to access the admin_panel view, is access denied?</div>
+      <div class="qa-answer">
+        <strong>Yes.</strong> Since <code class="inline">admin_panel</code> is protected by <code class="inline">permission_classes([IsAdminUser])</code>, a non-staff authenticated user will still be <strong>rejected with HTTP 403 Forbidden</strong> — they're authenticated, but they don't have the required staff privilege.
+      </div>
+
+    </div>
+  </div>
+  </section>
+
+  <!-- When to use -->
+  <section id="when-use">
+  <div class="card">
+    <div class="card-header-custom hdr-green"><i class="fa-solid fa-lightbulb"></i> 4. When to Use Token Authentication</div>
+    <div class="card-body-custom">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Mobile applications (iOS/Android) consuming a REST API</li>
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Single Page Applications (SPAs) that talk to a separate API domain</li>
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Third-party integrations / server-to-server API calls</li>
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> When you want a stateless auth mechanism without CSRF handling</li>
+        <li class="list-group-item"><i class="fa-solid fa-xmark text-danger"></i> <strong>Consider JWT</strong> instead if you need token expiry, refresh tokens, or embedded claims — DRF's default token never expires by default</li>
+      </ul>
+    </div>
+  </div>
+  </section>
+
+  <!-- Diagram -->
+  <section id="diagram">
+  <div class="card">
+    <div class="card-header-custom hdr-dark"><i class="fa-solid fa-diagram-project"></i> 5. Token Flow Diagram</div>
+    <div class="card-body-custom">
+      <div class="diagram-box">
+        <p class="text-center text-muted mb-4">How a Token is obtained and used across roles</p>
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-3 mb-4">
+          <div class="flow-step"><i class="fa-solid fa-right-to-bracket"></i><br>POST /get_token<br><small>username &amp; password</small></div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step"><i class="fa-solid fa-key"></i><br>obtain_auth_token<br>returns Token</div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step"><i class="fa-solid fa-paper-plane"></i><br>Client sends<br>Authorization: Token &lt;key&gt;</div>
+        </div>
+        <div class="row text-center">
+          <div class="col-md-6 mb-3">
+            <div class="flow-step pass w-100"><i class="fa-solid fa-user"></i><br>/user_profile/<br><small>IsAuthenticated</small></div>
+            <p class="mt-2 mb-0 text-muted">Any valid token &rarr; <span class="role-badge role-user">Access Granted</span></p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="flow-step w-100" style="border-color:#d00000;color:#d00000;"><i class="fa-solid fa-user-shield"></i><br>/admin_panel/<br><small>IsAdminUser</small></div>
+            <p class="mt-2 mb-0 text-muted">is_staff=True &rarr; <span class="role-badge role-admin">Access Granted</span> | is_staff=False &rarr; <span class="role-badge" style="background:#6a040f;color:#fff;">403 Forbidden</span></p>
+          </div>
+        </div>
+        <div class="text-center mt-2">
+          <div class="flow-step fail d-inline-block"><i class="fa-solid fa-circle-xmark"></i> No / invalid token &rarr; 401 Unauthorized</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Code -->
+  <section id="code">
+  <div class="card">
+    <div class="card-header-custom hdr-teal"><i class="fa-solid fa-code"></i> 6. Full Code</div>
+    <div class="card-body-custom">
+
+      <div class="file-tag"><i class="fa-solid fa-file-code"></i> innerproject/settings.py</div>
+      <pre class="code-block">REST_FRAMEWORK={
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework.authentication.TokenAuthentication'
+    ],
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticated'
+    ]
+}
+
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'blog',
+    'rest_framework',
+    'rest_framework.authtoken'
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> innerproject/urls.py</div>
+      <pre class="code-block">from django.contrib import admin
+from django.urls import path,include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/',include('blog.urls')),
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/urls.py</div>
+      <pre class="code-block">from . import views
+from django.urls import path
+from rest_framework.authtoken.views import obtain_auth_token
+from . import views
+
+urlpatterns=[
+    path('get_token',obtain_auth_token,name="get_token"),
+    path('user_profile/',views.user_profile,name='user_profile'),
+    path('admin_panel/',views.admin_panel,name='admin_panel')
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/views.py</div>
+      <pre class="code-block">from django.shortcuts import render
+
+# Create your views here.
+from rest_framework.decorators import api_view,authentication_classes,permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
+
+#api only for  authenticated users
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    user=request.user
+    return Response({
+        "username": user.username,
+        "email":user.email,
+        "is_staff":user.is_staff
+    })
+
+#api only for admin users
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAdminUser])
+def admin_panel(request):
+    return Response({"message":f'welcome to the admin panel,{request.user.username}'})</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/signals.py</div>
+      <pre class="code-block">from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
+
+@receiver(post_save,sender= settings.AUTH_USER_MODEL)
+def create_auth_token(sender,instance=None,created=False,**kwargs):
+    if created:
+        Token.objects.create(user=instance)</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/models.py</div>
+      <pre class="code-block">from django.db import models
+
+# Create your models here.
+class BlogModel(models.Model):
+    title=models.CharField(max_length=200)
+    content =models.TextField()
+
+
+    def __str__(self):
+        return self.title</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/apps.py</div>
+      <pre class="code-block">from django.apps import AppConfig
+
+
+class BlogConfig(AppConfig):
+    name = 'blog'
+
+    def ready(self):
+        import  blog.signals</pre>
+
+      <div class="alert alert-secondary alert-custom mt-3">
+        <i class="fa-solid fa-note-sticky"></i>
+        Note: <code class="inline">blog/signals.py</code> auto-creates a Token whenever a new User is created (via the <code class="inline">post_save</code> signal), and <code class="inline">blog/apps.py</code> wires this up in <code class="inline">ready()</code> — this pattern ensures every new user automatically gets a token without manual setup.
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Interview Tips -->
+  <section id="interview">
+  <div class="card">
+    <div class="card-header-custom hdr-red"><i class="fa-solid fa-comments"></i> 7. Interview Tips</div>
+    <div class="card-body-custom">
+
+      <div class="interview-tip">
+        <span class="tip-num">1</span><strong>Know the difference: is_staff vs is_superuser.</strong>
+        <p class="mb-0 mt-2"><code class="inline">is_staff</code> just grants Django Admin access / passes <code class="inline">IsAdminUser</code>. <code class="inline">is_superuser</code> grants ALL permissions unconditionally. They are independent flags — a user can be staff without being a superuser.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">2</span><strong>Explain how the token is generated automatically.</strong>
+        <p class="mb-0 mt-2">Be ready to describe the signals-based approach (<code class="inline">post_save</code> on the User model) used here to auto-create a Token for every new user, versus manually creating tokens.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">3</span><strong>Common trick question:</strong>
+        <p class="mb-0 mt-2">"Can a non-superuser access an IsAdminUser view?" — Answer: <strong>Yes, if is_staff=True</strong>. IsAdminUser doesn't require superuser status, just staff status.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">4</span><strong>Know the HTTP status code differences.</strong>
+        <p class="mb-0 mt-2">Missing/invalid token &rarr; <strong>401 Unauthorized</strong> (authentication failed). Valid token but insufficient permission (e.g. non-staff hitting an admin view) &rarr; <strong>403 Forbidden</strong> (authenticated but not permitted).</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">5</span><strong>Mention token security practices.</strong>
+        <p class="mb-0 mt-2">Tokens should be sent over HTTPS only, stored securely on the client (not in localStorage for sensitive apps if avoidable), and ideally rotated/invalidated on logout.</p>
+      </div>
+
+    </div>
+  </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <hr>
+    <i class="fa-solid fa-code-branch"></i> Class 64 — Django REST Framework Notes | Token Authentication with IsAdminUser &amp; IsAuthenticated
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 65 - JWT Authentication | DRF Notes</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<style>
+  body {
+    background: linear-gradient(180deg, #f4f6fb 0%, #eef1f8 100%);
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    color: #22293b;
+  }
+  .hero-header {
+    background: linear-gradient(135deg, #3a0ca3 0%, #240046 100%);
+    color: #fff;
+    padding: 48px 0 40px 0;
+    border-radius: 0 0 30px 30px;
+    box-shadow: 0 10px 30px rgba(36,0,70,0.3);
+  }
+  .hero-header h1 { font-weight: 700; }
+  .badge-class {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+  }
+  .card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(30,40,90,0.08);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .card-header-custom {
+    padding: 16px 24px;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hdr-violet  { background: linear-gradient(90deg,#3a0ca3,#7209b7); }
+  .hdr-pink    { background: linear-gradient(90deg,#b5179e,#f72585); }
+  .hdr-orange  { background: linear-gradient(90deg,#f77f00,#fcbf49); color:#2b2b2b; }
+  .hdr-green   { background: linear-gradient(90deg,#2b9348,#55a630); }
+  .hdr-blue    { background: linear-gradient(90deg,#4361ee,#4895ef); }
+  .hdr-teal    { background: linear-gradient(90deg,#0d9488,#14b8a6); }
+  .hdr-dark    { background: linear-gradient(90deg,#22293b,#3a4258); }
+  .card-body-custom { padding: 26px; background: #fff; }
+  pre.code-block {
+    background: #1e1e2e;
+    color: #e6e6e6;
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 0.88rem;
+    overflow-x: auto;
+    border-left: 4px solid #7209b7;
+  }
+  .file-tag {
+    display: inline-block;
+    background: #22293b;
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.82rem;
+    font-family: monospace;
+    margin-bottom: -1px;
+  }
+  .alert-custom {
+    border-radius: 12px;
+    border: none;
+    padding: 16px 20px;
+  }
+  .qa-question {
+    font-weight: 600;
+    color: #3a0ca3;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .qa-question i { margin-top: 3px; }
+  .qa-answer {
+    background: #f8f5ff;
+    border-left: 4px solid #7209b7;
+    padding: 14px 18px;
+    border-radius: 0 10px 10px 0;
+    margin-top: 8px;
+    margin-bottom: 20px;
+  }
+  .diagram-box {
+    background: #fff;
+    border: 2px dashed #dcc9f0;
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .flow-step {
+    background: #fff;
+    border: 2px solid #7209b7;
+    border-radius: 12px;
+    padding: 12px 18px;
+    text-align: center;
+    font-weight: 600;
+    color: #22293b;
+    min-width: 160px;
+    box-shadow: 0 4px 10px rgba(114,9,183,0.15);
+  }
+  .flow-step.fail { border-color: #e63946; color: #e63946; }
+  .flow-step.pass { border-color: #2b9348; color: #2b9348; }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #7209b7;
+    align-self: center;
+  }
+  .comparison-table th { background: #22293b; color: #fff; }
+  .interview-tip {
+    background: linear-gradient(135deg,#fff8e6,#fff3d6);
+    border: 1px solid #ffe1a8;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+  }
+  .interview-tip .tip-num {
+    background: #f77f00;
+    color: #fff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 10px;
+    font-size: 0.85rem;
+  }
+  footer {
+    padding: 30px 0;
+    text-align: center;
+    color: #6c7291;
+    font-size: 0.9rem;
+  }
+  .toc a { text-decoration: none; color: #3a0ca3; font-weight: 500; }
+  .toc a:hover { text-decoration: underline; }
+  code.inline { background: #eef1f8; color: #3a0ca3; padding: 2px 6px; border-radius: 6px; }
+  .token-card {
+    border-radius: 12px;
+    padding: 18px;
+    height: 100%;
+  }
+  .token-access  { background: #f0fdf4; border: 1px solid #86efac; }
+  .token-refresh { background: #fef2f2; border: 1px solid #fca5a5; }
+  .lifetime-bar {
+    height: 14px;
+    border-radius: 7px;
+    background: #e9ecef;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .lifetime-fill-access  { background: #2b9348; height: 100%; width: 15%; }
+  .lifetime-fill-refresh { background: #e63946; height: 100%; width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="hero-header text-center mb-5">
+  <div class="container">
+    <span class="badge-class"><i class="fa-solid fa-graduation-cap"></i> Class 65 &nbsp;|&nbsp; Django REST Framework</span>
+    <h1 class="mt-3">JWT Authentication</h1>
+    <p class="mb-0 fs-5">Access Tokens • Refresh Tokens • rest_framework_simplejwt</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <section id="toc">
+  <div class="card">
+    <div class="card-header-custom hdr-dark"><i class="fa-solid fa-list"></i> Table of Contents</div>
+    <div class="card-body-custom">
+      <div class="row toc">
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#jwt-auth">1. What is JWT Authentication in Django?</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#tokens">2. Access Token &amp; Refresh Token</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#qa">3. Key Q&amp;A</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#when-use">4. When to Use JWT Authentication</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#diagram">5. JWT Flow Diagram</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#code">6. Full Code</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#interview">7. Interview Tips</a></div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- JWT Authentication -->
+  <section id="jwt-auth">
+  <div class="card">
+    <div class="card-header-custom hdr-violet"><i class="fa-solid fa-shield-halved"></i> 1. What is JWT Authentication in Django?</div>
+    <div class="card-body-custom">
+      <p><strong>JWT (JSON Web Token) Authentication</strong> is a stateless authentication mechanism where the server issues a signed token — containing encoded user claims (like user ID, expiry time) — instead of storing session data. In Django, this is implemented using the <code class="inline">djangorestframework-simplejwt</code> package (<code class="inline">rest_framework_simplejwt</code>).</p>
+      <p>A JWT has three parts, separated by dots:</p>
+      <pre class="code-block">header.payload.signature</pre>
+      <p>The client sends the JWT in the <code class="inline">Authorization</code> header on each request:</p>
+      <pre class="code-block">Authorization: Bearer &lt;access_token&gt;</pre>
+      <div class="alert alert-info alert-custom">
+        <i class="fa-solid fa-circle-info"></i>
+        The server never needs to store the token — it just verifies the signature and expiry. This makes JWT auth <strong>stateless and scalable</strong> across multiple servers.
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Access/Refresh -->
+  <section id="tokens">
+  <div class="card">
+    <div class="card-header-custom hdr-pink"><i class="fa-solid fa-key"></i> 2. What is Access Token and Refresh Token?</div>
+    <div class="card-body-custom">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="token-card token-access">
+            <h5><i class="fa-solid fa-bolt text-success"></i> Access Token</h5>
+            <p class="mb-1">A short-lived token sent with every API request to prove identity and access protected resources.</p>
+            <ul class="mb-0">
+              <li>Short lifetime (e.g. 5 minutes by default in simplejwt)</li>
+              <li>Sent in <code class="inline">Authorization: Bearer</code> header</li>
+              <li>Used directly to access protected views</li>
+            </ul>
+            <div class="lifetime-bar"><div class="lifetime-fill-access"></div></div>
+            <small class="text-muted">Short lifetime</small>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="token-card token-refresh">
+            <h5><i class="fa-solid fa-rotate text-danger"></i> Refresh Token</h5>
+            <p class="mb-1">A longer-lived token used only to obtain a brand-new access token once the old one expires — via <code class="inline">TokenRefreshView</code>.</p>
+            <ul class="mb-0">
+              <li>Longer lifetime (e.g. 1 day by default in simplejwt)</li>
+              <li>Sent only to <code class="inline">/api/token/refresh/</code></li>
+              <li>Not used directly to access protected views</li>
+            </ul>
+            <div class="lifetime-bar"><div class="lifetime-fill-refresh"></div></div>
+            <small class="text-muted">Longer lifetime</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Q&A -->
+  <section id="qa">
+  <div class="card">
+    <div class="card-header-custom hdr-orange"><i class="fa-solid fa-circle-question"></i> 3. Key Questions Answered</div>
+    <div class="card-body-custom">
+
+      <div class="qa-question"><i class="fa-solid fa-arrow-right"></i> Is normal JWT authentication in Django and JWT integrated in other backend applications like Node.js or Java different?</div>
+      <div class="qa-answer">
+        <strong>No — the underlying concept is the same.</strong> JWT is an open standard (RFC 7519), so the token structure (header.payload.signature), signing algorithms (HS256/RS256), and the idea of stateless verification work identically across Django, Node.js, Java, or any other backend. What differs is only the <strong>library/implementation</strong> used to generate and verify tokens — Django commonly uses <code class="inline">djangorestframework-simplejwt</code>, Node.js might use <code class="inline">jsonwebtoken</code>, and Java might use <code class="inline">jjwt</code> or Spring Security's JWT support. The token itself is fully interoperable across languages.
+      </div>
+
+      <div class="qa-question"><i class="fa-solid fa-arrow-right"></i> Does the access token expire first, or does the refresh token expire first?</div>
+      <div class="qa-answer">
+        <strong>The access token expires first.</strong> Access tokens are intentionally short-lived (minutes) to limit damage if leaked, while refresh tokens live much longer (hours/days) so the user isn't forced to log in again frequently. When the access token expires, the client uses the still-valid refresh token to silently obtain a new access token.
+      </div>
+
+    </div>
+  </div>
+  </section>
+
+  <!-- When to use -->
+  <section id="when-use">
+  <div class="card">
+    <div class="card-header-custom hdr-green"><i class="fa-solid fa-lightbulb"></i> 4. When to Use JWT Authentication</div>
+    <div class="card-body-custom">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Single Page Applications (React, Angular, Vue) calling a separate API backend</li>
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Mobile apps needing stateless, scalable authentication</li>
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Microservices architectures where multiple services need to verify identity without shared session storage</li>
+        <li class="list-group-item"><i class="fa-solid fa-check text-success"></i> Cross-domain APIs consumed by third-party clients</li>
+        <li class="list-group-item"><i class="fa-solid fa-xmark text-danger"></i> <strong>Avoid</strong> if you need instant server-side token revocation without extra blacklisting setup — JWTs remain valid until expiry unless you implement a token blacklist</li>
+      </ul>
+    </div>
+  </div>
+  </section>
+
+  <!-- Diagram -->
+  <section id="diagram">
+  <div class="card">
+    <div class="card-header-custom hdr-dark"><i class="fa-solid fa-diagram-project"></i> 5. JWT Flow Diagram</div>
+    <div class="card-body-custom">
+      <div class="diagram-box">
+        <p class="text-center text-muted mb-4">Login &rarr; Access + Refresh Tokens &rarr; Refresh Cycle</p>
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-3 mb-4">
+          <div class="flow-step"><i class="fa-solid fa-right-to-bracket"></i><br>POST /api/token/<br><small>username &amp; password</small></div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step pass"><i class="fa-solid fa-id-card"></i><br>TokenObtainPairView<br><small>returns access + refresh</small></div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step"><i class="fa-solid fa-paper-plane"></i><br>Bearer &lt;access_token&gt;<br>on API requests</div>
+        </div>
+        <div class="text-center mb-3">
+          <div class="flow-step fail d-inline-block"><i class="fa-solid fa-hourglass-end"></i> Access token expires (short-lived)</div>
+        </div>
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-3">
+          <div class="flow-step"><i class="fa-solid fa-rotate"></i><br>POST /api/token/refresh/<br><small>send refresh_token</small></div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flow-step pass"><i class="fa-solid fa-circle-check"></i><br>TokenRefreshView<br>issues new access token</div>
+        </div>
+        <p class="text-center text-muted mt-3 mb-0">Cycle repeats until the refresh token itself expires (longer-lived) — then the user must log in again.</p>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Code -->
+  <section id="code">
+  <div class="card">
+    <div class="card-header-custom hdr-teal"><i class="fa-solid fa-code"></i> 6. Full Code</div>
+    <div class="card-body-custom">
+
+      <div class="file-tag"><i class="fa-solid fa-file-code"></i> innerproject/settings.py</div>
+      <pre class="code-block">INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'blog',
+    'rest_framework',
+    'rest_framework_simplejwt'
+]
+
+REST_FRAMEWORK={
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ],
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+    ]
+}</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> innerproject/urls.py</div>
+      <pre class="code-block">from django.contrib import admin
+from django.urls import path,include
+from rest_framework_simplejwt.views import (
+TokenObtainPairView,
+TokenRefreshView
+)
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/',include('blog.urls')),
+    path('api/token/',TokenObtainPairView.as_view(),name="token_obtain_pair"),
+    path('api/token/refresh/',TokenRefreshView.as_view(),name="token_refresh")
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/views.py</div>
+      <pre class="code-block">from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def post_list(request):
+    if request.method == 'GET':
+        return Response({'message': "Public can view this data"})
+    elif request.method == "POST":
+        return Response({'message': f'Data created by {request.user.username}'})</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/urls.py</div>
+      <pre class="code-block">from .  import views
+from django.urls import path
+
+urlpatterns=[
+    path('posts/',views.post_list,name="post_list")
+]</pre>
+
+      <div class="alert alert-secondary alert-custom mt-3">
+        <i class="fa-solid fa-note-sticky"></i>
+        Note: <code class="inline">post_list</code> uses <code class="inline">IsAuthenticatedOrReadOnly</code> — so GET is public, while POST requires a valid JWT access token to identify <code class="inline">request.user</code>.
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Interview Tips -->
+  <section id="interview">
+  <div class="card">
+    <div class="card-header-custom hdr-pink"><i class="fa-solid fa-comments"></i> 7. Interview Tips</div>
+    <div class="card-body-custom">
+
+      <div class="interview-tip">
+        <span class="tip-num">1</span><strong>Know the 3 parts of a JWT.</strong>
+        <p class="mb-0 mt-2">Header (algorithm &amp; type), Payload (claims like user id, exp), and Signature (verifies integrity). The payload is Base64-encoded, not encrypted — never put secrets in it.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">2</span><strong>Be ready to explain the refresh cycle.</strong>
+        <p class="mb-0 mt-2">Access token expires quickly &rarr; client silently calls the refresh endpoint with the refresh token &rarr; gets a new access token &rarr; user experience stays uninterrupted until the refresh token itself expires.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">3</span><strong>Common trick question:</strong>
+        <p class="mb-0 mt-2">"Is Django's JWT different from Node.js/Java JWT?" — Answer confidently: <strong>No</strong>, JWT is a language-agnostic standard; only the library used to sign/verify differs.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">4</span><strong>Mention JWT revocation trade-offs.</strong>
+        <p class="mb-0 mt-2">Since JWTs are stateless, you can't instantly invalidate one without extra infrastructure (e.g. a token blacklist / denylist stored server-side), unlike session authentication where deleting the session immediately logs the user out.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">5</span><strong>Compare JWT vs Token Authentication vs Session Authentication.</strong>
+        <p class="mb-0 mt-2">JWT: stateless, self-contained, has expiry + refresh mechanism. DRF Token: stateless but stored in DB, no built-in expiry. Session: stateful, cookie-based, needs CSRF protection.</p>
+      </div>
+
+    </div>
+  </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <hr>
+    <i class="fa-solid fa-code-branch"></i> Class 65 — Django REST Framework Notes | JWT Authentication
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

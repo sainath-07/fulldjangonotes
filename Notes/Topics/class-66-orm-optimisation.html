@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 66 - Django ORM Optimisation | Notes</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<style>
+  body {
+    background: linear-gradient(180deg, #f4f6fb 0%, #eef1f8 100%);
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    color: #22293b;
+  }
+  .hero-header {
+    background: linear-gradient(135deg, #1d4ed8 0%, #0c1e63 100%);
+    color: #fff;
+    padding: 48px 0 40px 0;
+    border-radius: 0 0 30px 30px;
+    box-shadow: 0 10px 30px rgba(12,30,99,0.3);
+  }
+  .hero-header h1 { font-weight: 700; }
+  .badge-class {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+  }
+  .card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(30,40,90,0.08);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .card-header-custom {
+    padding: 16px 24px;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hdr-blue    { background: linear-gradient(90deg,#1d4ed8,#3b82f6); }
+  .hdr-cyan    { background: linear-gradient(90deg,#0891b2,#22d3ee); }
+  .hdr-orange  { background: linear-gradient(90deg,#f77f00,#fcbf49); color:#2b2b2b; }
+  .hdr-green   { background: linear-gradient(90deg,#2b9348,#55a630); }
+  .hdr-purple  { background: linear-gradient(90deg,#7209b7,#b5179e); }
+  .hdr-teal    { background: linear-gradient(90deg,#0d9488,#14b8a6); }
+  .hdr-dark    { background: linear-gradient(90deg,#22293b,#3a4258); }
+  .card-body-custom { padding: 26px; background: #fff; }
+  pre.code-block {
+    background: #1e1e2e;
+    color: #e6e6e6;
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 0.88rem;
+    overflow-x: auto;
+    border-left: 4px solid #1d4ed8;
+  }
+  .file-tag {
+    display: inline-block;
+    background: #22293b;
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.82rem;
+    font-family: monospace;
+    margin-bottom: -1px;
+  }
+  .alert-custom {
+    border-radius: 12px;
+    border: none;
+    padding: 16px 20px;
+  }
+  .qa-question {
+    font-weight: 600;
+    color: #0c1e63;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .qa-question i { margin-top: 3px; }
+  .qa-answer {
+    background: #f0f6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 14px 18px;
+    border-radius: 0 10px 10px 0;
+    margin-top: 8px;
+    margin-bottom: 20px;
+  }
+  .diagram-box {
+    background: #fff;
+    border: 2px dashed #c7d8f5;
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .flow-step {
+    background: #fff;
+    border: 2px solid #1d4ed8;
+    border-radius: 12px;
+    padding: 12px 18px;
+    text-align: center;
+    font-weight: 600;
+    color: #22293b;
+    min-width: 160px;
+    box-shadow: 0 4px 10px rgba(29,78,216,0.15);
+  }
+  .flow-step.fail { border-color: #e63946; color: #e63946; }
+  .flow-step.pass { border-color: #2b9348; color: #2b9348; }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #1d4ed8;
+    align-self: center;
+  }
+  .comparison-table th { background: #22293b; color: #fff; }
+  .interview-tip {
+    background: linear-gradient(135deg,#fff8e6,#fff3d6);
+    border: 1px solid #ffe1a8;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+  }
+  .interview-tip .tip-num {
+    background: #f77f00;
+    color: #fff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 10px;
+    font-size: 0.85rem;
+  }
+  footer {
+    padding: 30px 0;
+    text-align: center;
+    color: #6c7291;
+    font-size: 0.9rem;
+  }
+  .toc a { text-decoration: none; color: #0c1e63; font-weight: 500; }
+  .toc a:hover { text-decoration: underline; }
+  code.inline { background: #eef1f8; color: #0c1e63; padding: 2px 6px; border-radius: 6px; }
+  .rel-box {
+    border-radius: 12px;
+    padding: 18px;
+    height: 100%;
+    text-align: center;
+    border: 1px solid #dfe6f5;
+    background: #f8faff;
+  }
+  .rel-icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .er-node {
+    background: #eef1f8;
+    border: 2px solid #1d4ed8;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 700;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero-header text-center mb-5">
+  <div class="container">
+    <span class="badge-class"><i class="fa-solid fa-graduation-cap"></i> Class 66 &nbsp;|&nbsp; Django REST Framework</span>
+    <h1 class="mt-3">Django ORM Optimisation</h1>
+    <p class="mb-0 fs-5">select_related • prefetch_related • Model Relationships</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <section id="toc">
+  <div class="card">
+    <div class="card-header-custom hdr-dark"><i class="fa-solid fa-list"></i> Table of Contents</div>
+    <div class="card-body-custom">
+      <div class="row toc">
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#select-related">1. What is select_related?</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#prefetch-related">2. What is prefetch_related?</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#comparison">3. select_related vs prefetch_related</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#foreignkey">4. What is a ForeignKey?</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#relations">5. Model Relationships (1:1, 1:N, M:N)</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#diagram">6. Query Optimisation Diagram</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#code">7. Full Code</a></div>
+        <div class="col-md-6"><i class="fa-solid fa-angle-right"></i> <a href="#interview">8. Interview Tips</a></div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- select_related -->
+  <section id="select-related">
+  <div class="card">
+    <div class="card-header-custom hdr-blue"><i class="fa-solid fa-link"></i> 1. What is select_related?</div>
+    <div class="card-body-custom">
+      <p><code class="inline">select_related</code> is a Django ORM queryset method used to optimise queries across <strong>ForeignKey and OneToOneField</strong> relationships (the "forward" side of a relation, or "single-valued" relations). It performs a <strong>SQL JOIN</strong> and includes the related object's fields in the same query — avoiding extra database hits.</p>
+      <pre class="code-block">books = Book.objects.select_related('author').all()</pre>
+      <div class="alert alert-info alert-custom">
+        <i class="fa-solid fa-circle-info"></i>
+        Without <code class="inline">select_related</code>, accessing <code class="inline">book.author.name</code> for each book triggers a <strong>separate query per book</strong> — the classic "N+1 query problem".
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- prefetch_related -->
+  <section id="prefetch-related">
+  <div class="card">
+    <div class="card-header-custom hdr-cyan"><i class="fa-solid fa-layer-group"></i> 2. What is prefetch_related?</div>
+    <div class="card-body-custom">
+      <p><code class="inline">prefetch_related</code> optimises queries across <strong>reverse ForeignKey and Many-to-Many</strong> relationships (multi-valued relations). Instead of a JOIN, it runs a <strong>separate optimised query</strong> for the related objects and then joins the results together in Python.</p>
+      <pre class="code-block">authors = Author.objects.prefetch_related('books').all()</pre>
+      <div class="alert alert-info alert-custom">
+        <i class="fa-solid fa-circle-info"></i>
+        A JOIN doesn't work well for multi-valued relations (it would duplicate rows), so <code class="inline">prefetch_related</code> instead does a second query like <code class="inline">WHERE author_id IN (...)</code> and stitches results in memory.
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Comparison -->
+  <section id="comparison">
+  <div class="card">
+    <div class="card-header-custom hdr-orange"><i class="fa-solid fa-scale-balanced"></i> 3. Difference Between select_related vs prefetch_related</div>
+    <div class="card-body-custom">
+      <div class="table-responsive">
+        <table class="table table-bordered comparison-table">
+          <thead>
+            <tr>
+              <th>Aspect</th>
+              <th>select_related</th>
+              <th>prefetch_related</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Relationship type</td>
+              <td>ForeignKey, OneToOneField (forward)</td>
+              <td>Reverse ForeignKey, ManyToManyField</td>
+            </tr>
+            <tr>
+              <td>SQL mechanism</td>
+              <td>Single query with SQL JOIN</td>
+              <td>Multiple queries, joined in Python</td>
+            </tr>
+            <tr>
+              <td>Number of queries</td>
+              <td>1</td>
+              <td>2 or more (one per prefetched relation)</td>
+            </tr>
+            <tr>
+              <td>Best for</td>
+              <td>Single related object per row</td>
+              <td>Multiple related objects per row</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- ForeignKey -->
+  <section id="foreignkey">
+  <div class="card">
+    <div class="card-header-custom hdr-green"><i class="fa-solid fa-diagram-project"></i> 4. What is a ForeignKey?</div>
+    <div class="card-body-custom">
+      <p>A <strong>ForeignKey</strong> is a field type in Django models that creates a <strong>many-to-one relationship</strong> — linking one model to another. It stores the primary key of the related object, effectively representing a database foreign key constraint.</p>
+      <pre class="code-block">author=models.ForeignKey(Author,related_name='books',on_delete=models.CASCADE)</pre>
+      <ul>
+        <li><code class="inline">related_name='books'</code> — lets you access an author's books via <code class="inline">author.books.all()</code> (reverse relation)</li>
+        <li><code class="inline">on_delete=models.CASCADE</code> — deletes all related Book rows when the referenced Author is deleted</li>
+      </ul>
+    </div>
+  </div>
+  </section>
+
+  <!-- Relations -->
+  <section id="relations">
+  <div class="card">
+    <div class="card-header-custom hdr-purple"><i class="fa-solid fa-sitemap"></i> 5. Model Relationships</div>
+    <div class="card-body-custom">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <div class="rel-box">
+            <div class="rel-icon text-primary"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+            <h6>One-to-One Relation</h6>
+            <p class="mb-1 small">Each record in Model A relates to exactly one record in Model B, and vice versa.</p>
+            <code class="inline">models.OneToOneField(...)</code>
+            <p class="small text-muted mt-2 mb-0">e.g. User &harr; Profile</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="rel-box">
+            <div class="rel-icon text-success"><i class="fa-solid fa-diagram-project"></i></div>
+            <h6>One-to-Many Relation</h6>
+            <p class="mb-1 small">One record in Model A relates to many records in Model B (a ForeignKey).</p>
+            <code class="inline">models.ForeignKey(...)</code>
+            <p class="small text-muted mt-2 mb-0">e.g. Author &rarr; many Books (this project's example)</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="rel-box">
+            <div class="rel-icon text-danger"><i class="fa-solid fa-circle-nodes"></i></div>
+            <h6>Many-to-Many Relation</h6>
+            <p class="mb-1 small">Many records in Model A relate to many records in Model B, through a join table.</p>
+            <code class="inline">models.ManyToManyField(...)</code>
+            <p class="small text-muted mt-2 mb-0">e.g. Book &harr; many Genres, Genre &harr; many Books</p>
+          </div>
+        </div>
+      </div>
+      <div class="alert alert-secondary alert-custom mt-2">
+        <i class="fa-solid fa-note-sticky"></i>
+        In this project's models, <code class="inline">Book.author</code> is a <strong>ForeignKey (one-to-many)</strong>: one <code class="inline">Author</code> can have many <code class="inline">Book</code> records, but each <code class="inline">Book</code> has exactly one <code class="inline">Author</code>.
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Diagram -->
+  <section id="diagram">
+  <div class="card">
+    <div class="card-header-custom hdr-dark"><i class="fa-solid fa-diagram-project"></i> 6. Query Optimisation Diagram</div>
+    <div class="card-body-custom">
+      <div class="diagram-box">
+        <p class="text-center text-muted mb-4">Author &rarr; Book relationship (one-to-many via ForeignKey)</p>
+        <div class="d-flex justify-content-center align-items-center gap-4 mb-4">
+          <div class="er-node">Author</div>
+          <div class="flow-arrow"><i class="fa-solid fa-arrows-left-right"></i><br><small style="font-size:0.7rem;">1 &rarr; N</small></div>
+          <div class="er-node">Book</div>
+        </div>
+
+        <div class="row text-center">
+          <div class="col-md-6 mb-3">
+            <div class="flow-step w-100"><i class="fa-solid fa-book"></i><br>all_books()<br><small>No optimisation</small></div>
+            <p class="mt-2 mb-0 text-muted">1 query for books + <strong>1 query per book</strong> for author &rarr; N+1 problem</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="flow-step pass w-100"><i class="fa-solid fa-link"></i><br>select_book()<br><small>select_related('author')</small></div>
+            <p class="mt-2 mb-0 text-muted">Just <strong>1 JOINed query</strong> total</p>
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="flow-step pass d-inline-block"><i class="fa-solid fa-layer-group"></i> prefetch_authors() &mdash; prefetch_related('books') &rarr; 2 queries total (authors + books IN query)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- Code -->
+  <section id="code">
+  <div class="card">
+    <div class="card-header-custom hdr-teal"><i class="fa-solid fa-code"></i> 7. Full Code</div>
+    <div class="card-body-custom">
+
+      <div class="file-tag"><i class="fa-solid fa-file-code"></i> innerproject/urls.py</div>
+      <pre class="code-block">from django.contrib import admin
+from django.urls import path,include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/',include('blog.urls'))
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/urls.py</div>
+      <pre class="code-block">from . import views
+from django.urls import path
+
+urlpatterns=[
+    path('books/',views.all_books,name='all_books'),
+    path('books/select/',views.select_book,name="select_book"),
+    path('authors/prefetch/',views.prefetch_authors,name="prefetch_authors")
+]</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/models.py</div>
+      <pre class="code-block">from django.db import models
+
+# Create your models here.
+class Author(models.Model):
+    name=models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class Book(models.Model):
+    title=models.CharField(max_length=100)
+    author=models.ForeignKey(Author,related_name='books',on_delete=models.CASCADE)
+
+    def  __str__(self):
+        return self.title</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/serializers.py</div>
+      <pre class="code-block">from rest_framework import serializers
+from .models import Book,Author
+
+class BookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Book
+        fields=['id','title','author']
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+    books=BookSerializer(many=True,read_only=True)
+    class Meta:
+        model=Author
+        fields=['id','name','books']</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/admin.py</div>
+      <pre class="code-block">from django.contrib import admin
+from .models import Author,Book
+
+# Register your models here.
+admin.site.register(Author)
+admin.site.register(Book)</pre>
+
+      <div class="file-tag mt-4"><i class="fa-solid fa-file-code"></i> blog/views.py</div>
+      <pre class="code-block">from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .models import Author, Book
+from .serializers import AuthorSerializer, BookSerializer
+
+
+# view to get all books without optimisation
+@api_view(['GET'])
+def all_books(request):
+    books = Book.objects.all()
+    serializer = BookSerializer(books, many=True)
+    return Response(serializer.data)
+
+
+# using select_related to optimise ForeignKey relationships
+@api_view(['GET'])
+def select_book(request):
+    books = Book.objects.select_related('author').all()
+    serializer = BookSerializer(books, many=True)
+    return Response(serializer.data)
+
+
+# using prefetch_related to optimise reverse ForeignKey relationships
+@api_view(['GET'])
+def prefetch_authors(request):
+    authors = Author.objects.prefetch_related('books').all()
+    serializer = AuthorSerializer(authors, many=True)
+    return Response(serializer.data)</pre>
+
+    </div>
+  </div>
+  </section>
+
+  <!-- Interview Tips -->
+  <section id="interview">
+  <div class="card">
+    <div class="card-header-custom hdr-purple"><i class="fa-solid fa-comments"></i> 8. Interview Tips</div>
+    <div class="card-body-custom">
+
+      <div class="interview-tip">
+        <span class="tip-num">1</span><strong>Explain the N+1 query problem clearly.</strong>
+        <p class="mb-0 mt-2">Fetching a list and then accessing a related field per item without optimisation triggers one query per item — interviewers love asking you to spot and fix this.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">2</span><strong>Remember the simple rule: JOIN vs separate query.</strong>
+        <p class="mb-0 mt-2"><code class="inline">select_related</code> = SQL JOIN, single query, forward FK/O2O relations. <code class="inline">prefetch_related</code> = extra query, Python-side join, reverse FK/M2M relations.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">3</span><strong>Common trick question:</strong>
+        <p class="mb-0 mt-2">"Can you use select_related on a Many-to-Many field?" — Answer: <strong>No</strong>, because a JOIN would duplicate rows for multi-valued relations; use <code class="inline">prefetch_related</code> instead.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">4</span><strong>Know on_delete options.</strong>
+        <p class="mb-0 mt-2">Be ready to explain <code class="inline">CASCADE</code>, <code class="inline">PROTECT</code>, <code class="inline">SET_NULL</code>, and <code class="inline">SET_DEFAULT</code> as behaviors when a referenced ForeignKey object is deleted.</p>
+      </div>
+
+      <div class="interview-tip">
+        <span class="tip-num">5</span><strong>Be ready to describe related_name.</strong>
+        <p class="mb-0 mt-2"><code class="inline">related_name='books'</code> lets you query in reverse — <code class="inline">author.books.all()</code> — instead of the default <code class="inline">author.book_set.all()</code>.</p>
+      </div>
+
+    </div>
+  </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <hr>
+    <i class="fa-solid fa-code-branch"></i> Class 66 — Django REST Framework Notes | ORM Optimisation
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
